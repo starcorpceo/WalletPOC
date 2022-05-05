@@ -8,6 +8,8 @@
  * @format
  */
 
+import {NavigationContainer} from '@react-navigation/native';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import React from 'react';
 import {
   SafeAreaView,
@@ -17,6 +19,7 @@ import {
   View,
 } from 'react-native';
 import GettingStarted from './views/getting-started';
+import CreateWallet from './views/getting-started/create-wallet';
 
 const App = () => {
   const isDarkMode = useColorScheme() === 'dark';
@@ -25,14 +28,21 @@ const App = () => {
     backgroundColor: isDarkMode ? '#000' : '#fff',
   };
 
-  return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
+  const Stack = createNativeStackNavigator();
 
-      <View style={styles.view}>
-        <GettingStarted />
-      </View>
-    </SafeAreaView>
+  return (
+    <NavigationContainer>
+      <SafeAreaView style={backgroundStyle}>
+        <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
+
+        <View style={styles.view}>
+          <Stack.Navigator initialRouteName="GettingStarted">
+            <Stack.Screen name="GettingStarted" component={GettingStarted} />
+            <Stack.Screen name="CreateWallet" component={CreateWallet} />
+          </Stack.Navigator>
+        </View>
+      </SafeAreaView>
+    </NavigationContainer>
   );
 };
 

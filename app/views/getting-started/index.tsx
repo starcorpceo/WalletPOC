@@ -1,7 +1,17 @@
+import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import React from 'react';
-import {StyleProp, Text, TextStyle, useColorScheme, View} from 'react-native';
+import {
+  Button,
+  StyleProp,
+  Text,
+  TextStyle,
+  useColorScheme,
+  View,
+} from 'react-native';
 
-const GettingStarted = () => {
+type Props = NativeStackScreenProps<NavigationRoutes, 'GettingStarted'>;
+
+const GettingStarted = ({navigation}: Props) => {
   const isDarkMode = useColorScheme() === 'dark';
 
   const textStyle: StyleProp<TextStyle> = {
@@ -13,6 +23,10 @@ const GettingStarted = () => {
   return (
     <View>
       <Text style={textStyle}>Welcome to Secure Wallet</Text>
+      <Button
+        onPress={() => navigation.navigate('CreateWallet')}
+        title="Create Wallet"
+      />
     </View>
   );
 };
