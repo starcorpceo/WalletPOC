@@ -1,8 +1,18 @@
+import config from "@lib/config";
+import { PrismaClient } from "@prisma/client";
 import fastify from "fastify";
 import logger from "./lib/logger";
-import { registerRoutes } from "./routes/test";
+import { registerRoutes } from "./routes";
 
 const server = fastify();
+
+export const client1: PrismaClient = new PrismaClient({
+  datasources: { db: { url: config.databaseUrl } },
+});
+
+export const client2 = new PrismaClient({
+  datasources: { db: { url: config.backupDatabaseUrl } },
+});
 
 registerRoutes(server);
 
