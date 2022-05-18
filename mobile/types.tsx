@@ -14,6 +14,7 @@ declare global {
 }
 
 export type NavigationRoutes = {
+  Authentication: undefined;
   Welcome: undefined;
  // Root: NavigatorScreenParams<RootTabParamList> | undefined;
   //Modal: undefined;

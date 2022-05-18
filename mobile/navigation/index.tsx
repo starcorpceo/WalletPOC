@@ -12,6 +12,7 @@ import { ColorSchemeName, Pressable } from 'react-native';
 
 import Colors from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
+import AuthenticationScreen from '@Screens/authentication/AuthenticationScreen';
 import WelcomeScreen from '@Screens/onboarding/welcome/WelcomeScreen';
 import ModalScreen from '../screens/tab-example/ModalScreen';
 import NotFoundScreen from '../screens/tab-example/NotFoundScreen';
@@ -47,7 +48,8 @@ const Stack = createNativeStackNavigator<NavigationRoutes>();
 
 function RootNavigator() {
   return (
-    <Stack.Navigator initialRouteName="Welcome">
+    <Stack.Navigator initialRouteName="Authentication">
+      <Stack.Screen name="Authentication" component={AuthenticationScreen} />
       <Stack.Screen name="Welcome" component={WelcomeScreen} />
     </Stack.Navigator>
   );
