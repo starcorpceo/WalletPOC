@@ -1,18 +1,33 @@
 import * as React from 'react';
-
-import { StyleSheet, View, Text } from 'react-native';
-import { multiply } from 'react-native-secure-encryption-module';
+import { StyleSheet, Text, View } from 'react-native';
+import {
+  encrypt,
+  generateKeyPair,
+} from 'react-native-secure-encryption-module';
 
 export default function App() {
-  const [result, setResult] = React.useState<number | undefined>();
+  const originalValue = 'Encrypt this';
+
+  const [result, setResult] = React.useState();
+  const [encrypted, setEncrypted] = React.useState();
 
   React.useEffect(() => {
-    multiply(3, 7).then(setResult);
+    generateKeyPair('NewKey').then(onGenerateFinish);
   }, []);
+
+  const onGenerateFinish = (res: any) => {
+    setResult(res);
+
+    encrypt(originalValue, 'NewKey').then((result) => {});
+  };
 
   return (
     <View style={styles.container}>
-      <Text>Result: {result}</Text>
+      <Text>Original Value: {originalValue}</Text>
+      <Text>CreateKeyPairResult: {result}</Text>
+      <Text></Text>
+      <Text></Text>
+      <Text></Text>
     </View>
   );
 }
