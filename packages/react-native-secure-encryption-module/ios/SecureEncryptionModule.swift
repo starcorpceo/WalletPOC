@@ -1,27 +1,58 @@
 import Security
 import Foundation
 
-@available(iOS 10.0, *)
 @objc(SecureEncryptionModule)
 class SecureEncryptionModule: NSObject {
     
-    static func loadKey(name: String) -> SecKey? {
-        let tag = name.data(using: .utf8)!
-        let query: [String: Any] = [
-            kSecClass as String                 : kSecClassKey,
-            kSecAttrApplicationTag as String    : tag,
-            kSecAttrKeyType as String           : kSecAttrKeyTypeEC,
-            kSecReturnRef as String             : true
-        ]
+    @objc(decrypt:keyName:resolver:rejecter:)
+    func decrypt(_ encryptedText: NSString,keyName key: NSString, resolver resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
+        print("decrypting message")
         
-        var item: CFTypeRef?
-        let status = SecItemCopyMatching(query as CFDictionary, &item)
-        guard status == errSecSuccess else {
-            print("Error: No key found")
-            return nil
+        let secKey = SecureEncryptionModule.loadKey(name: (key as String))!
+        
+        resolve(Encryption.decrypt(encryptedText: encryptedText as String, privateKey: secKey))
+    }
+    
+    @objc(encrypt:keyName:resolver:rejecter:)
+    func encrypt(_ clearText: NSString,keyName key: NSString, resolver resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
+        print("Encrypting Message")
+        
+        let secKey = SecureEncryptionModule.loadKey(name:key as String)!
+        
+        guard let publicKey = SecKeyCopyPublicKey(secKey) else {
+            resolve("Cant get Public Key")
+            return
         }
         
-        return (item as! SecKey)
+        resolve(Encryption.encrypt(clearText: clearText as String, publicKey: publicKey))
+    }
+    
+    @objc(signMessage:keyName:resolver:rejecter:)
+    func signMessage(_ message: NSString, keyName key: NSString, resolver resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
+        print("Signing Message")
+        
+        let secKey = SecureEncryptionModule.loadKey(name:key as String)!
+        
+        resolve(Signature.sign(message: message as String, privateKey: secKey))
+    }
+    
+    @objc(verifySignature:signedString:keyName:resolver:rejecter:)
+    func verifySignature(_ signature: NSString, signedString message: NSString, keyName key: NSString, resolver resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
+        print("Signing Message")
+        
+        let secKey = SecureEncryptionModule.loadKey(name:key as String)
+        
+        guard secKey != nil else {
+            resolve("No such key exists")
+            return
+        }
+        
+        guard let publicKey = SecKeyCopyPublicKey(secKey!) else {
+            resolve("Cant get Public Key")
+            return
+        }
+        
+        resolve(Signature.verify(signature: signature as String, signedString: message as String, publicKey: publicKey))
     }
     
     @objc(generateKeyPair:resolver:rejecter:)
@@ -68,63 +99,36 @@ class SecureEncryptionModule: NSObject {
             return
         }
         
+        guard let cfdata = SecKeyCopyExternalRepresentation(publicKey, &error) else {
+            resolve("Could not export key")
+            print(error!)
+            return
+        }
+                
+       let data:Data = cfdata as Data
+       let b64Key = data.base64EncodedString()
+        
         print("Successfully created keypiar")
-        resolve("Success")
+        resolve(b64Key)
     }
     
-    
-    @objc(decrypt:publicKeyName:resolver:rejecter:)
-    func decrypt(_ encryptedText: NSString,publicKeyName key: NSString, resolver resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
-        print("decrypting message")
+    static func loadKey(name: String) -> SecKey? {
+        let tag = name.data(using: .utf8)!
         
-        let secKey = SecureEncryptionModule.loadKey(name: (key as String))!
+        let query: [String: Any] = [
+            kSecClass as String                 : kSecClassKey,
+            kSecAttrApplicationTag as String    : tag,
+            kSecAttrKeyType as String           : kSecAttrKeyTypeEC,
+            kSecReturnRef as String             : true
+        ]
         
-        let algorithm: SecKeyAlgorithm = .eciesEncryptionCofactorVariableIVX963SHA256AESGCM
-        guard SecKeyIsAlgorithmSupported(secKey, .decrypt, algorithm) else {
-            resolve("error decrypting")
-            return
-        }
-        var error: Unmanaged<CFError>?
-        let encryptedStringVar = encryptedText as String;
-        let clearTextData = SecKeyCreateDecryptedData(secKey,
-                                                      algorithm,
-                                                      encryptedStringVar.data(using: .utf8)! as CFData
-                                                      ,
-                                                      &error) as Data?
-       
-        
-        let result = String(decoding: clearTextData!, as: UTF8.self)
-        
-        resolve(result)
-    }
-    
-    @objc(encrypt:publicKeyName:resolver:rejecter:)
-    func encrypt(_ clearText: NSString,publicKeyName key: NSString, resolver resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
-        print("Encrypting Message")
-        
-        guard let publicKey = SecKeyCopyPublicKey(SecureEncryptionModule.loadKey(name:key as String)!) else {
-            resolve("Cant get Public Key")
-            return
+        var item: CFTypeRef?
+        let status = SecItemCopyMatching(query as CFDictionary, &item)
+        guard status == errSecSuccess else {
+            print("Error: No key found")
+            return nil
         }
         
-        let algorithm: SecKeyAlgorithm = .eciesEncryptionCofactorVariableIVX963SHA256AESGCM
-        
-        guard SecKeyIsAlgorithmSupported(publicKey, .encrypt, algorithm) else {
-            resolve("Algorithm not suppoerted")
-            return
-        }
-        var encryptionError: Unmanaged<CFError>?
-        var error: Unmanaged<CFError>?
-        
-        let clearTextData = (clearText as String).data(using: .utf8)!
-        let cipherTextData = SecKeyCreateEncryptedData(publicKey, algorithm,
-                                                       clearTextData as CFData,
-                                                       &error) as Data?
-        guard cipherTextData != nil else {
-            resolve("cannot encrypt")
-            return
-        }
-
-        resolve(cipherTextData!.base64EncodedString())
+        return (item as! SecKey)
     }
 }

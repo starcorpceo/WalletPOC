@@ -32,5 +32,17 @@ export function decrypt(
   encryptedText: String,
   publicKeyName: String
 ): Promise<any> {
-  return SecureEncryptionModule.encrypt(encryptedText, publicKeyName);
+  return SecureEncryptionModule.decrypt(encryptedText, publicKeyName);
+}
+
+export function sign(message: String, keyName: String): Promise<any> {
+  return SecureEncryptionModule.signMessage(message, keyName);
+}
+
+export function verify(
+  signature: String,
+  message: String,
+  keyName: String
+): Promise<any> {
+  return SecureEncryptionModule.verifySignature(signature, message, keyName);
 }

@@ -8,12 +8,23 @@ RCT_EXTERN_METHOD(generateKeyPair:(NSString)alias
                   rejecter:(RCTPromiseRejectBlock)reject)
 
 RCT_EXTERN_METHOD(encrypt:(NSString)clearText
-                  publicKeyName:(NSString)key
+                  keyName:(NSString)key
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 
 RCT_EXTERN_METHOD(decrypt:(NSString)encryptedText
-                  publicKeyName: (NSString)key
+                  keyName:(NSString)key
+                  resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
+
+RCT_EXTERN_METHOD(signMessage:(NSString)message
+                  keyName:(NSString)key
+                  resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
+
+RCT_EXTERN_METHOD(verifySignature:(NSString)signature
+                  signedString:(NSString)message
+                  keyName:(NSString)key
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 

@@ -12,15 +12,20 @@ import {
   decrypt,
   encrypt,
   generateKeyPair,
+  sign,
+  verify,
 } from 'react-native-secure-encryption-module';
 
 const App = () => {
   const [result, setResult] = React.useState();
 
   const originalValue = 'Encrypt this';
+  const messageToSign = 'Sign Me Please';
 
   const [encrypted, setEncrypted] = React.useState();
   const [decrypted, setDecrypted] = React.useState();
+  const [signature, setSignature] = React.useState();
+  const [ok, setOk] = React.useState();
 
   React.useEffect(() => {
     const doit = async () => {
@@ -28,7 +33,7 @@ const App = () => {
       const x = await generateKeyPair('NewKey');
 
       console.log('Keypiar', x);
-      setResult('Ass' + JSON.stringify(x));
+      setResult(JSON.stringify(x));
 
       const encryptedVal = await encrypt(originalValue, 'NewKey');
       console.log('Encrypted', encryptedVal);
@@ -37,6 +42,14 @@ const App = () => {
       const decryptedVal = await decrypt(encryptedVal, 'NewKey');
       console.log('Decrypted', decryptedVal);
       setDecrypted(decryptedVal);
+
+      const sig = await sign(messageToSign, 'NewKey');
+      setSignature(sig);
+
+      const wrongkey = await generateKeyPair('wrong');
+
+      const signatureOk = await verify(sig, messageToSign, 'NewKey');
+      setOk(signatureOk);
     };
     doit();
   }, []);
@@ -50,6 +63,9 @@ const App = () => {
           <Text>Generation Result: {`${result}`}</Text>
           <Text>Encrypted Value: {`${encrypted}`}</Text>
           <Text>Decrypted Value: {`${decrypted}`}</Text>
+          <Text>Message To Sign: {messageToSign}</Text>
+          <Text>Signed Value: {`${signature}`}</Text>
+          <Text>Signature ok : {`${ok}`}</Text>
         </View>
       </ScrollView>
     </SafeAreaView>
