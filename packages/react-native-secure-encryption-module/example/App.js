@@ -12,6 +12,7 @@ import {
   decrypt,
   encrypt,
   generateKeyPair,
+  isKeySecuredOnHardware,
   sign,
   verify,
 } from 'react-native-secure-encryption-module';
@@ -25,6 +26,7 @@ const App = () => {
   const [encrypted, setEncrypted] = React.useState();
   const [decrypted, setDecrypted] = React.useState();
   const [signature, setSignature] = React.useState();
+  const [secure, setSecure] = React.useState();
   const [ok, setOk] = React.useState();
 
   React.useEffect(() => {
@@ -46,10 +48,11 @@ const App = () => {
       const sig = await sign(messageToSign, 'NewKey');
       setSignature(sig);
 
-      const wrongkey = await generateKeyPair('wrong');
-
       const signatureOk = await verify(sig, messageToSign, 'NewKey');
       setOk(signatureOk);
+
+      const isSecure = await isKeySecuredOnHardware('NewKey');
+      setSecure(isSecure);
     };
     doit();
   }, []);
@@ -66,6 +69,7 @@ const App = () => {
           <Text>Message To Sign: {messageToSign}</Text>
           <Text>Signed Value: {`${signature}`}</Text>
           <Text>Signature ok : {`${ok}`}</Text>
+          <Text>Is key secured on hardware Level: {`${secure}`}</Text>
         </View>
       </ScrollView>
     </SafeAreaView>

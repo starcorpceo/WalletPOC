@@ -21,18 +21,12 @@ export function generateKeyPair(alias: String): Promise<any> {
   return SecureEncryptionModule.generateKeyPair(alias);
 }
 
-export function encrypt(
-  clearText: String,
-  publicKeyName: String
-): Promise<any> {
-  return SecureEncryptionModule.encrypt(clearText, publicKeyName);
+export function encrypt(clearText: String, keyName: String): Promise<any> {
+  return SecureEncryptionModule.encrypt(clearText, keyName);
 }
 
-export function decrypt(
-  encryptedText: String,
-  publicKeyName: String
-): Promise<any> {
-  return SecureEncryptionModule.decrypt(encryptedText, publicKeyName);
+export function decrypt(encryptedText: String, keyName: String): Promise<any> {
+  return SecureEncryptionModule.decrypt(encryptedText, keyName);
 }
 
 export function sign(message: String, keyName: String): Promise<any> {
@@ -43,6 +37,10 @@ export function verify(
   signature: String,
   message: String,
   keyName: String
-): Promise<any> {
+): Promise<boolean> {
   return SecureEncryptionModule.verifySignature(signature, message, keyName);
+}
+
+export function isKeySecuredOnHardware(keyName: String): Promise<boolean> {
+  return SecureEncryptionModule.isKeySecuredOnHardware(keyName);
 }

@@ -55,6 +55,21 @@ class SecureEncryptionModule: NSObject {
         resolve(Signature.verify(signature: signature as String, signedString: message as String, publicKey: publicKey))
     }
     
+    @objc(isKeySecuredOnHardware:resolver:rejecter:)
+    func isKeySecuredOnHardware(_ keyName: NSString, resolver resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
+        
+        let secKey = SecureEncryptionModule.loadKey(name:keyName as String)
+        
+        guard secKey != nil else {
+            resolve("No such key exists")
+            return
+        }
+        
+        // Resolving to true here, iOs does not provide a simple api for checking hardware security. But as long as the device is not jailbreaked
+        // We are safe to assume that the key is only available for the Secure Enclave because we passed the corresponindg parameters in "generateKeyPair"
+        resolve(true)
+    }
+    
     @objc(generateKeyPair:resolver:rejecter:)
     func generateKeyPair(_ alias: NSString, resolver resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
         print("Generating Key Pair")
@@ -128,7 +143,7 @@ class SecureEncryptionModule: NSObject {
             print("Error: No key found")
             return nil
         }
-        
+                
         return (item as! SecKey)
     }
 }

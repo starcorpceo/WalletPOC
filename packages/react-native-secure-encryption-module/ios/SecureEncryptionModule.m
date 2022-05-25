@@ -29,4 +29,9 @@ RCT_EXTERN_METHOD(verifySignature:(NSString)signature
                   rejecter:(RCTPromiseRejectBlock)reject)
 
 
+RCT_EXTERN_METHOD(isKeySecuredOnHardware:(NSString)keyName
+                  resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
+
+
 @end
