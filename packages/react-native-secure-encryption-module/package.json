@@ -36,7 +36,7 @@
     "ios",
     "android"
   ],
-  "repository": "https://github.com/lauhon/WalletPOC",
+  "repository": "https://github.com/lauhon/WalletPOC/tree/master/packages/react-native-secure-encryption-module",
   "author": "Laurenz Honauer <laurenz.honauer@gmail.com> (https://github.com/lauhon)",
   "license": "MIT",
   "bugs": {
