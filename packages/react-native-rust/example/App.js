@@ -8,14 +8,14 @@
 
 import React from 'react';
 import {SafeAreaView, ScrollView, StatusBar, Text, View} from 'react-native';
-import {multiply} from 'react-native-rust';
+import {helloWorld} from 'react-native-rust';
 const App = () => {
   const [result, setResult] = React.useState();
 
   React.useEffect(() => {
     const doit = async () => {
       console.log('Generating Keypiar');
-      setResult(await multiply(2, 3));
+      setResult(await helloWorld());
     };
     doit();
   }, []);

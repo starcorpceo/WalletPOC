@@ -17,6 +17,6 @@ const Rust = NativeModules.Rust
       }
     );
 
-export function multiply(a: number, b: number): Promise<number> {
-  return Rust.multiply(a, b);
+export function helloWorld(): Promise<String> {
+  return Rust.helloWorld();
 }

@@ -73,5 +73,3 @@ macro_rules! export {
     }
 }
 
-#[cfg(test)]
-mod tests {}
