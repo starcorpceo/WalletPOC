@@ -18,7 +18,7 @@ mod export;
 
 export! {
 
-	@Java_io_parity_signer_EthkeyBridge_helloWorld
+	@Java_com_reactnativerust_RustBridge_helloWorld
 	fn hello_world() -> String {
 		"Hello from Rust".to_string()
 	}
