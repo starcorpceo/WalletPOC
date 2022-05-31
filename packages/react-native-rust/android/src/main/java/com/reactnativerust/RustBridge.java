@@ -6,4 +6,5 @@ public class RustBridge {
     }
 
     public static native String helloWorld();
+    public static native String testWorld();
 }

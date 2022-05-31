@@ -29,4 +29,9 @@ public class RustModule extends ReactContextBaseJavaModule {
     public void helloWorld(Promise promise) {
         promise.resolve(RustBridge.helloWorld());
     }
+
+    @ReactMethod
+    public void testWorld(Promise promise) {
+        promise.resolve(RustBridge.testWorld());
+    }
 }
