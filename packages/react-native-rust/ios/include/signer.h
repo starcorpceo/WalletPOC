@@ -29,3 +29,5 @@ void signer_destroy_string(const char* cstring);
 
 // ethkey ffi
 const char* hello_world(struct ExternError *);
+
+const char* test_world(struct ExternError *);

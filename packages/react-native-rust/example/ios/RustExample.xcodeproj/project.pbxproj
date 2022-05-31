@@ -12,9 +12,9 @@
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
+		432CE330284603E900CDEB88 /* libsigner.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CFA063C12844B27E00013C3C /* libsigner.a */; };
 		7699B88040F8A987B510C191 /* libPods-RustExample-RustExampleTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 19F6CBCC0A4E27FBF8BF4A61 /* libPods-RustExample-RustExampleTests.a */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
-		CFA063C22844B28A00013C3C /* libsigner.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CFA063C12844B27E00013C3C /* libsigner.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -64,7 +64,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0C80B921A6F3F58F76C31292 /* libPods-RustExample.a in Frameworks */,
-				CFA063C22844B28A00013C3C /* libsigner.a in Frameworks */,
+				432CE330284603E900CDEB88 /* libsigner.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -492,7 +492,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = BXB7RBS9FX;
+				DEVELOPMENT_TEAM = 33NTHR48GT;
 				ENABLE_BITCODE = NO;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
@@ -533,7 +533,7 @@
 					"\"$(PODS_ROOT)/boost\"",
 					"\"$(PODS_ROOT)/Headers/Private/React-Core\"",
 					"\"$(PODS_TARGET_SRCROOT)/include/\"",
-					"/Users/laurenz/Workspace/WalletPOC/packages/react-native-rust/ios/include",
+					"/Users/mathiasnahringbauer/Documents/Next/WalletPOC/packages/react-native-rust/ios/include",
 				);
 				INFOPLIST_FILE = RustExample/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -580,14 +580,14 @@
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/libevent\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/react-native-rust\"",
 					/usr/lib/swift,
-					"/Users/laurenz/Workspace/WalletPOC/packages/react-native-rust/ios/libs",
+					"/Users/mathiasnahringbauer/Documents/Next/WalletPOC/packages/react-native-rust/ios/libs",
 				);
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_BUNDLE_IDENTIFIER = org.reactjs.native.example.RustExample1;
 				PRODUCT_NAME = RustExample;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -602,7 +602,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = BXB7RBS9FX;
+				DEVELOPMENT_TEAM = 33NTHR48GT;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"${PODS_ROOT}/Headers/Public\"",
@@ -642,7 +642,7 @@
 					"\"$(PODS_ROOT)/boost\"",
 					"\"$(PODS_ROOT)/Headers/Private/React-Core\"",
 					"\"$(PODS_TARGET_SRCROOT)/include/\"",
-					"/Users/laurenz/Workspace/WalletPOC/packages/react-native-rust/ios/include",
+					"/Users/mathiasnahringbauer/Documents/Next/WalletPOC/packages/react-native-rust/ios/include",
 				);
 				INFOPLIST_FILE = RustExample/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -682,14 +682,14 @@
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/libevent\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/react-native-rust\"",
 					/usr/lib/swift,
-					"/Users/laurenz/Workspace/WalletPOC/packages/react-native-rust/ios/libs",
+					"/Users/mathiasnahringbauer/Documents/Next/WalletPOC/packages/react-native-rust/ios/libs",
 				);
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_BUNDLE_IDENTIFIER = org.reactjs.native.example.RustExample1;
 				PRODUCT_NAME = RustExample;
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";

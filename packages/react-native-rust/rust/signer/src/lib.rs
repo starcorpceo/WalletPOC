@@ -20,7 +20,12 @@ export! {
 
 	@Java_com_reactnativerust_RustBridge_helloWorld
 	fn hello_world() -> String {
-		"Hello from Rust".to_string()
+		"Hello from Rust123".to_string()
+	}
+
+	@Java_com_reactnativerust_RustBridge_testWorld
+	fn test_world() -> String {
+		String::from("World testitest")
 	}
 
 }

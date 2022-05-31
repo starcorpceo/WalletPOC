@@ -20,3 +20,7 @@ const Rust = NativeModules.Rust
 export function helloWorld(): Promise<String> {
   return Rust.helloWorld();
 }
+
+export function testWorld(): Promise<String> {
+  return Rust.testWorld();
+}

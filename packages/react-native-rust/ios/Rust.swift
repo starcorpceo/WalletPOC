@@ -22,11 +22,24 @@ func handle_error<T, U>(
 class Rust: NSObject {
 
     @objc(helloWorld:withRejecter:)
-    func multiply(_ resolve:RCTPromiseResolveBlock,reject:RCTPromiseRejectBlock) -> Void {
+    func helloWorld(_ resolve:RCTPromiseResolveBlock,reject:RCTPromiseRejectBlock) -> Void {
         handle_error(
               resolve: resolve,
               reject: reject,
               get_result: { hello_world($0) },
+              success: { (res: Optional<UnsafePointer<CChar>>) -> String in
+                let val = String(cString: res!)
+                signer_destroy_string(res!)
+                return val
+            })
+    }
+
+    @objc(testWorld:withRejecter:)
+    func testWorld(_ resolve:RCTPromiseResolveBlock,reject:RCTPromiseRejectBlock) -> Void {
+        handle_error(
+              resolve: resolve,
+              reject: reject,
+              get_result: { test_world($0) },
               success: { (res: Optional<UnsafePointer<CChar>>) -> String in
                 let val = String(cString: res!)
                 signer_destroy_string(res!)

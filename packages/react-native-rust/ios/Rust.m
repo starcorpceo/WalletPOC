@@ -5,4 +5,7 @@
 RCT_EXTERN_METHOD(helloWorld:(RCTPromiseResolveBlock)resolve
                  withRejecter:(RCTPromiseRejectBlock)reject)
 
+RCT_EXTERN_METHOD(testWorld:(RCTPromiseResolveBlock)resolve
+                withRejecter:(RCTPromiseRejectBlock)reject)
+
 @end
