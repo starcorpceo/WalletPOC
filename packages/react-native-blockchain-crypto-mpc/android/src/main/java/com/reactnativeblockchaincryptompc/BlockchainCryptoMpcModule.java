@@ -1,7 +1,6 @@
 package com.reactnativeblockchaincryptompc;
 
 import androidx.annotation.NonNull;
-
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
@@ -10,25 +9,23 @@ import com.facebook.react.module.annotations.ReactModule;
 
 @ReactModule(name = BlockchainCryptoMpcModule.NAME)
 public class BlockchainCryptoMpcModule extends ReactContextBaseJavaModule {
-    public static final String NAME = "BlockchainCryptoMpc";
 
-    public BlockchainCryptoMpcModule(ReactApplicationContext reactContext) {
-        super(reactContext);
-    }
+  public static final String NAME = "BlockchainCryptoMpc";
 
-    @Override
-    @NonNull
-    public String getName() {
-        return NAME;
-    }
+  public BlockchainCryptoMpcModule(ReactApplicationContext reactContext) {
+    super(reactContext);
+  }
 
+  @Override
+  @NonNull
+  public String getName() {
+    return NAME;
+  }
 
-    // Example method
-    // See https://reactnative.dev/docs/native-modules-android
-    @ReactMethod
-    public void multiply(int a, int b, Promise promise) {
-        promise.resolve(a * b);
-    }
-
-    public static native int nativeMultiply(int a, int b);
+  // Example method
+  // See https://reactnative.dev/docs/native-modules-android
+  @ReactMethod
+  public void multiply(int a, int b, Promise promise) {
+    promise.resolve(String.valueOf(CPPBridge.multiply(a, b)));
+  }
 }
