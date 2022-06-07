@@ -1,6 +1,5 @@
 import * as React from 'react';
-
-import { StyleSheet, View, Text } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { multiply } from 'react-native-blockchain-crypto-mpc';
 
 export default function App() {
@@ -12,7 +11,7 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      <Text>Result: {result}</Text>
+      <Text>Result: {JSON.stringify(result)}</Text>
     </View>
   );
 }

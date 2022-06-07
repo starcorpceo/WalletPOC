@@ -1,5 +1,7 @@
 #import "BlockchainCryptoMpc.h"
 
+#pragma mark - BlockchainCryptoMpc
+
 @implementation BlockchainCryptoMpc
 
 RCT_EXPORT_MODULE()
@@ -11,9 +13,9 @@ RCT_REMAP_METHOD(multiply,
                  withResolver:(RCTPromiseResolveBlock)resolve
                  withRejecter:(RCTPromiseRejectBlock)reject)
 {
-  NSNumber *result = @([a floatValue] * [b floatValue]);
+  long result = example::multiply([a longValue], [b longValue]);
 
-  resolve(result);
+    resolve(@(result));
 }
 
 @end
