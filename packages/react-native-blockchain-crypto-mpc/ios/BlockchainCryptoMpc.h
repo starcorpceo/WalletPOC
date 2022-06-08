@@ -5,7 +5,7 @@
 
 #ifdef __cplusplus
 
-#import "example.h"
+#import "nativempc.h"
 
 #endif
 
@@ -14,6 +14,5 @@
 @interface BlockchainCryptoMpc : NSObject <RCTBridgeModule>
 
 @end
-
 
 #endif

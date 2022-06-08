@@ -5,9 +5,9 @@ set (CMAKE_CXX_STANDARD 11)
 set(LIB_DIR ../cpp/src/src/)
 
 
-add_library(cpp
+add_library(nativempc
             SHARED
-            ../cpp/src/src/example.cpp
+            ../cpp/src/src/nativempc.cpp
             cpp-adapter.cpp
 )
 

@@ -3,7 +3,7 @@ package com.reactnativeblockchaincryptompc;
 public class CPPBridge {
   static {
     try {
-      System.loadLibrary("cpp");
+      System.loadLibrary("nativempc");
       //   Log.d(TAG, "-------- libcpp-code: loaded");
     } catch (Exception e) {
       //   Log.d(TAG, "-------- libcpp-code: loaded", e);

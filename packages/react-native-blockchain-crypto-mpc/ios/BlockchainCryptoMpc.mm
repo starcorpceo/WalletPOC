@@ -13,7 +13,7 @@ RCT_REMAP_METHOD(multiply,
                  withResolver:(RCTPromiseResolveBlock)resolve
                  withRejecter:(RCTPromiseRejectBlock)reject)
 {
-  long result = example::multiply([a longValue], [b longValue]);
+  long result = nativeMpc::multiply([a longValue], [b longValue]);
 
     resolve(@(result));
 }
