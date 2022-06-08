@@ -10,5 +10,5 @@ public class CPPBridge {
     }
   }
 
-  public static native long multiply(long a, long b);
+  public static native long multipaly(long a, long b);
 }
