@@ -80,7 +80,7 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved)
 
   jclass c;
 
-  c = env->FindClass("com/unboundTech/mpc/Native$IntRef");
+  c = env->FindClass("com/reactnativeblockchaincryptompc/cryptompc/Native$IntRef");
   if (!c)
     return -1;
   jclass_IntRef = (jclass)env->NewGlobalRef(c);
@@ -90,7 +90,7 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved)
   if (!jfield_IntRef_value)
     return -1;
 
-  c = env->FindClass("com/unboundTech/mpc/Message");
+  c = env->FindClass("com/reactnativeblockchaincryptompc/cryptompc/Message");
   if (!c)
     return -1;
   jclass_Message = (jclass)env->NewGlobalRef(c);
@@ -100,7 +100,7 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved)
   if (!jfield_Message_handle)
     return -1;
 
-  c = env->FindClass("com/unboundTech/mpc/Context");
+  c = env->FindClass("com/reactnativeblockchaincryptompc/cryptompc/Context");
   if (!c)
     return -1;
   jclass_Context = (jclass)env->NewGlobalRef(c);
@@ -110,7 +110,7 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved)
   if (!jfield_Context_handle)
     return -1;
 
-  c = env->FindClass("com/unboundTech/mpc/Share");
+  c = env->FindClass("com/reactnativeblockchaincryptompc/cryptompc/Share");
   if (!c)
     return -1;
   jclass_Share = (jclass)env->NewGlobalRef(c);
@@ -120,7 +120,7 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved)
   if (!jfield_Share_handle)
     return -1;
 
-  c = env->FindClass("com/unboundTech/mpc/Message$Info");
+  c = env->FindClass("com/reactnativeblockchaincryptompc/cryptompc/Message$Info");
   if (!c)
     return -1;
   jclass_Message_Info = (jclass)env->NewGlobalRef(c);
@@ -139,7 +139,7 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved)
   if (!jfield_Message_Info_dstPeer)
     return -1;
 
-  c = env->FindClass("com/unboundTech/mpc/Context$Info");
+  c = env->FindClass("com/reactnativeblockchaincryptompc/cryptompc/Context$Info");
   if (!c)
     return -1;
   jclass_Context_Info = (jclass)env->NewGlobalRef(c);
@@ -155,7 +155,7 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved)
   if (!jfield_Context_Info_peer)
     return -1;
 
-  c = env->FindClass("com/unboundTech/mpc/Share$Info");
+  c = env->FindClass("com/reactnativeblockchaincryptompc/cryptompc/Share$Info");
   if (!c)
     return -1;
   jclass_Share_Info = (jclass)env->NewGlobalRef(c);
@@ -168,7 +168,7 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved)
   if (!jfield_Share_Info_type)
     return -1;
 
-  c = env->FindClass("com/unboundTech/mpc/BIP32Info");
+  c = env->FindClass("com/reactnativeblockchaincryptompc/cryptompc/BIP32Info");
   if (!c)
     return -1;
   jclass_BIP32_Info = (jclass)env->NewGlobalRef(c);
