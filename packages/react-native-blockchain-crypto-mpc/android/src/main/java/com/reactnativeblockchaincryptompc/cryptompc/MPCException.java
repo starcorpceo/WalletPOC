@@ -21,7 +21,7 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.unboundTech.mpc;
+package com.reactnativeblockchaincryptompc.cryptompc;
 
 public class MPCException extends Exception
 {

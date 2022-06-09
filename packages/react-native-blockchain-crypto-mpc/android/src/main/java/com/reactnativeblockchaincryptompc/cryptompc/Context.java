@@ -21,7 +21,11 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.unboundTech.mpc;
+package com.reactnativeblockchaincryptompc.cryptompc;
+
+import android.os.Build;
+
+import androidx.annotation.RequiresApi;
 
 import java.security.interfaces.RSAPublicKey;
 
@@ -39,6 +43,7 @@ public class Context implements AutoCloseable
     public int peer = 0;
   }
 
+  @RequiresApi(api = Build.VERSION_CODES.KITKAT)
   public static class MessageAndFlags implements AutoCloseable
   {
     public Message message = null;

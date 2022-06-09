@@ -21,7 +21,11 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.unboundTech.mpc;
+package com.reactnativeblockchaincryptompc.cryptompc;
+
+import android.os.Build;
+
+import androidx.annotation.RequiresApi;
 
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
@@ -33,6 +37,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 
+@RequiresApi(api = Build.VERSION_CODES.KITKAT)
 public class Share implements AutoCloseable
 {
   long handle = 0;

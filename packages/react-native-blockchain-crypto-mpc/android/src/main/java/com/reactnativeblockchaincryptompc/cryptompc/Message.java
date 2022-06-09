@@ -21,8 +21,13 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.unboundTech.mpc;
+package com.reactnativeblockchaincryptompc.cryptompc;
 
+import android.os.Build;
+
+import androidx.annotation.RequiresApi;
+
+@RequiresApi(api = Build.VERSION_CODES.KITKAT)
 public class Message implements AutoCloseable
 {
   long handle = 0;

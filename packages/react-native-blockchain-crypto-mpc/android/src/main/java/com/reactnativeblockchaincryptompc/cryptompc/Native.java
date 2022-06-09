@@ -21,7 +21,7 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.unboundTech.mpc;
+package com.reactnativeblockchaincryptompc.cryptompc;
 
 public class Native
 {
@@ -32,7 +32,7 @@ public class Native
 
   static
   {
-    System.loadLibrary("mpc_crypto");
+    System.loadLibrary("nativempc");
   }
 
   static native void freeShare(long handle);
