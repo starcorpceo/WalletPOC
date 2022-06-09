@@ -24,49 +24,45 @@
 package com.reactnativeblockchaincryptompc.cryptompc;
 
 import android.os.Build;
-
 import androidx.annotation.RequiresApi;
-
 import java.security.interfaces.RSAPublicKey;
 
-public class Context implements AutoCloseable
-{
+@RequiresApi(api = Build.VERSION_CODES.KITKAT)
+public class Context implements AutoCloseable {
+
   long handle = 0;
 
   private static final int MPC_PROTOCOL_FINISHED = 1;
-  private static final int MPC_SHARE_CHANGED     = 2; // only sent w/finish
+  private static final int MPC_SHARE_CHANGED = 2; // only sent w/finish
 
-  public static class Info
-  {
+  public static class Info {
+
     public long UID = 0;
     public long shareUID = 0;
     public int peer = 0;
   }
 
   @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-  public static class MessageAndFlags implements AutoCloseable
-  {
+  public static class MessageAndFlags implements AutoCloseable {
+
     public Message message = null;
     public boolean protocolFinished = false;
     public boolean shareChanged = false;
 
     @Override
-    public void close() throws Exception
-    {
-      if (message!=null) message.close();
+    public void close() throws Exception {
+      if (message != null) message.close();
       message = null;
     }
   }
 
   @Override
-  public void close()
-  {
-    if (handle!=0) Native.freeContext(handle);
+  public void close() {
+    if (handle != 0) Native.freeContext(handle);
     handle = 0;
   }
 
-  public byte[] toBuf() throws MPCException
-  {
+  public byte[] toBuf() throws MPCException {
     Native.IntRef outLen = new Native.IntRef();
     MPCException.check(Native.contextToBuf(handle, null, outLen));
     byte[] out = new byte[outLen.value];
@@ -74,55 +70,51 @@ public class Context implements AutoCloseable
     return out;
   }
 
-  public static Context fromBuf(byte[] in) throws MPCException
-  {
+  public static Context fromBuf(byte[] in) throws MPCException {
     Context out = new Context();
     MPCException.check(Native.contextFromBuf(in, out));
     return out;
   }
 
-  public Info getInfo() throws MPCException
-  {
+  public Info getInfo() throws MPCException {
     Info out = new Info();
     MPCException.check(Native.contextInfo(handle, out));
     return out;
   }
 
-  public MessageAndFlags step(Message in) throws MPCException
-  {
+  public MessageAndFlags step(Message in) throws MPCException {
     MessageAndFlags out = new MessageAndFlags();
     Message outMessage = new Message();
     Native.IntRef outFlags = new Native.IntRef();
-    MPCException.check(Native.step(handle, (in==null) ? 0 : in.handle, outMessage, outFlags));
-    if (outMessage.handle!=0) out.message = outMessage;
-    if ((outFlags.value & MPC_PROTOCOL_FINISHED) != 0) out.protocolFinished = true;
+    MPCException.check(
+      Native.step(handle, (in == null) ? 0 : in.handle, outMessage, outFlags)
+    );
+    if (outMessage.handle != 0) out.message = outMessage;
+    if ((outFlags.value & MPC_PROTOCOL_FINISHED) != 0) out.protocolFinished =
+      true;
     if ((outFlags.value & MPC_SHARE_CHANGED) != 0) out.shareChanged = true;
     return out;
   }
 
-  public Share getShare() throws MPCException
-  {
+  public Share getShare() throws MPCException {
     Share out = new Share();
     MPCException.check(Native.getShare(handle, out));
-    return out.handle==0 ? null : out;
+    return out.handle == 0 ? null : out;
   }
 
-  public byte[] getResultEddsaSign() throws MPCException
-  {
+  public byte[] getResultEddsaSign() throws MPCException {
     byte[] out = new byte[64];
     MPCException.check(Native.getResultEddsaSign(handle, out));
     return out;
   }
 
-  public static Context initGenerateEddsaKey(int peer) throws MPCException
-  {
+  public static Context initGenerateEddsaKey(int peer) throws MPCException {
     Context out = new Context();
     MPCException.check(Native.initGenerateEddsaKey(peer, out));
     return out;
   }
 
-  public byte[] getResultEcdsaSign() throws MPCException
-  {
+  public byte[] getResultEcdsaSign() throws MPCException {
     Native.IntRef outLen = new Native.IntRef();
     MPCException.check(Native.getResultEcdsaSign(handle, null, outLen));
     byte[] out = new byte[outLen.value];
@@ -130,36 +122,33 @@ public class Context implements AutoCloseable
     return out;
   }
 
-  public static Context initGenerateEcdsaKey(int peer) throws MPCException
-  {
+  public static Context initGenerateEcdsaKey(int peer) throws MPCException {
     Context out = new Context();
     MPCException.check(Native.initGenerateEcdsaKey(peer, out));
     return out;
   }
 
-  public static Context initGenerateGenericSecret(int peer, int bits) throws MPCException
-  {
+  public static Context initGenerateGenericSecret(int peer, int bits)
+    throws MPCException {
     Context out = new Context();
     MPCException.check(Native.initGenerateGenericSecret(peer, bits, out));
     return out;
   }
 
-  public static Context initImportGenericSecret(int peer, byte[] secret) throws MPCException
-  {
+  public static Context initImportGenericSecret(int peer, byte[] secret)
+    throws MPCException {
     Context out = new Context();
     MPCException.check(Native.initImportGenericSecret(peer, secret, out));
     return out;
   }
 
-  public Share getResultDeriveBIP32() throws MPCException
-  {
+  public Share getResultDeriveBIP32() throws MPCException {
     Share out = new Share();
     MPCException.check(Native.getResultDeriveBIP32(handle, out));
     return out;
   }
 
-  public byte[] getResultBackupEcdsaKey() throws MPCException
-  {
+  public byte[] getResultBackupEcdsaKey() throws MPCException {
     Native.IntRef outLen = new Native.IntRef();
     MPCException.check(Native.getResultBackupEcdsaKey(handle, null, outLen));
     byte[] out = new byte[outLen.value];
@@ -167,8 +156,7 @@ public class Context implements AutoCloseable
     return out;
   }
 
-  public byte[] getResultBackupEddsaKey() throws MPCException
-  {
+  public byte[] getResultBackupEddsaKey() throws MPCException {
     Native.IntRef outLen = new Native.IntRef();
     MPCException.check(Native.getResultBackupEddsaKey(handle, null, outLen));
     byte[] out = new byte[outLen.value];

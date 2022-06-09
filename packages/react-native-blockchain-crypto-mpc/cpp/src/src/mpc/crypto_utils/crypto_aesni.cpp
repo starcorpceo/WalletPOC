@@ -492,14 +492,16 @@ namespace crypto
 
   buf128_t aesni_enc128_t::encrypt(buf128_t in) const
   {
-    for (int i = 0; i < 9; i++)
-    {
-      in.value = vaeseq_u8(in.value, sched[i]);
-      in.value = vaesmcq_u8(in.value);
-    }
-    in.value = vaeseq_u8(in.value, sched[9]);
-    in.value ^= sched[10];
-    return in;
+    // for (int i = 0; i < 9; i++)
+    // {
+    //   in.value = vaeseq_u8(in.value, sched[i]);
+    //   in.value = vaesmcq_u8(in.value);
+    // }
+    // in.value = vaeseq_u8(in.value, sched[9]);
+    // in.value ^= sched[10];
+    // return in;
+    assert(false);
+    return buf128_t(0);
   }
 
   void aesni_enc128_t::encrypt(buf128_t src1, buf128_t &dst1,
