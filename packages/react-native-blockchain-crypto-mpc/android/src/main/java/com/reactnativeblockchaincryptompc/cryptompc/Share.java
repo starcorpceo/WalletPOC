@@ -27,6 +27,8 @@ import android.os.Build;
 
 import androidx.annotation.RequiresApi;
 
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.ECPrivateKey;
@@ -102,8 +104,9 @@ public class Share implements AutoCloseable
     byte[] encoded = new byte[outLen.value];
     MPCException.check(Native.getEcdsaPublic(handle, encoded, outLen));
 
+
+    KeyFactory kf = KeyFactory.getInstance("EC", new BouncyCastleProvider());
     X509EncodedKeySpec spec = new X509EncodedKeySpec(encoded);
-    KeyFactory kf = KeyFactory.getInstance("EC");
     return (ECPublicKey) kf.generatePublic(spec);
   }
 

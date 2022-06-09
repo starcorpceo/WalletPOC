@@ -23,67 +23,165 @@
 
 package com.reactnativeblockchaincryptompc.cryptompc;
 
-public class Native
-{
-  static class IntRef
-  {
+import java.security.Security;
+
+public class Native {
+
+  static class IntRef {
     int value;
   }
 
-  static
-  {
+  static {
     System.loadLibrary("nativempc");
   }
 
   static native void freeShare(long handle);
+
   static native void freeContext(long handle);
+
   static native void freeMessage(long handle);
 
   static native int shareToBuf(long handle, byte[] out, IntRef outLen);
+
   static native int contextToBuf(long handle, byte[] out, IntRef outLen);
+
   static native int messageToBuf(long handle, byte[] out, IntRef outLen);
 
   static native int shareFromBuf(byte[] in, Share out);
+
   static native int contextFromBuf(byte[] in, Context out);
+
   static native int messageFromBuf(byte[] in, Message out);
 
   static native int shareInfo(long handle, Share.Info out);
+
   static native int contextInfo(long handle, Context.Info out);
+
   static native int messageInfo(long handle, Message.Info out);
 
-  static native int step(long contextHandle, long messageHandle, Message out, IntRef outFlags);
+  static native int step(
+    long contextHandle,
+    long messageHandle,
+    Message out,
+    IntRef outFlags
+  );
+
   static native int getShare(long contextHandle, Share out);
 
   static native int initRefreshKey(int peer, long shareHandle, Context out);
 
   static native int getEddsaPublic(long shareHandle, byte[] out); // 32 bytes length
+
   static native int getResultEddsaSign(long contextHandle, byte[] out); // 64 bytes length
+
   static native int initGenerateEddsaKey(int peer, Context out);
-  static native int initEddsaSign(int peer, long shareHandle, byte[] in, boolean refresh, Context out);
+
+  static native int initEddsaSign(
+    int peer,
+    long shareHandle,
+    byte[] in,
+    boolean refresh,
+    Context out
+  );
+
   static native int verifyEddsa(byte[] pubKey, byte[] in, byte[] signature);
 
   static native int getEcdsaPublic(long shareHandle, byte[] out, IntRef outLen);
-  static native int getResultEcdsaSign(long contextHandle, byte[] out, IntRef outLen);
-  static native int initGenerateEcdsaKey(int peer, Context out);
-  static native int initEcdsaSign(int peer, long shareHandle, byte[] in, boolean refresh, Context out);
+
+  static native int getResultEcdsaSign(
+    long contextHandle,
+    byte[] out,
+    IntRef outLen
+  );
+
+  public static native int initGenerateEcdsaKey(int peer, Context out);
+
+  static native int initEcdsaSign(
+    int peer,
+    long shareHandle,
+    byte[] in,
+    boolean refresh,
+    Context out
+  );
+
   static native int verifyEcdsa(byte[] pubKey, byte[] in, byte[] signature);
 
   static native int initGenerateGenericSecret(int peer, int bits, Context out);
-  static native int initImportGenericSecret(int peer, byte[] secret, Context out);
 
-  static native int initDeriveBIP32(int peer, long shareHandle, boolean hardened, int index, Context out);
+  static native int initImportGenericSecret(
+    int peer,
+    byte[] secret,
+    Context out
+  );
+
+  static native int initDeriveBIP32(
+    int peer,
+    long shareHandle,
+    boolean hardened,
+    int index,
+    Context out
+  );
+
   static native int getResultDeriveBIP32(long contextHandle, Share out);
+
   static native int getBIP32Info(long shareHandle, BIP32Info out);
-  static native int serializePubBIP32(long shareHandle, char[] out, IntRef outLen);
 
-  static native int initBackupEcdsaKey(int peer, long shareHandle, byte[] pubBackupKey, Context out);
-  static native int getResultBackupEcdsaKey(long contextHandle, byte[] out, IntRef outLen);
-  static native int verifyEcdsaBackupKey(byte[] pubBackupKey, byte[] pubKey, byte[] backup);
-  static native int restoreEcdsaKey(byte[] prvBackupKey, byte[] pubKey, byte[] backup, byte[] out, IntRef outLen);
+  static native int serializePubBIP32(
+    long shareHandle,
+    char[] out,
+    IntRef outLen
+  );
 
-  static native int initBackupEddsaKey(int peer, long shareHandle, byte[] pubBackupKey, Context out);
-  static native int getResultBackupEddsaKey(long contextHandle, byte[] out, IntRef outLen);
-  static native int verifyEddsaBackupKey(byte[] pubBackupKey, byte[] pubKey, byte[] backup);
-  static native int restoreEddsaKey(byte[] prvBackupKey, byte[] pubKey, byte[] backup, byte[] out); // 32 bytes length
+  static native int initBackupEcdsaKey(
+    int peer,
+    long shareHandle,
+    byte[] pubBackupKey,
+    Context out
+  );
 
+  static native int getResultBackupEcdsaKey(
+    long contextHandle,
+    byte[] out,
+    IntRef outLen
+  );
+
+  static native int verifyEcdsaBackupKey(
+    byte[] pubBackupKey,
+    byte[] pubKey,
+    byte[] backup
+  );
+
+  static native int restoreEcdsaKey(
+    byte[] prvBackupKey,
+    byte[] pubKey,
+    byte[] backup,
+    byte[] out,
+    IntRef outLen
+  );
+
+  static native int initBackupEddsaKey(
+    int peer,
+    long shareHandle,
+    byte[] pubBackupKey,
+    Context out
+  );
+
+  static native int getResultBackupEddsaKey(
+    long contextHandle,
+    byte[] out,
+    IntRef outLen
+  );
+
+  static native int verifyEddsaBackupKey(
+    byte[] pubBackupKey,
+    byte[] pubKey,
+    byte[] backup
+  );
+
+  static native int restoreEddsaKey(
+    byte[] prvBackupKey,
+    byte[] pubKey,
+    byte[] backup,
+    byte[] out
+  ); // 32 bytes length
 }

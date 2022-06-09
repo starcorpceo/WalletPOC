@@ -40,6 +40,11 @@ public class Context implements AutoCloseable {
     public long UID = 0;
     public long shareUID = 0;
     public int peer = 0;
+
+    @Override
+    public String toString() {
+      return "Info:{ UID:" + UID + " ShareId:" + shareUID + " Peer:" + peer+ " }";
+    }
   }
 
   @RequiresApi(api = Build.VERSION_CODES.KITKAT)
