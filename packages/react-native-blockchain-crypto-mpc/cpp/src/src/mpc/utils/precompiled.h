@@ -148,6 +148,7 @@ extern "C"
 #include <arm_neon.h>
 #endif
 
+#ifndef __APPLE__
 #include <openssl/crypto.h>
 #include <openssl/rsa.h>
 #include <openssl/objects.h>
@@ -169,3 +170,4 @@ extern "C"
 #include <openssl/cmac.h>
 #include <openssl/ssl.h>
 #include <openssl/asn1.h>
+#endif

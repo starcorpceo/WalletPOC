@@ -23,6 +23,7 @@
 
 #pragma once
 
+#ifndef __APPLE__
 #include <jni.h>
 
 extern "C"
@@ -82,3 +83,4 @@ extern "C"
     JNIEXPORT jint JNICALL Java_com_reactnativeblockchaincryptompc_cryptompc_Native_verifyEddsaBackupKey(JNIEnv *, jclass, jbyteArray j_pub_backup_key, jbyteArray j_pub_key, jbyteArray j_backup);
     JNIEXPORT jint JNICALL Java_com_reactnativeblockchaincryptompc_cryptompc_Native_restoreEddsaKey(JNIEnv *, jclass, jbyteArray j_prv_backup_key, jbyteArray j_pub_key, jbyteArray j_backup, jbyteArray j_out); // |out|=32
 }
+#endif

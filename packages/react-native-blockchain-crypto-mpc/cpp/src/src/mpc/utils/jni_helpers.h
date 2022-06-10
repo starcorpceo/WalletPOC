@@ -21,6 +21,7 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#ifndef __APPLE__
 #ifndef _DY_JNI_HELPERS_INCLUDE_
 #define _DY_JNI_HELPERS_INCLUDE_
 
@@ -306,3 +307,4 @@ namespace ub {
 }
 
 #endif //_DY_JNI_HELPERS_INCLUDE_
+#endif //__APPLE__

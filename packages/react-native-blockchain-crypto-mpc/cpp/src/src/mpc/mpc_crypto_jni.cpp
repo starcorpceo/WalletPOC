@@ -20,7 +20,7 @@
  *     You should have received a copy of the GNU General Public License
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
+#ifndef __APPLE__
 #include "precompiled.h"
 
 #ifndef MPC_CRYPTO_NO_JNI
@@ -764,3 +764,4 @@ JNIEXPORT jint JNICALL Java_com_reactnativeblockchaincryptompc_cryptompc_Native_
 }
 
 #endif // MPC_CRYPTO_NO_JNI
+#endif // __APPLE__

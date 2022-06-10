@@ -13,9 +13,13 @@ RCT_REMAP_METHOD(multiply,
                  withResolver:(RCTPromiseResolveBlock)resolve
                  withRejecter:(RCTPromiseRejectBlock)reject)
 {
+    MPCCryptoContext *context;
+    MPCCrypto_initGenerateEcdsaKey(1, &context);
+
+
   long result = nativeMpc::multiply([a longValue], [b longValue]);
 
-    resolve(@(result));
+    resolve(@("success"));
 }
 
 @end

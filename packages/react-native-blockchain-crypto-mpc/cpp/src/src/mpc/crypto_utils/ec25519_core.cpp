@@ -32,8 +32,13 @@
  */
 
 #include <string.h>
+#ifdef __APPLE__
+#include <sha.h>
+#include <crypto.h>
+#else
 #include <openssl/sha.h>
 #include <openssl/crypto.h>
+#endif
 
 #include "ec25519_core.h"
 

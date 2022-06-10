@@ -23,8 +23,10 @@
 
 #pragma once
 
+#ifndef __APPLE__
 #include <openssl/crypto.h>
 #include <openssl/rsa.h>
+#endif
 #include "ub_convert.h"
 
 namespace crypto 

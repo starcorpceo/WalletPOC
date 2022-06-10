@@ -6,6 +6,8 @@
 #ifdef __cplusplus
 
 #import "nativempc.h"
+#import "mpc_crypto.h"
+#include <vector>
 
 #endif
 
