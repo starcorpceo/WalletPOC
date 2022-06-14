@@ -2,6 +2,7 @@ import { Context, utils } from "@crypto-mpc";
 import { other } from "@lib/error";
 import { route } from "@lib/route";
 import crypto from "crypto";
+import Elliptic from "elliptic";
 import { FastifyInstance, FastifyRequest, FastifySchema } from "fastify";
 import { ResultAsync } from "neverthrow";
 import { CreateUserRequest, User } from "./user";
@@ -15,9 +16,9 @@ function derive(s1: any, s2: any, harden: any, index: any) {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const EC = require("elliptic/lib/elliptic/ec");
+const Signature = require("elliptic/lib/elliptic/ec/signature");
 
-const ec = new EC("secp256k1");
+const ec = new Elliptic.ec("secp256k1");
 
 const testCrypto = () => {
   console.log("Generate seed");
@@ -55,7 +56,7 @@ const testCrypto = () => {
   utils.run(c1, c2);
   console.log("Signature 1:", c1.getSignature().toString("hex"));
   console.log("Signature 2:", c2.getSignature().toString("hex"));
-  const signature = new EC.Signature(c1.getSignature());
+  const signature = new Signature(c1.getSignature());
   console.log("Signature", key.verify(hash, signature));
 };
 
