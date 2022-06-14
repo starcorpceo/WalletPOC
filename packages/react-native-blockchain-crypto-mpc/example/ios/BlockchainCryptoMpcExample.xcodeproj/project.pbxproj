@@ -492,7 +492,7 @@
 						TestTargetID = 13B07F861A680F5B00A75B9A;
 					};
 					13B07F861A680F5B00A75B9A = {
-						DevelopmentTeam = BXB7RBS9FX;
+						DevelopmentTeam = 33NTHR48GT;
 						LastSwiftMigration = 1120;
 					};
 					2D02E47A1E0B4A5D006451C7 = {
@@ -769,7 +769,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = BXB7RBS9FX;
+				DEVELOPMENT_TEAM = 33NTHR48GT;
 				ENABLE_BITCODE = NO;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
@@ -798,8 +798,8 @@
 					"$(inherited)",
 					"-ObjC",
 					"-lc++",
-					"-I/Users/laurenz/Workspace/WalletPOC/packages/react-native-blockchain-crypto-mpc/ios/openssl/include",
-					"-L/Users/laurenz/Workspace/WalletPOC/packages/react-native-blockchain-crypto-mpc/ios/openssl/lib",
+					"-I/$(SRCROOT)/../../ios/openssl/include",
+					"-L/$(SRCROOT)/../../ios/openssl/lib",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.example.reactnativeblockchaincryptompc;
 				PRODUCT_NAME = BlockchainCryptoMpcExample;
@@ -816,7 +816,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = BXB7RBS9FX;
+				DEVELOPMENT_TEAM = 33NTHR48GT;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"${PODS_ROOT}/Headers/Public\"",
@@ -844,8 +844,8 @@
 					"$(inherited)",
 					"-ObjC",
 					"-lc++",
-					"-I/Users/laurenz/Workspace/WalletPOC/packages/react-native-blockchain-crypto-mpc/ios/openssl/include",
-					"-L/Users/laurenz/Workspace/WalletPOC/packages/react-native-blockchain-crypto-mpc/ios/openssl/lib",
+					"-I/$(SRCROOT)/../../ios/openssl/include",
+					"-L/$(SRCROOT)/../../ios/openssl/lib",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.example.reactnativeblockchaincryptompc;
 				PRODUCT_NAME = BlockchainCryptoMpcExample;
