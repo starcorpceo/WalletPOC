@@ -1,12 +1,12 @@
 import * as React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { multiply } from 'react-native-blockchain-crypto-mpc';
+import { initGenerateEcdsaKey } from 'react-native-blockchain-crypto-mpc';
 
 export default function App() {
-  const [result, setResult] = React.useState<number | undefined>();
+  const [result, setResult] = React.useState<string | undefined>();
 
   React.useEffect(() => {
-    multiply(3, 7).then(setResult);
+    initGenerateEcdsaKey().then(setResult);
   }, []);
 
   return (
