@@ -1,54 +1,64 @@
 import * as React from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { initGenerateEcdsaKey, step } from 'react-native-blockchain-crypto-mpc';
+import {
+  getPublicKey,
+  initGenerateEcdsaKey,
+  step,
+} from 'react-native-blockchain-crypto-mpc';
 
 export default function App() {
-  const [resultInitClient, setResultInitClient] = React.useState<
-    number[] | undefined
-  >();
-  const [resultInitServer, setResultInitServer] = React.useState<
-    number[] | undefined
+  const [serverMessage, setServerMessage] = React.useState<
+    string | undefined
   >();
 
-  const [resultClientStep2, setResultClientStep2] = React.useState<
-    number[] | undefined
-  >();
+  const [clientPubKey, setClientPubKey] = React.useState<any | undefined>();
 
   React.useEffect(() => {
-    const doit = async () => {
-      const firstMessage = await initGenerateEcdsaKey();
+    const ws = new WebSocket('ws://127.0.0.1:8080/initGenerateEcdsaKey');
 
-      console.log(JSON.stringify(firstMessage));
-
-      setResultInitClient(firstMessage);
-
-      const response = await fetch(
-        'http://localhost:8080/initGenerateEcdsaKey',
-        {
-          method: 'POST',
-          body: JSON.stringify({ message: firstMessage }),
-        }
-      );
-
-      const serverInit = await response.json();
-
-      console.log('respone', serverInit);
-
-      setResultInitServer(serverInit);
-
-      const clientStep2 = await step(serverInit);
-      setResultClientStep2(clientStep2);
+    ws.onopen = () => {
+      console.log('opened connection');
+      initGenerateEcdsaKey().then((firstMessage) => {
+        ws.send(new Uint8Array(firstMessage).buffer);
+      });
     };
 
-    doit();
+    ws.onmessage = (message: WebSocketMessageEvent) => {
+      const receivedMessage = JSON.parse(message.data);
+      console.log('message client', receivedMessage);
+
+      if (receivedMessage === true) {
+      }
+
+      step(receivedMessage).then((nextMessage) => {
+        nextMessage.length < 100 &&
+          console.log('step result client', nextMessage);
+
+        ws.send(new Uint8Array(nextMessage).buffer);
+      });
+      setServerMessage(message.data);
+      return false;
+    };
+
+    ws.onerror = (error) => {
+      console.log('err', error);
+    };
+
+    ws.onclose = (event) => {
+      console.log('closed', event);
+
+      getPublicKey().then((pubKey) => {
+        console.log('client pub', pubKey);
+        setClientPubKey(JSON.stringify(pubKey));
+      });
+    };
   }, []);
 
   return (
     <ScrollView>
       <View style={styles.container}>
-        <Text>Result init client: {JSON.stringify(resultInitClient)}</Text>
-        <Text>Result init server: {JSON.stringify(resultInitServer)}</Text>
-        <Text>Result client step 2: {JSON.stringify(resultClientStep2)}</Text>
+        <Text>Result init client: {JSON.stringify(serverMessage)}</Text>
+        <Text>Pub key client: {JSON.stringify(clientPubKey)}</Text>
       </View>
     </ScrollView>
   );

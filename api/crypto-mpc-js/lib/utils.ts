@@ -86,7 +86,7 @@ function run(c1, c2) {
   }
 }
 
-export {
+export default {
   run,
   verifyEcdsaBackupKey,
   restoreEcdsaKey,

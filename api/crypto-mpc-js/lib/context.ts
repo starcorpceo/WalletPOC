@@ -41,7 +41,7 @@ class Context {
     return this.changed;
   }
 
-  step(message) {
+  step(message: ArrayBufferLike) {
     if (this.finished) {
       throw Error("Context finished");
     }
@@ -337,4 +337,4 @@ class Context {
   }
 }
 
-module.exports = Context;
+export default Context;

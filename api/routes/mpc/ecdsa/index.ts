@@ -1,37 +1,26 @@
 import { Context } from "@crypto-mpc";
-import { other } from "@lib/error";
-import { route } from "@lib/route";
-import { FastifyRequest } from "fastify";
-import { ResultAsync } from "neverthrow";
+import { SocketStream } from "@fastify/websocket";
+import { step } from "../step";
 
-type GenerateEcdsaKeyRequest = {
-  message: number[];
-};
+export const initGenerateEcdsaKey = (connection: SocketStream) => {
+  let context: Context;
 
-export const initGenerateEcdsaKey = route<number[]>((req: FastifyRequest) => {
-  const { message } = JSON.parse(req.body as string);
+  connection.socket.on("message", (message) => {
+    if (!context) context = Context.createGenerateEcdsaKey(2);
 
-  return ResultAsync.fromPromise(
-    new Promise((resolve) => {
-      resolve(nativeInitGenerateEcdsaKey(message));
-    }),
-    (err) =>
-      other("Error while generating ecdsa key in native code", err as Error)
-  );
-});
+    const messageServer = new Uint8Array(message as ArrayBuffer);
+    console.log("message server", messageServer);
 
-const nativeInitGenerateEcdsaKey = (message: number[]): number[] => {
-  const context = Context.createGenerateEcdsaKey(2);
+    const stepOutput = step(messageServer, context);
 
-  if (context.isFinished()) {
-    const k1 = context.getNewShare();
+    if (stepOutput === true) {
+      connection.socket.close();
+    }
 
-    return context.getPublicKey().toString("hex");
-  }
+    connection.socket.send(JSON.stringify(stepOutput));
+  });
 
-  const bufferTemp = Buffer.from(Uint8Array.of(...message).buffer);
-
-  const uintRes = new Uint8Array(context.step(bufferTemp));
-
-  return Array.from(uintRes) as number[];
+  connection.socket.on("error", (err) => {
+    console.log("error", err);
+  });
 };

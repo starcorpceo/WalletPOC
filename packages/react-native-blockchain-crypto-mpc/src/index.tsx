@@ -24,3 +24,7 @@ export function initGenerateEcdsaKey(): Promise<number[]> {
 export function step(messageIn: number[]): Promise<number[]> {
   return BlockchainCryptoMpc.step(messageIn);
 }
+
+export function getPublicKey(): Promise<number[]> {
+  return BlockchainCryptoMpc.getPublicKey();
+}

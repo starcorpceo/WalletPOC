@@ -44,13 +44,43 @@ RCT_REMAP_METHOD(initGenerateEcdsaKey,
     }
 }
 
+RCT_EXPORT_METHOD(getPublicKey:(RCTPromiseResolveBlock)resolvePub
+                 withRejecter:(RCTPromiseRejectBlock)reject)
+{
+      int rv = 0;
+
+   if(finished) {
+      int pub_key_size = 0;
+
+      if ((rv = MPCCrypto_getEcdsaPublic(share, nullptr, &pub_key_size)))
+          resolvePub(@(&"Failure " [ rv ]));
+      std::vector<uint8_t> pub_ec_key(pub_key_size);
+        
+      if ((rv = MPCCrypto_getEcdsaPublic(share, pub_ec_key.data(), &pub_key_size)))
+          resolvePub(@(&"Failure " [ rv ]));
+
+      unsigned long cPubLen = pub_ec_key.size();
+
+        NSMutableArray * pubKeyArr = [[NSMutableArray alloc] initWithCapacity: cPubLen];
+
+      for(int i = 0; i< cPubLen; i++) {
+          pubKeyArr[i] = [NSNumber numberWithInt:pub_ec_key[i]];
+      } 
+    
+       resolvePub(pubKeyArr);
+       return;
+    }
+
+    resolvePub(@"Not finished");
+}
+
 RCT_REMAP_METHOD(step,
                  withMessageIn:(nonnull NSArray*)messageIn
                  withResolver:(RCTPromiseResolveBlock)resolve
                  withRejecter:(RCTPromiseRejectBlock)reject)
 {
     std::vector<uint8_t> message_buf;
-    
+
     unsigned long size = [messageIn count];
 
     for(int i = 0; i < size; i++) {
