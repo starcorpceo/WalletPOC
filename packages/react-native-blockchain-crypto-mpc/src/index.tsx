@@ -17,6 +17,10 @@ const BlockchainCryptoMpc = NativeModules.BlockchainCryptoMpc
       }
     );
 
-export function initGenerateEcdsaKey(): Promise<string> {
+export function initGenerateEcdsaKey(): Promise<number[]> {
   return BlockchainCryptoMpc.initGenerateEcdsaKey();
+}
+
+export function step(messageIn: number[]): Promise<number[]> {
+  return BlockchainCryptoMpc.step(messageIn);
 }
