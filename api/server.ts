@@ -3,7 +3,7 @@ import config from "@lib/config";
 import { PrismaClient } from "@prisma/client";
 import { FastifyInstance } from "fastify";
 import logger from "./lib/logger";
-import { registerRoutes } from "./routes";
+import { registerRoutes } from "./routes/register-routes";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const fastify = require("fastify");

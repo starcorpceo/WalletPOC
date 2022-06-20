@@ -1,6 +1,6 @@
 import { SocketStream } from "@fastify/websocket";
 import { FastifyInstance, FastifyRequest } from "fastify";
-import { initGenerateEcdsaKey } from "./ecdsa";
+import { initGenerateEcdsaKey } from "./ecdsa/init";
 import testMcp from "./test";
 
 const registerMcpRoutes = (server: FastifyInstance): void => {

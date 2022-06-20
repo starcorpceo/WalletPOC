@@ -1,5 +1,6 @@
 import { Context } from "@crypto-mpc";
 import { SocketStream } from "@fastify/websocket";
+import { db } from "@lib/dev-db";
 import { step } from "../step";
 
 export const initGenerateEcdsaKey = (connection: SocketStream) => {
@@ -14,6 +15,10 @@ export const initGenerateEcdsaKey = (connection: SocketStream) => {
     const stepOutput = step(messageServer, context);
 
     if (stepOutput === true) {
+      const contextBuf = context.toBuffer();
+
+      db.contextBuf = contextBuf;
+
       connection.socket.close();
     }
 
