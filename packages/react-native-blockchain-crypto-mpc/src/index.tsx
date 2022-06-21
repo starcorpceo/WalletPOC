@@ -36,3 +36,10 @@ export function getPublicKey(): Promise<number[]> {
 export function getSignature(): Promise<number[]> {
   return BlockchainCryptoMpc.getSignature();
 }
+
+export function verifySignature(
+  message: number[],
+  signature: number[]
+): Promise<boolean> {
+  return BlockchainCryptoMpc.verifySignature(message, signature);
+}

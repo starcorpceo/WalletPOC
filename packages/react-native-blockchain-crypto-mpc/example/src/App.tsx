@@ -6,6 +6,7 @@ import {
   initGenerateEcdsaKey,
   initSignEcdsa,
   step,
+  verifySignature,
 } from 'react-native-blockchain-crypto-mpc';
 
 import { Buffer } from 'buffer';
@@ -17,11 +18,12 @@ export default function App() {
   const [clientPubKey, setClientPubKey] = React.useState<any | undefined>();
 
   const [signSuccess, setSignSuccess] = React.useState<boolean>();
+  const [signResOnClient, setSignResOnClient] = React.useState<boolean>();
 
   React.useEffect(() => {
     const doit = async () => {
       await generateEcdsa(setServerMessage, setClientPubKey);
-      await signEcdsa(setSignSuccess);
+      await signEcdsa(setSignSuccess, setSignResOnClient);
     };
 
     doit();
@@ -32,7 +34,10 @@ export default function App() {
       <View style={styles.container}>
         <Text>Result init client: {JSON.stringify(serverMessage)}</Text>
         <Text>Pub key client: {JSON.stringify(clientPubKey)}</Text>
-        <Text>Signature Successful: {JSON.stringify(signSuccess)}</Text>
+        <Text>Signature verified by Server: {JSON.stringify(signSuccess)}</Text>
+        <Text>
+          Signature verified by Client: {JSON.stringify(signResOnClient)}
+        </Text>
       </View>
     </ScrollView>
   );
@@ -54,7 +59,7 @@ const styles = StyleSheet.create({
 
 type SignStatus = 'Init' | 'Stepping';
 
-const signEcdsa = (setSuccess: Function) => {
+const signEcdsa = (setSuccess: Function, setSignResOnClient: Function) => {
   const ws = new WebSocket(getApi('ws') + '/sign');
   const stringToSign = 'Hello World';
   let signStatus: SignStatus = 'Init';
@@ -63,7 +68,7 @@ const signEcdsa = (setSuccess: Function) => {
   ws.onopen = () => {
     ws.send(bufferToSign);
   };
-  const hash = [...bufferToSign];
+  const messageChars = [...bufferToSign];
 
   ws.onmessage = (message: WebSocketMessageEvent) => {
     console.log('message on clinet', JSON.parse(message.data));
@@ -77,7 +82,7 @@ const signEcdsa = (setSuccess: Function) => {
 
         signStatus = 'Stepping';
 
-        initSignEcdsa(hash).then((success) => {
+        initSignEcdsa(messageChars).then((success) => {
           if (success)
             step(null).then((firstMessage) => {
               ws.send(new Uint8Array(firstMessage).buffer);
@@ -108,8 +113,12 @@ const signEcdsa = (setSuccess: Function) => {
     getSignature().then((signature) => {
       fetch(getApi('http') + '/verify', {
         method: 'POST',
-        body: JSON.stringify({ hash, signature }),
+        body: JSON.stringify({ message: messageChars, signature }),
       }).then(async (success) => setSuccess(await success.json()));
+
+      verifySignature(messageChars, signature).then((success) => {
+        setSignResOnClient(success);
+      });
     });
   };
 };

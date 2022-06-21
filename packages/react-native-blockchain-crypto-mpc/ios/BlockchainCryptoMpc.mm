@@ -37,13 +37,8 @@ RCT_EXPORT_METHOD(initSignEcdsa:(NSArray*)message withResolver:(RCTPromiseResolv
     std::vector<uint8_t> message_buf;
 
     unsigned long size = [message count];
-    
     char messageChars[size];
-
-    for(int i = 0; i < size; i++) {
-        uint8_t value = (uint8_t)[message[i] unsignedIntValue];
-        messageChars[i] = value;
-    }
+    react_array_to_char_array(message, size, messageChars);
 
     finished = false;
     
@@ -86,6 +81,41 @@ RCT_EXPORT_METHOD(getSignature:(RCTPromiseResolveBlock)resolve
     }
 
     resolve(@"Not finished");
+}
+
+
+RCT_EXPORT_METHOD(verifySignature:(nonnull NSArray*)message withSignature:(nonnull NSArray*) signature withResolver: (RCTPromiseResolveBlock)resolve
+                  withRejecter:(RCTPromiseRejectBlock)reject)
+{
+    int rv = 0;
+    
+    if(!finished) {
+        resolve(@"Not finished");
+        return;
+    }
+    
+    unsigned long msgSize = [message count];
+    char messageChars[msgSize];
+    react_array_to_char_array(message, msgSize, messageChars);
+        
+    unsigned long sigSize = [signature count];
+    char signatureChars[sigSize];
+    react_array_to_char_array(signature, sigSize, signatureChars);
+    
+    int pub_key_size = 0;
+    if ((rv = MPCCrypto_getEcdsaPublic(share, nullptr, &pub_key_size)))
+        resolve(@(&"Failure " [ rv ]));
+    std::vector<uint8_t> pub_ec_key(pub_key_size);
+    if ((rv = MPCCrypto_getEcdsaPublic(share, pub_ec_key.data(), &pub_key_size)))
+        resolve(@(&"Failure " [ rv ]));
+    
+    if ((rv = MPCCrypto_verifyEcdsa(pub_ec_key.data(), (int)pub_ec_key.size(), (const uint8_t *)messageChars, (int)msgSize, (const uint8_t *)signatureChars, (int)sigSize))){
+        resolve(@false);
+        return;
+    }
+
+    
+    resolve(@true);
 }
 
 
@@ -132,7 +162,7 @@ RCT_EXPORT_METHOD(step:(NSArray*)messageIn
         message_buf.push_back([messageIn[i] intValue]);
     }
 
-    nativeStep(message_buf, finished);
+    int rv = nativeStep(message_buf, finished);
 
     unsigned long cMessageLen = message_buf.size();
     
@@ -146,6 +176,13 @@ RCT_EXPORT_METHOD(step:(NSArray*)messageIn
         resolve(reactArray);
     } else {
         resolve(@(&"Failure " [ rv ]));
+    }
+}
+
+static void react_array_to_char_array(NSArray * reactArray, unsigned long size, char* messageChars) {        
+    for(int i = 0; i < size; i++) {
+        uint8_t value = (uint8_t)[reactArray[i] unsignedIntValue];
+        messageChars[i] = value;
     }
 }
 
