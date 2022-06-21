@@ -8,14 +8,12 @@ RCT_EXPORT_MODULE()
 
 MPCCryptoContext *context;
 MPCCryptoShare *share = nullptr;
-MPCCryptoMessage *message = nullptr;
 
 unsigned flags = 0;
 
 bool finished = false;
 
-RCT_REMAP_METHOD(initGenerateEcdsaKey,
-                 withResolver:(RCTPromiseResolveBlock)resolve
+RCT_EXPORT_METHOD(initGenerateEcdsaKey:(RCTPromiseResolveBlock)resolve
                  withRejecter:(RCTPromiseRejectBlock)reject)
 {
     int rv = 0;
@@ -24,27 +22,75 @@ RCT_REMAP_METHOD(initGenerateEcdsaKey,
         resolve(@(&"Failure " [ rv ]));
     }
 
-    std::vector<uint8_t> message_buf;
-
-    nativeStep(message_buf, finished);
-        
-    unsigned long cMessageLen = message_buf.size();
     
-    NSMutableArray * reactArray = [[NSMutableArray alloc] initWithCapacity: cMessageLen];
-
-    for(int i = 0; i< cMessageLen; i++) {
-        reactArray[i] = [NSNumber numberWithInt:message_buf[i]];
-    }
-
-    if(rv == 0) {
-        resolve(reactArray);
-        
-    } else {
-        resolve(@(&"Failure " [ rv ]));
-    }
+    if(rv == 0)
+        resolve(@true);
+    else
+        resolve(@false);
 }
 
-RCT_EXPORT_METHOD(getPublicKey:(RCTPromiseResolveBlock)resolvePub
+RCT_EXPORT_METHOD(initSignEcdsa:(NSArray*)message withResolver:(RCTPromiseResolveBlock)resolve
+                 withRejecter:(RCTPromiseRejectBlock)reject)
+{
+    int rv = 0;
+
+    std::vector<uint8_t> message_buf;
+
+    unsigned long size = [message count];
+    
+    char messageChars[size];
+
+    for(int i = 0; i < size; i++) {
+        uint8_t value = (uint8_t)[message[i] unsignedIntValue];
+        messageChars[i] = value;
+    }
+
+    finished = false;
+    
+
+    if((rv = MPCCrypto_initEcdsaSign(1, share, (const uint8_t *)messageChars, (int)size, 1, &context))) {
+        resolve(@(&"Failure " [ rv ]));
+    }
+
+    if(rv == 0)
+        resolve(@true);
+    else
+        resolve(@false);
+}
+
+
+RCT_EXPORT_METHOD(getSignature:(RCTPromiseResolveBlock)resolve
+                 withRejecter:(RCTPromiseRejectBlock)reject)
+{
+      int rv = 0;
+
+    if(finished) {
+        
+        int sig_size = 0;
+        if ((rv = MPCCrypto_getResultEcdsaSign(context, nullptr, &sig_size)))
+            resolve(@(&"Failure " [ rv ]));
+        std::vector<uint8_t> sig(sig_size);
+        if ((rv = MPCCrypto_getResultEcdsaSign(context, sig.data(), &sig_size)))
+            resolve(@(&"Failure " [ rv ]));
+        
+        unsigned long sigLen = sig.size();
+        
+        NSMutableArray * sigArr = [[NSMutableArray alloc] initWithCapacity: sigLen];
+        
+        for(int i = 0; i< sigLen; i++)
+            sigArr[i] = [NSNumber numberWithInt:sig[i]];
+        
+        
+        resolve(sigArr);
+        return;
+    }
+
+    resolve(@"Not finished");
+}
+
+
+
+RCT_EXPORT_METHOD(getPublicKey:(RCTPromiseResolveBlock)resolve
                  withRejecter:(RCTPromiseRejectBlock)reject)
 {
       int rv = 0;
@@ -53,11 +99,11 @@ RCT_EXPORT_METHOD(getPublicKey:(RCTPromiseResolveBlock)resolvePub
       int pub_key_size = 0;
 
       if ((rv = MPCCrypto_getEcdsaPublic(share, nullptr, &pub_key_size)))
-          resolvePub(@(&"Failure " [ rv ]));
+          resolve(@(&"Failure " [ rv ]));
       std::vector<uint8_t> pub_ec_key(pub_key_size);
         
       if ((rv = MPCCrypto_getEcdsaPublic(share, pub_ec_key.data(), &pub_key_size)))
-          resolvePub(@(&"Failure " [ rv ]));
+          resolve(@(&"Failure " [ rv ]));
 
       unsigned long cPubLen = pub_ec_key.size();
 
@@ -67,15 +113,14 @@ RCT_EXPORT_METHOD(getPublicKey:(RCTPromiseResolveBlock)resolvePub
           pubKeyArr[i] = [NSNumber numberWithInt:pub_ec_key[i]];
       } 
     
-       resolvePub(pubKeyArr);
+       resolve(pubKeyArr);
        return;
     }
 
-    resolvePub(@"Not finished");
+    resolve(@"Not finished");
 }
 
-RCT_REMAP_METHOD(step,
-                 withMessageIn:(nonnull NSArray*)messageIn
+RCT_EXPORT_METHOD(step:(NSArray*)messageIn
                  withResolver:(RCTPromiseResolveBlock)resolve
                  withRejecter:(RCTPromiseRejectBlock)reject)
 {
@@ -96,8 +141,12 @@ RCT_REMAP_METHOD(step,
     for(int i = 0; i< cMessageLen; i++) {
         reactArray[i] = [NSNumber numberWithInt:message_buf[i]];
     }
-    
-    resolve(reactArray);
+
+    if(rv == 0) {
+        resolve(reactArray);
+    } else {
+        resolve(@(&"Failure " [ rv ]));
+    }
 }
 
 static int nativeStep(std::vector<uint8_t> &message_buf, bool &finished)
@@ -166,7 +215,7 @@ static int share_to_buf(MPCCryptoShare *share, std::vector<uint8_t> &buf)
   if ((rv = MPCCrypto_shareToBuf(share, nullptr, &size)))
     return rv;
   buf.resize(size);
-  if (rv = MPCCrypto_shareToBuf(share, buf.data(), &size))
+  if ((rv = MPCCrypto_shareToBuf(share, buf.data(), &size)))
     return rv;
   return 0;
 }
@@ -183,7 +232,7 @@ static int message_to_buf(MPCCryptoMessage *message, std::vector<uint8_t> &buf)
   if ((rv = MPCCrypto_messageToBuf(message, nullptr, &size)))
     return rv;
   buf.resize(size);
-  if (rv = MPCCrypto_messageToBuf(message, buf.data(), &size))
+  if ((rv = MPCCrypto_messageToBuf(message, buf.data(), &size)))
     return rv;
   return 0;
 }
@@ -200,7 +249,7 @@ static int context_to_buf(MPCCryptoContext *context, std::vector<uint8_t> &buf)
   if ((rv = MPCCrypto_contextToBuf(context, nullptr, &size)))
     return rv;
   buf.resize(size);
-  if (rv = MPCCrypto_contextToBuf(context, buf.data(), &size))
+  if ((rv = MPCCrypto_contextToBuf(context, buf.data(), &size)))
     return rv;
   return 0;
 }

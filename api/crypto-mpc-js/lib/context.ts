@@ -46,8 +46,10 @@ class Context {
       throw Error("Context finished");
     }
     const input = message ? Message.fromBuffer(message) : null;
+
     const outputPtrPtr = ref.alloc(native.VoidPtrPtr);
     const flagsPtr = ref.alloc(native.UintPtr);
+
     native.checkAndThrowError(
       native.MPCCrypto_step(
         this.contextPtr,

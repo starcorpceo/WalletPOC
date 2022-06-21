@@ -5,25 +5,28 @@ export const step = (
   context: Context
 ): number[] | boolean => {
   const inBuff = Buffer.from(message);
-  const outBuff = context.step(inBuff);
 
-  const pubKey = context.getPublicKey();
+  try {
+    const outBuff = context.step(inBuff);
 
-  if (pubKey) {
-    console.log("public key, im done here", pubKey);
-    return true;
+    if (context.isFinished()) {
+      console.log("Steps for current actions are completed");
+      return true;
+    }
+
+    if (!outBuff) {
+      console.log("out buff is not there, error must have occured");
+      return false;
+    }
+
+    const outUint8 = new Uint8Array(outBuff);
+
+    return Array.from(outUint8) as number[];
+  } catch (err) {
+    console.log("Error while performing step", err);
   }
 
-  if (!outBuff) {
-    console.log("out buff is not there, error must have occured");
-    return false;
-  }
-
-  const outUint8 = new Uint8Array(outBuff);
-
-  console.log("last", outUint8);
-
-  return Array.from(outUint8) as number[];
+  return false;
 };
 
 export const isError = (

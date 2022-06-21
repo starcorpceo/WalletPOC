@@ -24,7 +24,7 @@ export const client2 = new PrismaClient({
 registerRoutes(server);
 
 server.all("*", (request, reply) => {
-  reply.status(404).send("Route does not exist");
+  reply.status(404).send({ error: "Route does not exist" });
 });
 
 server.listen({ port: 8080 }, (err, address) => {

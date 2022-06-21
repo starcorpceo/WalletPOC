@@ -1,5 +1,9 @@
 interface DevDB {
-  contextBuf: Buffer;
+  shareBuf: Buffer | undefined;
+  signature: Buffer | undefined;
 }
 
-export let db: DevDB;
+export const db: DevDB = {
+  shareBuf: undefined,
+  signature: undefined,
+};

@@ -9,15 +9,13 @@ export const initGenerateEcdsaKey = (connection: SocketStream) => {
   connection.socket.on("message", (message) => {
     if (!context) context = Context.createGenerateEcdsaKey(2);
 
-    const messageServer = new Uint8Array(message as ArrayBuffer);
-    console.log("message server", messageServer);
+    const messageFromClient = new Uint8Array(message as ArrayBuffer);
 
-    const stepOutput = step(messageServer, context);
+    const stepOutput = step(messageFromClient, context);
 
     if (stepOutput === true) {
-      const contextBuf = context.toBuffer();
-
-      db.contextBuf = contextBuf;
+      // TODO: Remove this in favor of real database
+      db.shareBuf = context.getNewShare();
 
       connection.socket.close();
     }
