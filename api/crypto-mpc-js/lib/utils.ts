@@ -73,9 +73,14 @@ function restoreEddsaKey(backupPrivateKey, publicKey, backup) {
 
 function run(c1, c2) {
   let m;
+  let count = 0;
   while (!c1.isFinished() || !c2.isFinished()) {
+    count++;
     if (!c1.isFinished()) {
+      console.log("Step " + count + " client input", m?.length);
+
       m = c1.step(m);
+      console.log("Step " + count + " Client output", m?.length);
     }
     if (!m) {
       break;
@@ -86,7 +91,7 @@ function run(c1, c2) {
   }
 }
 
-export {
+export default {
   run,
   verifyEcdsaBackupKey,
   restoreEcdsaKey,

@@ -41,13 +41,15 @@ class Context {
     return this.changed;
   }
 
-  step(message) {
+  step(message: ArrayBufferLike) {
     if (this.finished) {
       throw Error("Context finished");
     }
     const input = message ? Message.fromBuffer(message) : null;
+
     const outputPtrPtr = ref.alloc(native.VoidPtrPtr);
     const flagsPtr = ref.alloc(native.UintPtr);
+
     native.checkAndThrowError(
       native.MPCCrypto_step(
         this.contextPtr,
@@ -337,4 +339,4 @@ class Context {
   }
 }
 
-module.exports = Context;
+export default Context;

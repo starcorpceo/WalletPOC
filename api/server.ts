@@ -1,10 +1,17 @@
+import websocketPlugin from "@fastify/websocket";
 import config from "@lib/config";
 import { PrismaClient } from "@prisma/client";
-import fastify from "fastify";
+import { FastifyInstance } from "fastify";
 import logger from "./lib/logger";
-import { registerRoutes } from "./routes";
+import { registerRoutes } from "./routes/register-routes";
 
-const server = fastify();
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const fastify = require("fastify");
+
+const server: FastifyInstance = fastify();
+
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+server.register(websocketPlugin);
 
 export const client1: PrismaClient = new PrismaClient({
   datasources: { db: { url: config.databaseUrl } },
@@ -17,10 +24,10 @@ export const client2 = new PrismaClient({
 registerRoutes(server);
 
 server.all("*", (request, reply) => {
-  reply.status(404).send("Route does not exist");
+  reply.status(404).send({ error: "Route does not exist" });
 });
 
-server.listen(8080, (err, address) => {
+server.listen({ port: 8080 }, (err, address) => {
   if (err) {
     console.error(err);
     process.exit(1);

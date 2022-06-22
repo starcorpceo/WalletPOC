@@ -3,10 +3,17 @@ import { other } from "@lib/error";
 import { route } from "@lib/route";
 import crypto from "crypto";
 import Elliptic from "elliptic";
-import { FastifyInstance, FastifyRequest, FastifySchema } from "fastify";
+import { FastifyRequest } from "fastify";
 import { ResultAsync } from "neverthrow";
-import { CreateUserRequest, User } from "./user";
-import { createUser } from "./user.service";
+
+const testMcp = route<string>((req: FastifyRequest) => {
+  testCrypto();
+
+  return ResultAsync.fromPromise(
+    new Promise((resolve) => resolve("success")),
+    (err) => other("waa", err as Error)
+  );
+});
 
 function derive(s1: any, s2: any, harden: any, index: any) {
   const c1 = Context.createDeriveBIP32Context(1, s1, harden, index);
@@ -43,7 +50,7 @@ const testCrypto = () => {
   const k1 = c1.getNewShare();
   const k2 = c2.getNewShare();
   const publicKey = c1.getPublicKey();
-  console.log(publicKey.toString("hex"));
+  console.log("public key hey", publicKey.toString("hex"));
 
   const key = ec.keyFromPublic(publicKey.slice(23));
   console.log(key);
@@ -60,32 +67,4 @@ const testCrypto = () => {
   console.log("Signature", key.verify(hash, signature));
 };
 
-const postUser = route<User>((req: FastifyRequest) => {
-  return createUser(req.body as CreateUserRequest);
-});
-
-const checkStuff = route<string>((req: FastifyRequest) => {
-  testCrypto();
-
-  return ResultAsync.fromPromise(
-    new Promise((resolve) => resolve("success")),
-    (err) => other("waa", err as Error)
-  );
-});
-
-const registerUserRoutes = (server: FastifyInstance) => {
-  server.post("/user", { schema: createUserSchema }, postUser);
-  server.get("/user", checkStuff);
-};
-
-const createUserSchema: FastifySchema = {
-  body: {
-    type: "object",
-    required: ["secret"],
-    properties: {
-      secret: { type: "string", maxLength: 32, minLength: 0 },
-    },
-  },
-};
-
-export default registerUserRoutes;
+export default testMcp;

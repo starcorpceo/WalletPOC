@@ -5,9 +5,9 @@
 
 #ifdef __cplusplus
 
-#include "nativempc.h"
-#include "mpc_crypto_test.h"
+#include "mpc_crypto.h"
 #include <vector>
+#include <string>
 
 #endif
 

@@ -17,6 +17,29 @@ const BlockchainCryptoMpc = NativeModules.BlockchainCryptoMpc
       }
     );
 
-export function multiply(a: number, b: number): Promise<number> {
-  return BlockchainCryptoMpc.multiply(a, b);
+export function initGenerateEcdsaKey(): Promise<boolean> {
+  return BlockchainCryptoMpc.initGenerateEcdsaKey();
+}
+
+export function initSignEcdsa(message: number[]): Promise<number[]> {
+  return BlockchainCryptoMpc.initSignEcdsa(message);
+}
+
+export function step(messageIn: number[] | null): Promise<number[]> {
+  return BlockchainCryptoMpc.step(messageIn);
+}
+
+export function getPublicKey(): Promise<number[]> {
+  return BlockchainCryptoMpc.getPublicKey();
+}
+
+export function getSignature(): Promise<number[]> {
+  return BlockchainCryptoMpc.getSignature();
+}
+
+export function verifySignature(
+  message: number[],
+  signature: number[]
+): Promise<boolean> {
+  return BlockchainCryptoMpc.verifySignature(message, signature);
 }

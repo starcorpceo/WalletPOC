@@ -1,4 +1,4 @@
-import { client1 } from "../..";
+import { client1 } from "../../server";
 import { CreateUserRequest, User } from "./user";
 
 export const persistUserCreation = (
