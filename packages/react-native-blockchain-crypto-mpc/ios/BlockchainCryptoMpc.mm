@@ -13,6 +13,42 @@ unsigned flags = 0;
 
 bool finished = false;
 
+RCT_EXPORT_METHOD(initGenerateGenericSecret:(RCTPromiseResolveBlock)resolve
+                 withRejecter:(RCTPromiseRejectBlock)reject)
+{
+    int rv = 0;
+
+    if ((rv = MPCCrypto_initGenerateGenericSecret(1, 256, &context))){
+        resolve(@(&"Failure " [ rv ]));
+    }
+    
+    if(rv == 0)
+        resolve(@true);
+    else
+        resolve(@false);
+}
+
+
+RCT_EXPORT_METHOD(getShare:(RCTPromiseResolveBlock)resolve
+                 withRejecter:(RCTPromiseRejectBlock)reject)
+{
+    int rv = 0;
+    
+    std::vector<uint8_t> share_buf;
+    if ((rv = share_to_buf(share, share_buf)))
+        resolve(@(&"Failure " [ rv ]));
+    
+    unsigned long cPubLen = share_buf.size();
+
+    NSMutableArray * nsShareBuf = [[NSMutableArray alloc] initWithCapacity: cPubLen];
+
+    for(int i = 0; i< cPubLen; i++) {
+        nsShareBuf[i] = [NSNumber numberWithInt:share_buf[i]];
+    }
+
+    resolve(nsShareBuf);
+}
+
 RCT_EXPORT_METHOD(initGenerateEcdsaKey:(RCTPromiseResolveBlock)resolve
                  withRejecter:(RCTPromiseRejectBlock)reject)
 {

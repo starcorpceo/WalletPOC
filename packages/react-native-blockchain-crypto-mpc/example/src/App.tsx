@@ -4,7 +4,9 @@ import {
   getPublicKey,
   getSignature,
   initGenerateEcdsaKey,
+  initGenerateGenericSecret,
   initSignEcdsa,
+  getSeedShare,
   step,
   verifySignature,
 } from 'react-native-blockchain-crypto-mpc';
@@ -16,14 +18,17 @@ export default function App() {
     string | undefined
   >();
   const [clientPubKey, setClientPubKey] = React.useState<any | undefined>();
+  const [seedShare, setSeedShare] = React.useState<any | undefined>();
 
   const [signSuccess, setSignSuccess] = React.useState<boolean>();
   const [signResOnClient, setSignResOnClient] = React.useState<boolean>();
 
+
   React.useEffect(() => {
     const doit = async () => {
-      await generateEcdsa(setServerMessage, setClientPubKey);
-      await signEcdsa(setSignSuccess, setSignResOnClient);
+      await generateSecret(setServerMessage, setSeedShare);
+      //await generateEcdsa(setServerMessage, setClientPubKey);
+      //await signEcdsa(setSignSuccess, setSignResOnClient);
     };
 
     doit();
@@ -32,6 +37,7 @@ export default function App() {
   return (
     <ScrollView>
       <View style={styles.container}>
+        <Text>Result generic secret: {JSON.stringify(seedShare)}</Text>
         <Text>Result init client: {JSON.stringify(serverMessage)}</Text>
         <Text>Pub key client: {JSON.stringify(clientPubKey)}</Text>
         <Text>Signature verified by Server: {JSON.stringify(signSuccess)}</Text>
@@ -160,6 +166,49 @@ const generateEcdsa = (
         setClientPubKey(JSON.stringify(pubKey));
         res(true);
       });
+    };
+  });
+};
+
+const generateSecret = (
+  setServerMessage: Function,
+  setSeedShare: Function
+): Promise<any> => {
+  return new Promise((res) => {
+    const ws = new WebSocket(getApi('ws') + '/secret');
+
+    ws.onopen = () => {
+      initGenerateGenericSecret().then((success) => {
+        if (success)
+          step(null).then((firstMessage) => {
+            ws.send(new Uint8Array(firstMessage).buffer);
+          });
+      });
+    };
+
+    ws.onmessage = (message: WebSocketMessageEvent) => {
+      const receivedMessage = JSON.parse(message.data);
+
+      if (receivedMessage === true) {
+      }
+
+      step(receivedMessage).then((nextMessage) => {
+        ws.send(new Uint8Array(nextMessage).buffer);
+      });
+      setServerMessage(message.data);
+    };
+
+    ws.onerror = (error) => {
+      console.log('err', error);
+    };
+
+    ws.onclose = (event) => {
+      console.log('closed', event);
+      getSeedShare().then((share) => {
+        setSeedShare(JSON.stringify(share));
+        res(true);
+      });
+      //const seed1 = c1.getNewShare();
     };
   });
 };

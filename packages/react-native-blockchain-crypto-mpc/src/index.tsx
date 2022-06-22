@@ -17,6 +17,14 @@ const BlockchainCryptoMpc = NativeModules.BlockchainCryptoMpc
       }
     );
 
+export function initGenerateGenericSecret(): Promise<boolean> {
+  return BlockchainCryptoMpc.initGenerateGenericSecret();
+}
+
+export function getSeedShare(): Promise<number[]> {
+  return BlockchainCryptoMpc.getShare();
+}
+
 export function initGenerateEcdsaKey(): Promise<boolean> {
   return BlockchainCryptoMpc.initGenerateEcdsaKey();
 }
