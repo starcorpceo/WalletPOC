@@ -25,7 +25,6 @@ package com.reactnativeblockchaincryptompc.cryptompc;
 
 import android.os.Build;
 import androidx.annotation.RequiresApi;
-import java.security.interfaces.RSAPublicKey;
 
 @RequiresApi(api = Build.VERSION_CODES.KITKAT)
 public class Context implements AutoCloseable {

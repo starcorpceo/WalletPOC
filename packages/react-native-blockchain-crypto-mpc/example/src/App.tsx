@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import {
   getPublicKey,
   getSignature,
@@ -131,19 +131,17 @@ const generateEcdsa = (
     const ws = new WebSocket(getApi('ws') + '/init');
 
     ws.onopen = () => {
+      console.log('Start generate ecdsa key');
       initGenerateEcdsaKey().then((success) => {
         if (success)
           step(null).then((firstMessage) => {
-            ws.send(new Uint8Array(firstMessage).buffer);
+            ws.send(new Int8Array(firstMessage).buffer);
           });
       });
     };
 
     ws.onmessage = (message: WebSocketMessageEvent) => {
       const receivedMessage = JSON.parse(message.data);
-
-      if (receivedMessage === true) {
-      }
 
       step(receivedMessage).then((nextMessage) => {
         ws.send(new Uint8Array(nextMessage).buffer);
@@ -167,5 +165,7 @@ const generateEcdsa = (
 };
 
 const getApi = (protocoll: 'ws' | 'http'): string => {
-  return `${protocoll}://127.0.0.1:8080/mpc/ecdsa`;
+  const localIp = Platform.OS === 'android' ? '10.0.2.2' : '127.0.0.1';
+
+  return `${protocoll}://${localIp}:8080/mpc/ecdsa`;
 };
