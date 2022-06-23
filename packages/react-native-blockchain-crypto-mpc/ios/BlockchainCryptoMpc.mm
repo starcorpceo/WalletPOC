@@ -50,6 +50,23 @@ RCT_EXPORT_METHOD(importGenericSecret:(NSArray*)secret
         resolve(@false);
 }
 
+RCT_EXPORT_METHOD(initDeriveBIP32:(RCTPromiseResolveBlock)resolve
+                 withRejecter:(RCTPromiseRejectBlock)reject)
+{
+    int rv = 0;
+
+    MPCCrypto_freeContext(context);
+    context = nullptr;
+
+    if ((rv = MPCCrypto_initDeriveBIP32(1, share, 0, 0, &context)))
+      resolve(@(&"Failure " [ rv ]));
+
+    if(rv == 0)
+        resolve(@true);
+    else
+        resolve(@false);
+}
+
 
 RCT_EXPORT_METHOD(getShare:(RCTPromiseResolveBlock)resolve
                  withRejecter:(RCTPromiseRejectBlock)reject)
@@ -212,9 +229,23 @@ RCT_EXPORT_METHOD(step:(NSArray*)messageIn
                  withResolver:(RCTPromiseResolveBlock)resolve
                  withRejecter:(RCTPromiseRejectBlock)reject)
 {
+    
+    /*char *test=(char *)malloc(23000000);
+    for(int i=0; i<23000000; i++){
+      test[i] = 1;
+    }*/
+    
     std::vector<uint8_t> message_buf;
 
-    unsigned long size = [messageIn count];
+    /*unsigned long sizecount =[messageIn count];
+    unsigned long size = 0;
+    
+    if(sizecount >= 15000)
+        size = 15000;
+    else
+        size = [messageIn count];*/
+    
+    unsigned long size =[messageIn count];
 
     for(int i = 0; i < size; i++) {
         message_buf.push_back([messageIn[i] intValue]);

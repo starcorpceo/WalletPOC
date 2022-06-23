@@ -25,9 +25,9 @@ export function importGenericSecret(secret: number[]): Promise<boolean> {
   return BlockchainCryptoMpc.importGenericSecret(secret);
 }
 
-/*export function initDeriveBIP32(): Promise<boolean> {
+export function initDeriveBIP32(): Promise<boolean> {
   return BlockchainCryptoMpc.initDeriveBIP32();
-}*/
+}
 
 /*export function initBackupEcdsaKey(): Promise<boolean> {
   return BlockchainCryptoMpc.initBackupEcdsaKey();
@@ -46,6 +46,7 @@ export function initSignEcdsa(message: number[]): Promise<number[]> {
 }
 
 export function step(messageIn: number[] | null): Promise<number[]> {
+  console.log("in step");
   return BlockchainCryptoMpc.step(messageIn);
 }
 

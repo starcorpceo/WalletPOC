@@ -2,6 +2,7 @@ import { SocketStream } from "@fastify/websocket";
 import { FastifyInstance, FastifyRequest } from "fastify";
 import { initGenerateEcdsaKey } from "./ecdsa/init";
 import { initGenerateGenericSecret, importGenericSecret } from "./ecdsa/secret";
+import { initDeriveBIP32 } from "./ecdsa/bip";
 import { signWithEcdsaShare } from "./ecdsa/sign";
 import { verifyEcdsaSignature } from "./ecdsa/verify";
 import testMcp from "./test";
@@ -25,6 +26,15 @@ const registerMcpRoutes = (server: FastifyInstance): void => {
       { websocket: true },
       (connection: SocketStream, req: FastifyRequest) => {
         importGenericSecret(connection);
+      }
+    );
+  });
+  server.register(async function (server) {
+    server.get(
+      route + "/derive",
+      { websocket: true },
+      (connection: SocketStream, req: FastifyRequest) => {
+        initDeriveBIP32(connection);
       }
     );
   });

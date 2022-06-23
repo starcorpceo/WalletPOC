@@ -10,6 +10,7 @@ import {
   step,
   verifySignature,
   importGenericSecret,
+  initDeriveBIP32,
 } from 'react-native-blockchain-crypto-mpc';
 
 import { Buffer } from 'buffer';
@@ -25,6 +26,7 @@ export default function App() {
   const [signResOnClient, setSignResOnClient] = React.useState<boolean>();
 
   const [secret, setSecret] = React.useState<string>();
+  const [xPub, setxPub] = React.useState<any>();
 
   /*React.useEffect(() => {
     const doit = async () => {
@@ -42,12 +44,20 @@ export default function App() {
     await importSecret(secret!, setServerMessage);
   }
 
+  const deriveBIPMaster = async () => {
+    console.log("derive master");
+    await deriveBIP32(setxPub);
+  }
+
   return (
     <ScrollView>
       <View style={styles.container}>
         <Text>Hex Seed:</Text>
         <TextInput style={styles.input} onChangeText={setSecret}></TextInput>
         <Button onPress={importSecretOnPress} title="Import now">Import now</Button>
+
+        <Button onPress={deriveBIPMaster} title="Derive"></Button>
+        <Text>xPub: {JSON.stringify(xPub)}</Text>
         {/*<Text>Result generic secret: {JSON.stringify(seedShare)}</Text>
         <Text>Result init client: {JSON.stringify(serverMessage)}</Text>
         <Text>Pub key client: {JSON.stringify(clientPubKey)}</Text>
@@ -267,6 +277,53 @@ const importSecret = (
       console.log('closed', event);
       getSeedShare().then((share) => {
         setSeedShare(JSON.stringify(share));
+        res(true);
+      });
+    };
+  });
+};
+
+const deriveBIP32 = (
+  setXPubKeyShare: Function
+): Promise<any> => {
+  return new Promise((res) => {
+    const ws = new WebSocket(getApi('ws') + '/derive');
+
+    ws.onopen = () => {
+      initDeriveBIP32().then((success) => {
+        if (success)
+          step(null).then((firstMessage) => {
+            ws.send(new Uint8Array(firstMessage).buffer);
+          });
+      });
+    };
+
+    ws.onmessage = (message: WebSocketMessageEvent) => {
+      const receivedMessage = JSON.parse(message.data);
+
+      
+
+      console.log("on Message client");
+
+      /*if (receivedMessage === true) {
+      }*/
+
+      //console.log("rec: ", receivedMessage.length);
+
+      step(receivedMessage).then((nextMessage) => {
+        console.log("next: ", nextMessage.length);
+        ws.send(new Uint8Array(nextMessage).buffer);
+      });
+    };
+
+    ws.onerror = (error) => {
+      console.log('err', error);
+    };
+
+    ws.onclose = (event) => {
+      console.log('closed', event);
+      getPublicKey().then((pubKey) => {
+        setXPubKeyShare(JSON.stringify(pubKey));
         res(true);
       });
     };
