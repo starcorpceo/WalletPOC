@@ -21,9 +21,21 @@ export function initGenerateGenericSecret(): Promise<boolean> {
   return BlockchainCryptoMpc.initGenerateGenericSecret();
 }
 
-export function getSeedShare(): Promise<number[]> {
-  return BlockchainCryptoMpc.getShare();
+export function importGenericSecret(secret: number[]): Promise<boolean> {
+  return BlockchainCryptoMpc.importGenericSecret(secret);
 }
+
+/*export function initDeriveBIP32(): Promise<boolean> {
+  return BlockchainCryptoMpc.initDeriveBIP32();
+}*/
+
+/*export function initBackupEcdsaKey(): Promise<boolean> {
+  return BlockchainCryptoMpc.initBackupEcdsaKey();
+}*/
+
+/*export function initRefreshKey(): Promise<boolean> {
+  return BlockchainCryptoMpc.initRefreshKey();
+}*/
 
 export function initGenerateEcdsaKey(): Promise<boolean> {
   return BlockchainCryptoMpc.initGenerateEcdsaKey();
@@ -50,4 +62,8 @@ export function verifySignature(
   signature: number[]
 ): Promise<boolean> {
   return BlockchainCryptoMpc.verifySignature(message, signature);
+}
+
+export function getSeedShare(): Promise<number[]> {
+  return BlockchainCryptoMpc.getShare();
 }

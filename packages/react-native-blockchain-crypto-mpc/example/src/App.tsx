@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Platform, ScrollView, StyleSheet, Text, View, TextInput, Button } from 'react-native';
 import {
   getPublicKey,
   getSignature,
@@ -9,6 +9,7 @@ import {
   getSeedShare,
   step,
   verifySignature,
+  importGenericSecret,
 } from 'react-native-blockchain-crypto-mpc';
 
 import { Buffer } from 'buffer';
@@ -23,27 +24,37 @@ export default function App() {
   const [signSuccess, setSignSuccess] = React.useState<boolean>();
   const [signResOnClient, setSignResOnClient] = React.useState<boolean>();
 
+  const [secret, setSecret] = React.useState<string>();
 
-  React.useEffect(() => {
+  /*React.useEffect(() => {
     const doit = async () => {
-      await generateSecret(setServerMessage, setSeedShare);
+      await importSecret(secret, setServerMessage);
+      //await generateSecret(setServerMessage, setSeedShare);
       //await generateEcdsa(setServerMessage, setClientPubKey);
       //await signEcdsa(setSignSuccess, setSignResOnClient);
     };
 
     doit();
-  }, []);
+  }, []);*/
+
+  const importSecretOnPress = async () => {
+    console.log("hex: ", secret);
+    await importSecret(secret!, setServerMessage);
+  }
 
   return (
     <ScrollView>
       <View style={styles.container}>
-        <Text>Result generic secret: {JSON.stringify(seedShare)}</Text>
+        <Text>Hex Seed:</Text>
+        <TextInput style={styles.input} onChangeText={setSecret}></TextInput>
+        <Button onPress={importSecretOnPress} title="Import now">Import now</Button>
+        {/*<Text>Result generic secret: {JSON.stringify(seedShare)}</Text>
         <Text>Result init client: {JSON.stringify(serverMessage)}</Text>
         <Text>Pub key client: {JSON.stringify(clientPubKey)}</Text>
         <Text>Signature verified by Server: {JSON.stringify(signSuccess)}</Text>
         <Text>
           Signature verified by Client: {JSON.stringify(signResOnClient)}
-        </Text>
+        </Text>*/}
       </View>
     </ScrollView>
   );
@@ -61,6 +72,11 @@ const styles = StyleSheet.create({
     height: 60,
     marginVertical: 20,
   },
+  input: {
+    width:280,
+    height: 30,
+    backgroundColor: 'grey'
+  }
 });
 
 type SignStatus = 'Init' | 'Stepping';
@@ -209,6 +225,50 @@ const generateSecret = (
         res(true);
       });
       //const seed1 = c1.getNewShare();
+    };
+  });
+};
+
+const importSecret = (
+  secret: string,
+  setSeedShare: Function
+): Promise<any> => {
+  return new Promise((res) => {
+    const ws = new WebSocket(getApi('ws') + '/import');
+
+    const secretBuffer = Buffer.from(secret, 'hex');
+    const secretChars = [...secretBuffer];
+
+    ws.onopen = () => {
+      importGenericSecret(secretChars).then((success) => {
+        if (success)
+          step(null).then((firstMessage) => {
+            ws.send(new Uint8Array(firstMessage).buffer);
+          });
+      });
+    };
+
+    ws.onmessage = (message: WebSocketMessageEvent) => {
+      const receivedMessage = JSON.parse(message.data);
+
+      if (receivedMessage === true) {
+      }
+
+      step(receivedMessage).then((nextMessage) => {
+        ws.send(new Uint8Array(nextMessage).buffer);
+      });
+    };
+
+    ws.onerror = (error) => {
+      console.log('err', error);
+    };
+
+    ws.onclose = (event) => {
+      console.log('closed', event);
+      getSeedShare().then((share) => {
+        setSeedShare(JSON.stringify(share));
+        res(true);
+      });
     };
   });
 };
