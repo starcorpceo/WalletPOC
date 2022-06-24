@@ -9,18 +9,17 @@ export const initGenerateEcdsaKey = (connection: SocketStream) => {
   connection.socket.on("message", (message) => {
     if (!context) context = Context.createGenerateEcdsaKey(2);
 
-    const messageFromClient = new Uint8Array(message as ArrayBuffer);
-
-    const stepOutput = step(messageFromClient, context);
+    const stepOutput = step(message.toString(), context);
 
     if (stepOutput === true) {
       // TODO: Remove this in favor of real database
       db.shareBuf = context.getNewShare();
 
       connection.socket.close();
+      return;
     }
 
-    connection.socket.send(JSON.stringify(stepOutput));
+    connection.socket.send(stepOutput as string);
   });
 
   connection.socket.on("error", (err) => {

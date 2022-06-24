@@ -230,7 +230,11 @@ class Context {
     return new Context(contextPtrPtr.deref(), Types.GENERATE_GENERIC_SECRET);
   }
 
-  static createImportGenericSecretContext(peer: number, bits: number, seed: ArrayBuffer) {
+  static createImportGenericSecretContext(
+    peer: number,
+    bits: number,
+    seed: ArrayBuffer | Buffer[]
+  ) {
     const contextPtrPtr = ref.alloc(native.VoidPtrPtr);
     native.checkAndThrowError(
       native.MPCCrypto_initImportGenericSecret(peer, seed, bits, contextPtrPtr)

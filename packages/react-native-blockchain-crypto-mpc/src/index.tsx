@@ -45,8 +45,7 @@ export function initSignEcdsa(message: number[]): Promise<number[]> {
   return BlockchainCryptoMpc.initSignEcdsa(message);
 }
 
-export function step(messageIn: number[] | null): Promise<number[]> {
-  console.log("in step");
+export function step(messageIn: string | null): Promise<string> {
   return BlockchainCryptoMpc.step(messageIn);
 }
 

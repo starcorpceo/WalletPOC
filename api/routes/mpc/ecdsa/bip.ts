@@ -5,32 +5,24 @@ import { step } from "../step";
 
 export const initDeriveBIP32 = (connection: SocketStream) => {
   let context: Context;
-
-  console.log("yepp heere");
+  const share = db.shareBuf;
 
   connection.socket.on("message", (message) => {
-
-    const share = db.shareBuf;
     if (!context) context = Context.createDeriveBIP32Context(2, share, 0, 0);
 
-    console.log("Something will be done");
-
-    const messageFromClient = new Uint8Array(message as ArrayBuffer);
-
-    const stepOutput = step(messageFromClient, context);
+    const stepOutput = step(message.toString(), context);
 
     if (stepOutput === true) {
       // TODO: Remove this in favor of real database
       db.shareBuf = context.getNewShare();
-      console.log("everthings done");
 
       connection.socket.close();
+      return;
     }
 
-    if(stepOutput === false)
-        return
+    if (stepOutput === false) return;
 
-    connection.socket.send(JSON.stringify((stepOutput as number[])));
+    connection.socket.send(stepOutput as string);
   });
 
   connection.socket.on("error", (err) => {

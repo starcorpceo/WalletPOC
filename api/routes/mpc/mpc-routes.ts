@@ -1,11 +1,13 @@
 import { SocketStream } from "@fastify/websocket";
 import { FastifyInstance, FastifyRequest } from "fastify";
-import { initGenerateEcdsaKey } from "./ecdsa/init";
-import { initGenerateGenericSecret, importGenericSecret } from "./ecdsa/secret";
 import { initDeriveBIP32 } from "./ecdsa/bip";
+import { initGenerateEcdsaKey } from "./ecdsa/init";
+import { importGenericSecret, initGenerateGenericSecret } from "./ecdsa/secret";
 import { signWithEcdsaShare } from "./ecdsa/sign";
 import { verifyEcdsaSignature } from "./ecdsa/verify";
 import testMcp from "./test";
+
+export type ActionStatus = "Init" | "Stepping";
 
 const route = "/mpc/ecdsa";
 

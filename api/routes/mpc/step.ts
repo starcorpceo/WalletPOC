@@ -1,10 +1,7 @@
 import { Context } from "@crypto-mpc";
 
-export const step = (
-  message: Uint8Array,
-  context: Context
-): number[] | boolean => {
-  const inBuff = Buffer.from(message);
+export const step = (message: string, context: Context): string | boolean => {
+  const inBuff = Buffer.from(message, "base64");
 
   try {
     const outBuff = context.step(inBuff);
@@ -19,9 +16,7 @@ export const step = (
       return false;
     }
 
-    const outUint8 = new Uint8Array(outBuff);
-
-    return Array.from(outUint8) as number[];
+    return outBuff.toString("base64");
   } catch (err) {
     console.log("Error while performing step", err);
   }

@@ -225,32 +225,31 @@ RCT_EXPORT_METHOD(getPublicKey:(RCTPromiseResolveBlock)resolve
     resolve(@"Not finished");
 }
 
-RCT_EXPORT_METHOD(step:(NSArray*)messageIn
+RCT_EXPORT_METHOD(step:(NSString*)messageIn
                  withResolver:(RCTPromiseResolveBlock)resolve
                  withRejecter:(RCTPromiseRejectBlock)reject)
 {
     
-    /*char *test=(char *)malloc(23000000);
-    for(int i=0; i<23000000; i++){
-      test[i] = 1;
-    }*/
-    
     std::vector<uint8_t> message_buf;
 
-    /*unsigned long sizecount =[messageIn count];
-    unsigned long size = 0;
-    
-    if(sizecount >= 15000)
-        size = 15000;
-    else
-        size = [messageIn count];*/
-    
-    unsigned long size =[messageIn count];
+    if(messageIn != nil) {
+        NSData *nsdataFromBase64String = [[NSData alloc]
+                                          initWithBase64EncodedString:messageIn options:0];
 
-    for(int i = 0; i < size; i++) {
-        message_buf.push_back([messageIn[i] intValue]);
+        unsigned long size = nsdataFromBase64String.length;
+
+        char* buffer = (char* )malloc(size);
+
+        [nsdataFromBase64String getBytes:buffer range:NSMakeRange(0, size)];
+
+                
+        for(int i = 0; i < size; i++) {
+            message_buf.push_back(buffer[i]);
+        }
+        
     }
-
+    
+    
     int rv = nativeStep(message_buf, finished);
 
     unsigned long cMessageLen = message_buf.size();
@@ -260,9 +259,13 @@ RCT_EXPORT_METHOD(step:(NSArray*)messageIn
     for(int i = 0; i< cMessageLen; i++) {
         reactArray[i] = [NSNumber numberWithInt:message_buf[i]];
     }
+    
+    NSData *outData = [NSData dataWithBytes:message_buf.data() length:message_buf.size()];
 
+    NSString *outString = [outData base64EncodedStringWithOptions:0];
+    
     if(rv == 0) {
-        resolve(reactArray);
+        resolve(outString);
     } else {
         resolve(@(&"Failure " [ rv ]));
     }
