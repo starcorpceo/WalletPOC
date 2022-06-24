@@ -1,7 +1,8 @@
-import { initDeriveBIP32, step } from 'react-native-blockchain-crypto-mpc';
+import { initDeriveBIP32, step, getResultDeriveBIP32, getPublicKey, getShare } from 'react-native-blockchain-crypto-mpc';
 import { getApi } from './shared';
+import {Buffer} from "buffer"
 
-export const deriveBIP32 = (setXPubKeyShare: Function): Promise<any> => {
+export const deriveBIP32 = (setXPubKeyShare: Function, setShare: Function): Promise<any> => {
   return new Promise((res) => {
     const ws = new WebSocket(getApi('ws') + '/derive');
 
@@ -22,11 +23,18 @@ export const deriveBIP32 = (setXPubKeyShare: Function): Promise<any> => {
     };
 
     ws.onclose = (event) => {
+
       console.log('closed', event);
-      // getPublicKey().then((pubKey) => {
-      setXPubKeyShare('pub key should be available');
+
+      getResultDeriveBIP32().then((success) => {
+        success && getShare().then((share) => {
+          setShare(Buffer.from(share).toString('hex'));
+        });
+        success && getPublicKey().then((key) => {
+          setXPubKeyShare(Buffer.from(key).toString('hex'));
+        })
+      });
       res(true);
-      // });
     };
   });
 };

@@ -67,6 +67,20 @@ RCT_EXPORT_METHOD(initDeriveBIP32:(RCTPromiseResolveBlock)resolve
         resolve(@false);
 }
 
+RCT_EXPORT_METHOD(getResultDeriveBIP32:(RCTPromiseResolveBlock)resolve
+                 withRejecter:(RCTPromiseRejectBlock)reject)
+{
+    int rv = 0;
+
+    if ((rv = MPCCrypto_getResultDeriveBIP32(context, &share)))
+      resolve(@(&"Failure " [ rv ]));
+
+    if(rv == 0)
+        resolve(@true);
+    else
+        resolve(@false);
+}
+
 
 RCT_EXPORT_METHOD(getShare:(RCTPromiseResolveBlock)resolve
                  withRejecter:(RCTPromiseRejectBlock)reject)

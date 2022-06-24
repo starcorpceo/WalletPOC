@@ -1,6 +1,6 @@
 import { Buffer } from 'buffer';
 import {
-  getSeedShare,
+  getShare,
   importGenericSecret,
   step,
 } from 'react-native-blockchain-crypto-mpc';
@@ -48,7 +48,7 @@ export const importSecret = (
 
     ws.onclose = (event) => {
       console.log('closed', event);
-      getSeedShare().then((share) => {
+      getShare().then((share) => {
         setSeedShare(JSON.stringify(share));
         res(true);
       });

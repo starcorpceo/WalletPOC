@@ -1,5 +1,5 @@
 import {
-  getSeedShare,
+  getShare,
   initGenerateGenericSecret,
   step,
 } from 'react-native-blockchain-crypto-mpc';
@@ -29,7 +29,7 @@ export const generateSecret = (
 
     ws.onclose = (event) => {
       console.log('closed', event);
-      getSeedShare().then((share) => {
+      getShare().then((share) => {
         setSeedShare(JSON.stringify(share));
         res(true);
       });

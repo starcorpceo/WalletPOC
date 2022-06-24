@@ -23,7 +23,6 @@ export const signEcdsa = (
   };
 
   ws.onmessage = (message: WebSocketMessageEvent) => {
-    console.log('message on clinet', JSON.parse(message.data));
     switch (signStatus) {
       case 'Init':
         const msg = JSON.parse(message.data);

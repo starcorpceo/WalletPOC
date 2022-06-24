@@ -29,6 +29,10 @@ export function initDeriveBIP32(): Promise<boolean> {
   return BlockchainCryptoMpc.initDeriveBIP32();
 }
 
+export function getResultDeriveBIP32(): Promise<boolean> {
+  return BlockchainCryptoMpc.getResultDeriveBIP32();
+}
+
 /*export function initBackupEcdsaKey(): Promise<boolean> {
   return BlockchainCryptoMpc.initBackupEcdsaKey();
 }*/
@@ -64,6 +68,6 @@ export function verifySignature(
   return BlockchainCryptoMpc.verifySignature(message, signature);
 }
 
-export function getSeedShare(): Promise<number[]> {
+export function getShare(): Promise<number[]> {
   return BlockchainCryptoMpc.getShare();
 }

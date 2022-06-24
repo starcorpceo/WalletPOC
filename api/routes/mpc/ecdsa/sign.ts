@@ -30,8 +30,7 @@ export const signWithEcdsaShare = (connection: SocketStream) => {
 };
 
 const stepWithMessage = (connection, message, context): void => {
-  const stepOutput = step(message as string, context);
-
+  const stepOutput = step(message.toString(), context);
   if (stepOutput === true) {
     db.signature = context.getSignature();
 
