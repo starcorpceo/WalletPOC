@@ -1,14 +1,12 @@
 package com.reactnativesecureencryptionmodule.service;
 
-import android.content.Context;
 import android.os.Build;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyInfo;
 import android.security.keystore.KeyProperties;
 import android.util.Log;
-
 import androidx.annotation.RequiresApi;
-
+import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyFactory;
@@ -18,21 +16,21 @@ import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.Signature;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 import java.util.Optional;
-
 
 public class EncryptionService {
 
   private static final String TAG = "EncryptionService";
 
   @RequiresApi(api = Build.VERSION_CODES.N)
-  private static Optional<KeyStore.PrivateKeyEntry> loadPrivateKey(String alias) {
+  private static <T> Optional<T> loadKey(String alias) {
     try {
       KeyStore keyStore = KeyStore.getInstance("AndroidKeyStore");
       keyStore.load(null);
 
-      return Optional.of((KeyStore.PrivateKeyEntry) keyStore.getEntry(alias, null));
+      return Optional.of((T) keyStore.getEntry(alias, null));
     } catch (Exception e) {
       Log.e(TAG, "Error while loading Key");
       e.printStackTrace();
@@ -40,26 +38,27 @@ public class EncryptionService {
     }
   }
 
-  @RequiresApi(api = Build.VERSION_CODES.M)
+  @RequiresApi(api = Build.VERSION_CODES.O)
   public String generateKeyPair(String alias) {
-
     KeyPairGenerator kpg = null;
     try {
-      kpg = KeyPairGenerator.getInstance(
-        KeyProperties.KEY_ALGORITHM_EC, "AndroidKeyStore");
+      kpg =
+        KeyPairGenerator.getInstance(
+          KeyProperties.KEY_ALGORITHM_EC,
+          "AndroidKeyStore"
+        );
 
-
-      kpg.initialize(new KeyGenParameterSpec.Builder(
-        alias,
-        KeyProperties.PURPOSE_SIGN | KeyProperties.PURPOSE_VERIFY)
-        .setDigests(KeyProperties.DIGEST_SHA256,
-          KeyProperties.DIGEST_SHA512)
-        .build());
-
+      kpg.initialize(
+        new KeyGenParameterSpec.Builder(
+          alias,
+          KeyProperties.PURPOSE_SIGN | KeyProperties.PURPOSE_VERIFY
+        )
+          .setDigests(KeyProperties.DIGEST_SHA256)
+          .build()
+      );
     } catch (NoSuchAlgorithmException e) {
       e.printStackTrace();
       return "Algorithm not supported";
-
     } catch (NoSuchProviderException e) {
       e.printStackTrace();
       return "Provider not supported";
@@ -68,14 +67,28 @@ public class EncryptionService {
       return "AlgorithmParameter not supported";
     }
 
-
     KeyPair kp = kpg.generateKeyPair();
-    return kp.getPublic().toString();
+    return Base64.getEncoder().encodeToString(kp.getPublic().getEncoded());
+  }
+
+  @RequiresApi(api = Build.VERSION_CODES.O)
+  public String getKey(String keyName) {
+    Optional<KeyStore.PrivateKeyEntry> key = loadKey(keyName);
+
+    if (key.isPresent()) {
+      X509EncodedKeySpec spec = new X509EncodedKeySpec(
+        key.get().getCertificate().getPublicKey().getEncoded()
+      );
+
+      return Base64.getEncoder().encodeToString(spec.getEncoded());
+    }
+
+    return "No Key with name exists in system";
   }
 
   @RequiresApi(api = Build.VERSION_CODES.O)
   public String sign(String keyName, String message) {
-    Optional<KeyStore.PrivateKeyEntry> key = loadPrivateKey(keyName);
+    Optional<KeyStore.PrivateKeyEntry> key = loadKey(keyName);
     byte[] msg = message.getBytes(StandardCharsets.UTF_8);
 
     if (key.isPresent()) {
@@ -94,7 +107,6 @@ public class EncryptionService {
         byte[] signature = s.sign();
 
         return Base64.getEncoder().encodeToString(signature);
-
       } catch (Exception e) {
         e.printStackTrace();
         return "Error while signing";
@@ -106,11 +118,11 @@ public class EncryptionService {
 
   @RequiresApi(api = Build.VERSION_CODES.O)
   public boolean verify(String keyName, String signature, String message) {
-    Optional<KeyStore.PrivateKeyEntry> entry = loadPrivateKey(keyName);
+    Optional<KeyStore.PrivateKeyEntry> entry = loadKey(keyName);
 
     if (entry.isPresent()) {
       try {
-        byte[] sig = Base64.getDecoder().decode(signature.getBytes(StandardCharsets.ISO_8859_1));
+        byte[] sig = Base64.getDecoder().decode(signature.getBytes());
         byte[] msg = message.getBytes(StandardCharsets.UTF_8);
         Signature s = Signature.getInstance("SHA256withECDSA");
         s.initVerify(entry.get().getCertificate());
@@ -130,13 +142,19 @@ public class EncryptionService {
   }
 
   @RequiresApi(api = Build.VERSION_CODES.O)
-  public boolean isKeySecuredOnHardware(String keyName){
-    Optional<KeyStore.PrivateKeyEntry> entry = loadPrivateKey(keyName);
+  public boolean isKeySecuredOnHardware(String keyName) {
+    Optional<KeyStore.PrivateKeyEntry> entry = loadKey(keyName);
 
-    if(entry.isPresent()) {
+    if (entry.isPresent()) {
       try {
-        KeyFactory factory = KeyFactory.getInstance(entry.get().getPrivateKey().getAlgorithm(), "AndroidKeyStore");
-        KeyInfo keyInfo = factory.getKeySpec(entry.get().getPrivateKey(), KeyInfo.class);
+        KeyFactory factory = KeyFactory.getInstance(
+          entry.get().getPrivateKey().getAlgorithm(),
+          "AndroidKeyStore"
+        );
+        KeyInfo keyInfo = factory.getKeySpec(
+          entry.get().getPrivateKey(),
+          KeyInfo.class
+        );
 
         return keyInfo.isInsideSecureHardware();
       } catch (Exception e) {
@@ -148,12 +166,10 @@ public class EncryptionService {
   }
 
   public String encrypt(String keyName, String message) {
-
     return "Encryption not supported";
   }
 
   public String decrypt(String keyName, String cipherText) {
-
     return "Decryption not supported";
   }
 }

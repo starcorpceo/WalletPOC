@@ -10,7 +10,7 @@ import Foundation
 
 class Signature {
     
-    static var algorithm: SecKeyAlgorithm = .ecdsaSignatureMessageX962SHA512
+    static var algorithm: SecKeyAlgorithm = .ecdsaSignatureMessageX962SHA256
 
     static func sign(message: String, privateKey: SecKey) -> String {
         
