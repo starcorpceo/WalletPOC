@@ -12,6 +12,7 @@ import { deriveBIP32 } from './examples/deriveBip32';
 import { importSecret } from './examples/importSecret';
 import { signEcdsa } from './examples/signEcdsa';
 
+import "../shim"
 const ec = new Elliptic.ec("secp256k1");
 const bitcoin = require('bitcoinjs-lib');
 
@@ -54,7 +55,8 @@ export default function App() {
     console.log(xPub.slice(23))
     const key = ec.keyFromPublic(xPub.slice(23));
     console.log("ky: ", key.getPublic().encode('hex'));
-    //const { address } = bitcoin.payments.p2pkh({ pubkey: key.getPublic().encode('hex') });
+    const pubkey = bitcoin.ECKey.fromPublicKey(key.getPublic().encode('hex'))
+    const { address } = bitcoin.payments.p2pkh({ pubkey: pubkey });
     //console.log("address: " , address)
   }
 
