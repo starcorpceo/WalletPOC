@@ -18,24 +18,23 @@ import {
 } from 'react-native-secure-encryption-module';
 
 const App = () => {
-  const [result, setResult] = React.useState();
+  const [result, setResult] = React.useState<string>();
 
   const originalValue = 'Encrypt this';
   const messageToSign = 'Sign Me Please';
 
-  const [encrypted, setEncrypted] = React.useState();
-  const [decrypted, setDecrypted] = React.useState();
-  const [signature, setSignature] = React.useState();
-  const [secure, setSecure] = React.useState();
-  const [ok, setOk] = React.useState();
+  const [encrypted, setEncrypted] = React.useState<string>();
+  const [decrypted, setDecrypted] = React.useState<string>();
+  const [signature, setSignature] = React.useState<string>();
+  const [secure, setSecure] = React.useState<boolean>();
+  const [ok, setOk] = React.useState<boolean>();
 
   React.useEffect(() => {
     const doit = async () => {
       console.log('Generating Keypiar');
-      const x = await generateKeyPair('NewKey');
+      const key = await generateKeyPair('NewKey');
 
-      console.log('Keypiar', x);
-      setResult(JSON.stringify(x));
+      setResult(key);
 
       const encryptedVal = await encrypt(originalValue, 'NewKey');
       console.log('Encrypted', encryptedVal);
