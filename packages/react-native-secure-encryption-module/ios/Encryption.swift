@@ -14,9 +14,9 @@ class Encryption {
     
     static var algorithm: SecKeyAlgorithm = .eciesEncryptionCofactorVariableIVX963SHA256AESGCM
     
-    static func decrypt(encryptedText: String, privateKey: SecKey) -> String {
+    static func decrypt(encryptedText: String, privateKey: SecKey) throws -> String  {
         guard SecKeyIsAlgorithmSupported(privateKey, .decrypt, algorithm) else {
-            return "Not supported"
+            throw SecureEncryptionError.message("Algorithm not supported on this Device")
         }
         
         var error: Unmanaged<CFError>?
@@ -30,11 +30,11 @@ class Encryption {
         return String(decoding: clearTextData, as: UTF8.self)
     }
     
-    static func encrypt(clearText: String,publicKey: SecKey) -> String {
+    static func encrypt(clearText: String,publicKey: SecKey) throws -> String {
         print("Encrypting Message")
         
         guard SecKeyIsAlgorithmSupported(publicKey, .encrypt, algorithm) else {
-            return "Algorithm not suppoerted"
+            throw SecureEncryptionError.message("Algorithm not supported on this Device")
         }
         
         var error: Unmanaged<CFError>?
@@ -45,7 +45,7 @@ class Encryption {
                                                        &error)
         guard cipherTextData != nil else {
             print(error!)
-            return "cannot encrypt"
+            throw SecureEncryptionError.message("Could not encrypt message")
         }
 
         return (cipherTextData! as Data).base64EncodedString()

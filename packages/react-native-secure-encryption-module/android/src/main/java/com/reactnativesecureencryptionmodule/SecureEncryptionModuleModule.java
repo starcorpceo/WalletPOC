@@ -30,25 +30,44 @@ public class SecureEncryptionModuleModule extends ReactContextBaseJavaModule {
   @RequiresApi(api = Build.VERSION_CODES.O)
   @ReactMethod
   public void generateKeyPair(String alias, Promise promise) {
-    promise.resolve(encryptionService.generateKeyPair(alias));
+    try {
+      promise.resolve(encryptionService.generateKeyPair(alias));
+    } catch(Exception e) {
+      e.printStackTrace();
+      promise.reject(e);
+    }
   }
 
   @RequiresApi(api = Build.VERSION_CODES.O)
   @ReactMethod
   public void encrypt(String clearText, String keyName, Promise promise) {
-    promise.resolve(encryptionService.encrypt(keyName, clearText));
+    try {
+      promise.resolve(encryptionService.encrypt(keyName, clearText));
+    } catch(Exception e) {
+      promise.reject(e);
+    }
   }
 
   @RequiresApi(api = Build.VERSION_CODES.O)
   @ReactMethod
   public void decrypt(String encryptedText, String keyName, Promise promise) {
-    promise.resolve(encryptionService.decrypt(keyName, encryptedText));
+    try {
+      promise.resolve(encryptionService.decrypt(keyName, encryptedText));
+    } catch(Exception e) {
+      e.printStackTrace();
+      promise.reject(e);
+    }
   }
 
   @RequiresApi(api = Build.VERSION_CODES.O)
   @ReactMethod
   public void signMessage(String message, String keyName, Promise promise) {
-    promise.resolve(encryptionService.sign(keyName, message));
+    try {
+      promise.resolve(encryptionService.sign(keyName, message));
+    } catch(Exception e) {
+      e.printStackTrace();
+      promise.reject(e);
+    }
   }
 
   @RequiresApi(api = Build.VERSION_CODES.O)
@@ -59,18 +78,33 @@ public class SecureEncryptionModuleModule extends ReactContextBaseJavaModule {
     String keyName,
     Promise promise
   ) {
-    promise.resolve(encryptionService.verify(keyName, signature, message));
+    try {
+      promise.resolve(encryptionService.verify(keyName, signature, message));
+    }catch (Exception e) {
+      e.printStackTrace();
+      promise.reject(e);
+    }
   }
 
   @RequiresApi(api = Build.VERSION_CODES.O)
   @ReactMethod
   public void isKeySecuredOnHardware(String keyName, Promise promise) {
-    promise.resolve(encryptionService.isKeySecuredOnHardware(keyName));
+    try {
+      promise.resolve(encryptionService.isKeySecuredOnHardware(keyName));
+    } catch (Exception e) {
+      e.printStackTrace();
+      promise.reject(e);
+    }
   }
 
   @RequiresApi(api = Build.VERSION_CODES.O)
   @ReactMethod
   public void getKey(String alias, Promise promise) {
-    promise.resolve(encryptionService.getKey(alias));
+    try {
+      promise.resolve(encryptionService.getKey(alias));
+    } catch(Exception e) {
+      promise.reject(e);
+      e.printStackTrace();
+    }
   }
 }

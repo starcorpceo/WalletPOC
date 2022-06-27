@@ -12,6 +12,7 @@ import {
   decrypt,
   encrypt,
   generateKeyPair,
+  getKey,
   isKeySecuredOnHardware,
   sign,
   verify,
@@ -36,13 +37,14 @@ const App = () => {
 
       setResult(key);
 
-      const encryptedVal = await encrypt(originalValue, 'NewKey');
-      console.log('Encrypted', encryptedVal);
-      setEncrypted(encryptedVal);
-
-      const decryptedVal = await decrypt(encryptedVal, 'NewKey');
-      console.log('Decrypted', decryptedVal);
-      setDecrypted(decryptedVal);
+      encrypt(originalValue, 'NewKey')
+        .then(async encryptedVal => {
+          setEncrypted(encryptedVal);
+          const decryptedVal = await decrypt(encryptedVal, 'NewKey');
+          console.log('Decrypted', decryptedVal);
+          setDecrypted(decryptedVal);
+        })
+        .catch(setEncrypted);
 
       const sig = await sign(messageToSign, 'NewKey');
       setSignature(sig);
@@ -52,6 +54,12 @@ const App = () => {
 
       const isSecure = await isKeySecuredOnHardware('NewKey');
       setSecure(isSecure);
+
+      try {
+        await getKey('Does not exist');
+      } catch (err) {
+        console.log(err);
+      }
     };
     doit();
   }, []);
