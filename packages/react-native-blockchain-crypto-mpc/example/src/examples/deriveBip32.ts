@@ -31,7 +31,7 @@ export const deriveBIP32 = (setXPubKeyShare: Function, setShare: Function): Prom
           setShare(Buffer.from(share).toString('hex'));
         });
         success && getPublicKey().then((key) => {
-          setXPubKeyShare(Buffer.from(key).toString('hex'));
+          setXPubKeyShare(key);
         })
       });
       res(true);
