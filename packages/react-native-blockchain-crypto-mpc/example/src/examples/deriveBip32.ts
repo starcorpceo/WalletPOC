@@ -2,7 +2,7 @@ import { initDeriveBIP32, step, getResultDeriveBIP32, getPublicKey, getShare } f
 import { getApi } from './shared';
 import {Buffer} from "buffer"
 
-export const deriveBIP32 = (setXPubKeyShare: Function, setShare: Function): Promise<any> => {
+export const deriveBIP32 = (): Promise<any> => {
   return new Promise((res) => {
     const ws = new WebSocket(getApi('ws') + '/derive');
 
@@ -27,14 +27,10 @@ export const deriveBIP32 = (setXPubKeyShare: Function, setShare: Function): Prom
       console.log('closed', event);
 
       getResultDeriveBIP32().then((success) => {
-        success && getShare().then((share) => {
-          setShare(Buffer.from(share).toString('hex'));
-        });
         success && getPublicKey().then((key) => {
-          setXPubKeyShare(key);
+          res( key )
         })
       });
-      res(true);
     };
   });
 };

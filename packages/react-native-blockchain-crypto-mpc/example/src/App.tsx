@@ -29,8 +29,7 @@ export default function App() {
   const [signResOnClient, setSignResOnClient] = React.useState<boolean>();
 
   const [secret, setSecret] = React.useState<string>(testSecret);
-  const [xPub, setxPub] = React.useState<any>();
-  const [derivedShare, setDerivedShare] = React.useState<any>();
+  const [address, setAddress] = React.useState<any>();
 
   const importSecretOnPress = async () => {
     await importSecret(secret!, setServerMessage);
@@ -38,8 +37,14 @@ export default function App() {
   };
 
   const deriveBIPMaster = async () => {
-    await deriveBIP32(setxPub, setDerivedShare);
-    //console.log("ky: ", key.getPublic().encode('hex'));
+    const pk = await deriveBIP32();
+
+    const key = ec.keyFromPublic(pk.slice(23));
+    const pubkeyBuf = Buffer.from(key.getPublic().encode('hex'), 'hex')
+    const pubkey = bitcoin.ECPair.fromPublicKey(pubkeyBuf)
+    const { address } = bitcoin.payments.p2wpkh({ pubkey: pubkey.publicKey });
+    console.log(address)
+    setAddress(address)
   };
 
   const signStuff = async () => {
@@ -50,23 +55,11 @@ export default function App() {
     importSecretOnPress();
   };
 
-  const showMe = () => {
-    console.log(xPub)
-    console.log(xPub.slice(23))
-    const key = ec.keyFromPublic(xPub.slice(23));
-    console.log("ky: ", key.getPublic().encode('hex'));
-    const pubkey = bitcoin.ECKey.fromPublicKey(key.getPublic().encode('hex'))
-    const { address } = bitcoin.payments.p2pkh({ pubkey: pubkey });
-    //console.log("address: " , address)
-  }
-
   return (
     <ScrollView>
       <View style={styles.container}>
         <Button onPress={getAddress} title="Get address" />
-        <Text>Your BTC-address: {xPub}</Text>
-
-        <Button onPress={showMe} title="Show Me" />
+        <Text>Your BTC-address: {address}</Text>
 
       </View>
     </ScrollView>
