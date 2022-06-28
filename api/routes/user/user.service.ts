@@ -28,10 +28,7 @@ export const verifyUser = (
 
   return ResultAsync.fromPromise(getUser(request), (e) => e as RouteError).map(
     (user) => {
-      console.log("user found", user, message, signature);
       const verifier = crypto.createVerify("SHA256").update(message, "utf-8");
-      console.log("verifier created and message is in place", verifier);
-      console.log("public key", Buffer.from(user.devicePublicKey, "base64"));
       const result = verifier.verify(
         {
           key: buildPubKey(user.devicePublicKey),
@@ -40,7 +37,6 @@ export const verifyUser = (
         },
         Buffer.from(signature, "base64")
       );
-      console.log("verification done", result);
       return result;
     }
   );

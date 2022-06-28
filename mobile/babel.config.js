@@ -8,6 +8,7 @@ module.exports = {
         root: ["./app"],
         alias: {
           lib: "./app/lib",
+          state: "./app/state",
         },
       },
     ],
