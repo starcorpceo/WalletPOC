@@ -13,26 +13,6 @@ import { importSecret } from './examples/importSecret';
 import { signEcdsa } from './examples/signEcdsa';
 import { JSONRPCClient } from "json-rpc-2.0";
 
-const RPCclient = new JSONRPCClient((jsonRPCRequest) =>
-  fetch("https://btc.getblock.io/testnet/", {
-    method: "POST",
-    headers: {
-      "x-api-key": "2b613d1b-2943-4e66-9ee1-0f73d6ba8f70",
-      "content-type": "application/json",
-    },
-    body: JSON.stringify(jsonRPCRequest),
-  }).then((response) => {
-    if (response.status === 200) {
-      // Use client.receive when you received a JSON-RPC response.
-      return response
-        .json()
-        .then((jsonRPCResponse) => RPCclient.receive(jsonRPCResponse));
-    } else if (jsonRPCRequest.id !== undefined) {
-      return Promise.reject(new Error(response.statusText));
-    }
-  })
-);
-
 import "../shim"
 const ec = new Elliptic.ec("secp256k1");
 const bitcoin = require('bitcoinjs-lib');
@@ -141,6 +121,21 @@ export default function App() {
     console.log(data);*/
 
     console.log("last transaction small : " , transactions[0].hash)
+
+    const psbt = new bitcoin.Psbt({TESTNET})
+      .addInput({
+        hash: transactions[0].hash,
+        index: transactions[0].index,
+        nonWitnessUtxo: Buffer.from(transactions[0].hash, 'hex')
+      }) 
+      .addOutput({
+        address: "",
+        value: (0.0001 * 100000000), 
+      })
+      .addOutput({
+        address: address,
+        value: ((transactions[0].outputs[1].value - (0.0001 * 100000000)) - 0.00005), 
+      })
   }
 
   const getAddress = async () => {
