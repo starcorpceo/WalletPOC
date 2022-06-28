@@ -230,6 +230,18 @@ class Context {
     return new Context(contextPtrPtr.deref(), Types.GENERATE_GENERIC_SECRET);
   }
 
+  static createImportGenericSecretContext(
+    peer: number,
+    bits: number,
+    seed: ArrayBuffer | Buffer[]
+  ) {
+    const contextPtrPtr = ref.alloc(native.VoidPtrPtr);
+    native.checkAndThrowError(
+      native.MPCCrypto_initImportGenericSecret(peer, seed, bits, contextPtrPtr)
+    );
+    return new Context(contextPtrPtr.deref(), Types.GENERATE_GENERIC_SECRET);
+  }
+
   static createDeriveBIP32Context(peer, shareBuf, hardened, index) {
     const share = Share.fromBuffer(shareBuf);
     const contextPtrPtr = ref.alloc(native.VoidPtrPtr);

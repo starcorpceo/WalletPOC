@@ -17,6 +17,30 @@ const BlockchainCryptoMpc = NativeModules.BlockchainCryptoMpc
       }
     );
 
+export function initGenerateGenericSecret(): Promise<boolean> {
+  return BlockchainCryptoMpc.initGenerateGenericSecret();
+}
+
+export function importGenericSecret(secret: number[]): Promise<boolean> {
+  return BlockchainCryptoMpc.importGenericSecret(secret);
+}
+
+export function initDeriveBIP32(): Promise<boolean> {
+  return BlockchainCryptoMpc.initDeriveBIP32();
+}
+
+export function getResultDeriveBIP32(): Promise<boolean> {
+  return BlockchainCryptoMpc.getResultDeriveBIP32();
+}
+
+/*export function initBackupEcdsaKey(): Promise<boolean> {
+  return BlockchainCryptoMpc.initBackupEcdsaKey();
+}*/
+
+/*export function initRefreshKey(): Promise<boolean> {
+  return BlockchainCryptoMpc.initRefreshKey();
+}*/
+
 export function initGenerateEcdsaKey(): Promise<boolean> {
   return BlockchainCryptoMpc.initGenerateEcdsaKey();
 }
@@ -25,7 +49,7 @@ export function initSignEcdsa(message: number[]): Promise<number[]> {
   return BlockchainCryptoMpc.initSignEcdsa(message);
 }
 
-export function step(messageIn: number[] | null): Promise<number[]> {
+export function step(messageIn: string | null): Promise<string> {
   return BlockchainCryptoMpc.step(messageIn);
 }
 
@@ -42,4 +66,8 @@ export function verifySignature(
   signature: number[]
 ): Promise<boolean> {
   return BlockchainCryptoMpc.verifySignature(message, signature);
+}
+
+export function getShare(): Promise<number[]> {
+  return BlockchainCryptoMpc.getShare();
 }

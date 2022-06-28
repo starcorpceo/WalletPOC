@@ -1,39 +1,76 @@
 import * as React from 'react';
-import { Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import {
-  getPublicKey,
-  getSignature,
-  initGenerateEcdsaKey,
-  initSignEcdsa,
-  step,
-  verifySignature,
-} from 'react-native-blockchain-crypto-mpc';
+  Button,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
+import { deriveBIP32 } from './examples/deriveBip32';
+import { importSecret } from './examples/importSecret';
+import { signEcdsa } from './examples/signEcdsa';
 
-import { Buffer } from 'buffer';
+const testSecret =
+  '153649e88ae8337f53451d8d0f4e6fd7e1860626923fc04192c8abc2370b68dc';
 
 export default function App() {
   const [serverMessage, setServerMessage] = React.useState<
     string | undefined
   >();
-  const [clientPubKey, setClientPubKey] = React.useState<any | undefined>();
+   // const [clientPubKey, setClientPubKey] = React.useState<any | undefined>();
+  // const [seedShare, setSeedShare] = React.useState<any | undefined>();
 
-  const [signSuccess, setSignSuccess] = React.useState<boolean>();
-  const [signResOnClient, setSignResOnClient] = React.useState<boolean>();
+   const [signSuccess, setSignSuccess] = React.useState<boolean>();
+   const [signResOnClient, setSignResOnClient] = React.useState<boolean>();
+
+  const [secret, setSecret] = React.useState<string>(testSecret);
+  const [xPub, setxPub] = React.useState<any>();
+  const [derivedShare, setDerivedShare] = React.useState<any>();
 
   React.useEffect(() => {
     const doit = async () => {
-      await generateEcdsa(setServerMessage, setClientPubKey);
-      await signEcdsa(setSignSuccess, setSignResOnClient);
+      //await generateSecret(setServerMessage, setSeedShare);
+      // await generateEcdsa(setServerMessage, setClientPubKey);
+      //await signEcdsa(setSignSuccess, setSignResOnClient);
     };
 
     doit();
   }, []);
 
+  const importSecretOnPress = async () => {
+    await importSecret(secret!, setServerMessage);
+  };
+
+  const deriveBIPMaster = async () => {
+    await deriveBIP32(setxPub, setDerivedShare);
+  };
+
+  const signStuff = async () => {
+    await signEcdsa(setSignSuccess,setSignResOnClient)
+  };
+
   return (
     <ScrollView>
       <View style={styles.container}>
+        <Text>Hex Seed:</Text>
+        <TextInput
+          style={styles.input}
+          value={testSecret}
+          onChangeText={setSecret}
+        />
+        <Button onPress={importSecretOnPress} title="Import now">
+          Import now
+        </Button>
         <Text>Result init client: {JSON.stringify(serverMessage)}</Text>
-        <Text>Pub key client: {JSON.stringify(clientPubKey)}</Text>
+        <Button onPress={deriveBIPMaster} title="Derive" />
+        <Text>xPub: {JSON.stringify(xPub)}</Text>
+        <Text>Derived Sahre: {JSON.stringify(derivedShare)}</Text>
+        {/* <Text>Result generic secret: {JSON.stringify(seedShare)}</Text> */}
+        
+
+        <Button onPress={signStuff} title="Sign Stuff" />
+        {/* <Text>Pub key client: {JSON.stringify(clientPubKey)}</Text> */}
         <Text>Signature verified by Server: {JSON.stringify(signSuccess)}</Text>
         <Text>
           Signature verified by Client: {JSON.stringify(signResOnClient)}
@@ -55,117 +92,9 @@ const styles = StyleSheet.create({
     height: 60,
     marginVertical: 20,
   },
+  input: {
+    width: 280,
+    height: 30,
+    backgroundColor: 'grey',
+  },
 });
-
-type SignStatus = 'Init' | 'Stepping';
-
-const signEcdsa = (setSuccess: Function, setSignResOnClient: Function) => {
-  const ws = new WebSocket(getApi('ws') + '/sign');
-  const stringToSign = 'Hello World';
-  let signStatus: SignStatus = 'Init';
-  const bufferToSign = Buffer.from(stringToSign);
-
-  ws.onopen = () => {
-    ws.send(bufferToSign);
-  };
-  const messageChars = [...bufferToSign];
-
-  ws.onmessage = (message: WebSocketMessageEvent) => {
-    console.log('message on clinet', JSON.parse(message.data));
-    switch (signStatus) {
-      case 'Init':
-        const msg = JSON.parse(message.data);
-
-        if (msg.value !== 'Start') {
-          return;
-        }
-
-        signStatus = 'Stepping';
-
-        initSignEcdsa(messageChars).then((success) => {
-          if (success)
-            step(null).then((firstMessage) => {
-              ws.send(new Uint8Array(firstMessage).buffer);
-            });
-        });
-
-        break;
-      case 'Stepping':
-        const receivedMessage = JSON.parse(message.data);
-
-        if (receivedMessage === true) {
-        }
-
-        step(receivedMessage).then((nextMessage) => {
-          ws.send(new Uint8Array(nextMessage).buffer);
-        });
-        break;
-    }
-  };
-
-  ws.onerror = (error) => {
-    console.log('err', error);
-  };
-
-  ws.onclose = (event) => {
-    console.log('closed', event);
-
-    getSignature().then((signature) => {
-      fetch(getApi('http') + '/verify', {
-        method: 'POST',
-        body: JSON.stringify({ message: messageChars, signature }),
-      }).then(async (success) => setSuccess(await success.json()));
-
-      verifySignature(messageChars, signature).then((success) => {
-        setSignResOnClient(success);
-      });
-    });
-  };
-};
-
-const generateEcdsa = (
-  setServerMessage: Function,
-  setClientPubKey: Function
-): Promise<any> => {
-  return new Promise((res) => {
-    const ws = new WebSocket(getApi('ws') + '/init');
-
-    ws.onopen = () => {
-      console.log('Start generate ecdsa key');
-      initGenerateEcdsaKey().then((success) => {
-        if (success)
-          step(null).then((firstMessage) => {
-            ws.send(new Int8Array(firstMessage).buffer);
-          });
-      });
-    };
-
-    ws.onmessage = (message: WebSocketMessageEvent) => {
-      const receivedMessage = JSON.parse(message.data);
-
-      step(receivedMessage).then((nextMessage) => {
-        ws.send(new Uint8Array(nextMessage).buffer);
-      });
-      setServerMessage(message.data);
-    };
-
-    ws.onerror = (error) => {
-      console.log('err', error);
-    };
-
-    ws.onclose = (event) => {
-      console.log('closed', event);
-
-      getPublicKey().then((pubKey) => {
-        setClientPubKey(JSON.stringify(pubKey));
-        res(true);
-      });
-    };
-  });
-};
-
-const getApi = (protocoll: 'ws' | 'http'): string => {
-  const localIp = Platform.OS === 'android' ? '10.0.2.2' : '127.0.0.1';
-
-  return `${protocoll}://${localIp}:8080/mpc/ecdsa`;
-};
