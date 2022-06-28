@@ -3,9 +3,14 @@
 
 @interface RCT_EXTERN_MODULE(SecureEncryptionModule, NSObject)
 
+RCT_EXTERN_METHOD(getKey:(NSString)alias
+                  resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
+
 RCT_EXTERN_METHOD(generateKeyPair:(NSString)alias
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
+
 
 RCT_EXTERN_METHOD(encrypt:(NSString)clearText
                   keyName:(NSString)key

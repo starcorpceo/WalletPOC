@@ -32,13 +32,17 @@ const wrapHandler = <T>(
 ): void => {
   handlerResult
     .map((data) => {
+      console.log("Successfully sending data", data);
       res.status(200).send(data);
     })
     .mapErr((error) => {
+      console.error("Failed to work on request", error);
       const { statusCode, errorMsg } = mapRouteError(error);
       res.status(statusCode).send({ error: errorMsg });
     })
     .mapErr((parseError) => {
+      console.error("Failed to parse", parseError);
+
       res.status(400).send({
         error: parseError,
       });

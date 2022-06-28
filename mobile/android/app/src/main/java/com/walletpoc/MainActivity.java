@@ -1,4 +1,5 @@
 package com.walletpoc;
+import expo.modules.ReactActivityDelegateWrapper;
 
 import android.os.Bundle;
 import com.facebook.react.ReactActivity;
@@ -29,7 +30,7 @@ public class MainActivity extends ReactActivity {
    */
   @Override
   protected ReactActivityDelegate createReactActivityDelegate() {
-    return new MainActivityDelegate(this, getMainComponentName());
+    return new ReactActivityDelegateWrapper(this, new MainActivityDelegate(this, getMainComponentName()));
   }
 
   public static class MainActivityDelegate extends ReactActivityDelegate {

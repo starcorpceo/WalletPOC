@@ -13,12 +13,8 @@ const server: FastifyInstance = fastify();
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 server.register(websocketPlugin);
 
-export const client1: PrismaClient = new PrismaClient({
+export const client: PrismaClient = new PrismaClient({
   datasources: { db: { url: config.databaseUrl } },
-});
-
-export const client2 = new PrismaClient({
-  datasources: { db: { url: config.backupDatabaseUrl } },
 });
 
 registerRoutes(server);

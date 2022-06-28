@@ -1,159 +1,139 @@
 package com.reactnativesecureencryptionmodule.service;
 
-import android.content.Context;
 import android.os.Build;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyInfo;
 import android.security.keystore.KeyProperties;
 import android.util.Log;
-
 import androidx.annotation.RequiresApi;
-
 import java.nio.charset.StandardCharsets;
-import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.KeyStore;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
 import java.security.Signature;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
-import java.util.Optional;
-
 
 public class EncryptionService {
 
   private static final String TAG = "EncryptionService";
 
   @RequiresApi(api = Build.VERSION_CODES.N)
-  private static Optional<KeyStore.PrivateKeyEntry> loadPrivateKey(String alias) {
+  private static <T> T loadKey(String alias) throws Exception {
     try {
       KeyStore keyStore = KeyStore.getInstance("AndroidKeyStore");
       keyStore.load(null);
 
-      return Optional.of((KeyStore.PrivateKeyEntry) keyStore.getEntry(alias, null));
+      return (T) keyStore.getEntry(alias, null);
     } catch (Exception e) {
-      Log.e(TAG, "Error while loading Key");
-      e.printStackTrace();
-      return Optional.empty();
+      throw new Exception("Key not found");
     }
   }
 
-  @RequiresApi(api = Build.VERSION_CODES.M)
-  public String generateKeyPair(String alias) {
-
+  @RequiresApi(api = Build.VERSION_CODES.O)
+  public String generateKeyPair(String alias) throws Exception {
     KeyPairGenerator kpg = null;
     try {
-      kpg = KeyPairGenerator.getInstance(
-        KeyProperties.KEY_ALGORITHM_EC, "AndroidKeyStore");
+      kpg =
+        KeyPairGenerator.getInstance(
+          KeyProperties.KEY_ALGORITHM_EC,
+          "AndroidKeyStore"
+        );
 
-
-      kpg.initialize(new KeyGenParameterSpec.Builder(
-        alias,
-        KeyProperties.PURPOSE_SIGN | KeyProperties.PURPOSE_VERIFY)
-        .setDigests(KeyProperties.DIGEST_SHA256,
-          KeyProperties.DIGEST_SHA512)
-        .build());
-
-    } catch (NoSuchAlgorithmException e) {
-      e.printStackTrace();
-      return "Algorithm not supported";
-
-    } catch (NoSuchProviderException e) {
-      e.printStackTrace();
-      return "Provider not supported";
-    } catch (InvalidAlgorithmParameterException e) {
-      e.printStackTrace();
-      return "AlgorithmParameter not supported";
+      kpg.initialize(
+        new KeyGenParameterSpec.Builder(
+          alias,
+          KeyProperties.PURPOSE_SIGN | KeyProperties.PURPOSE_VERIFY
+        )
+          .setDigests(KeyProperties.DIGEST_SHA256)
+          .build()
+      );
+    } catch (Exception e) {
+      throw new Exception("Error while creating Keypair");
     }
-
 
     KeyPair kp = kpg.generateKeyPair();
-    return kp.getPublic().toString();
+    return Base64.getEncoder().encodeToString(kp.getPublic().getEncoded());
   }
 
   @RequiresApi(api = Build.VERSION_CODES.O)
-  public String sign(String keyName, String message) {
-    Optional<KeyStore.PrivateKeyEntry> key = loadPrivateKey(keyName);
+  public String getKey(String keyName) throws Exception {
+    KeyStore.PrivateKeyEntry key = loadKey(keyName);
+
+    if (key == null) {
+      throw new Exception("Key not found");
+    }
+
+    X509EncodedKeySpec spec = new X509EncodedKeySpec(
+      key.getCertificate().getPublicKey().getEncoded()
+    );
+
+    return Base64.getEncoder().encodeToString(spec.getEncoded());
+  }
+
+  @RequiresApi(api = Build.VERSION_CODES.O)
+  public String sign(String keyName, String message) throws Exception {
+    KeyStore.PrivateKeyEntry key = loadKey(keyName);
     byte[] msg = message.getBytes(StandardCharsets.UTF_8);
 
-    if (key.isPresent()) {
-      try {
-        KeyStore ks = KeyStore.getInstance("AndroidKeyStore");
-        ks.load(null);
-        KeyStore.Entry entry = ks.getEntry(keyName, null);
-        if (!(entry instanceof KeyStore.PrivateKeyEntry)) {
-          Log.w(TAG, "Not an instance of a PrivateKeyEntry");
-          return null;
-        }
-        Signature s = Signature.getInstance("SHA256withECDSA");
+    try {
+      Signature s = Signature.getInstance("SHA256withECDSA");
 
-        s.initSign(key.get().getPrivateKey());
-        s.update(msg);
-        byte[] signature = s.sign();
+      s.initSign(key.getPrivateKey());
+      s.update(msg);
+      byte[] signature = s.sign();
 
-        return Base64.getEncoder().encodeToString(signature);
-
-      } catch (Exception e) {
-        e.printStackTrace();
-        return "Error while signing";
-      }
+      return Base64.getEncoder().encodeToString(signature);
+    } catch (Exception e) {
+      throw new Exception("Failed to sign Message", e);
     }
-
-    return "No Key with name exists in system";
   }
 
   @RequiresApi(api = Build.VERSION_CODES.O)
-  public boolean verify(String keyName, String signature, String message) {
-    Optional<KeyStore.PrivateKeyEntry> entry = loadPrivateKey(keyName);
+  public boolean verify(String keyName, String signature, String message)
+    throws Exception {
+    KeyStore.PrivateKeyEntry entry = loadKey(keyName);
+    try {
+      byte[] sig = Base64.getDecoder().decode(signature.getBytes());
+      byte[] msg = message.getBytes(StandardCharsets.UTF_8);
+      Signature s = Signature.getInstance("SHA256withECDSA");
+      s.initVerify(entry.getCertificate());
+      s.update(msg);
 
-    if (entry.isPresent()) {
-      try {
-        byte[] sig = Base64.getDecoder().decode(signature.getBytes(StandardCharsets.ISO_8859_1));
-        byte[] msg = message.getBytes(StandardCharsets.UTF_8);
-        Signature s = Signature.getInstance("SHA256withECDSA");
-        s.initVerify(entry.get().getCertificate());
-        s.update(msg);
-
-        boolean valid = s.verify(sig);
-
-        Log.i(TAG, "Actually Comparing");
-        return valid;
-      } catch (Exception e) {
-        e.printStackTrace();
-        return false;
-      }
+      Log.i(TAG, "Actually Comparing");
+      return s.verify(sig);
+    } catch (Exception e) {
+      throw new Exception("Failed to verify Message", e);
     }
-
-    return false;
   }
 
   @RequiresApi(api = Build.VERSION_CODES.O)
-  public boolean isKeySecuredOnHardware(String keyName){
-    Optional<KeyStore.PrivateKeyEntry> entry = loadPrivateKey(keyName);
+  public boolean isKeySecuredOnHardware(String keyName) throws Exception {
+    KeyStore.PrivateKeyEntry entry = loadKey(keyName);
 
-    if(entry.isPresent()) {
-      try {
-        KeyFactory factory = KeyFactory.getInstance(entry.get().getPrivateKey().getAlgorithm(), "AndroidKeyStore");
-        KeyInfo keyInfo = factory.getKeySpec(entry.get().getPrivateKey(), KeyInfo.class);
+    try {
+      KeyFactory factory = KeyFactory.getInstance(
+        entry.getPrivateKey().getAlgorithm(),
+        "AndroidKeyStore"
+      );
+      KeyInfo keyInfo = factory.getKeySpec(
+        entry.getPrivateKey(),
+        KeyInfo.class
+      );
 
-        return keyInfo.isInsideSecureHardware();
-      } catch (Exception e) {
-        e.printStackTrace();
-      }
+      return keyInfo.isInsideSecureHardware();
+    } catch (Exception e) {
+      e.printStackTrace();
+      throw new Exception("Failed to evaluate security of KeyPair", e);
     }
-
-    return false;
   }
 
-  public String encrypt(String keyName, String message) {
-
-    return "Encryption not supported";
+  public String encrypt(String keyName, String message) throws Exception {
+    throw new Exception("Encryption not supported on Android");
   }
 
-  public String decrypt(String keyName, String cipherText) {
-
-    return "Decryption not supported";
+  public String decrypt(String keyName, String cipherText) throws Exception {
+    throw new Exception("Decryption not supported on Android");
   }
 }

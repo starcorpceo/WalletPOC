@@ -10,7 +10,13 @@ class SecureEncryptionModule: NSObject {
         
         let secKey = SecureEncryptionModule.loadKey(name: (key as String))!
         
-        resolve(Encryption.decrypt(encryptedText: encryptedText as String, privateKey: secKey))
+        do {
+         try resolve(Encryption.decrypt(encryptedText: encryptedText as String, privateKey: secKey))
+        } catch SecureEncryptionError.message(let errorMessage) {
+            reject(nil, errorMessage, nil)
+        } catch {
+            reject(nil, "Unexpected Error", nil)
+        }
     }
     
     @objc(encrypt:keyName:resolver:rejecter:)
@@ -20,11 +26,17 @@ class SecureEncryptionModule: NSObject {
         let secKey = SecureEncryptionModule.loadKey(name:key as String)!
         
         guard let publicKey = SecKeyCopyPublicKey(secKey) else {
-            resolve("Cant get Public Key")
+            reject(nil, "Cant get Public Key", nil)
             return
         }
         
-        resolve(Encryption.encrypt(clearText: clearText as String, publicKey: publicKey))
+        do {
+         try resolve(Encryption.encrypt(clearText: clearText as String, publicKey: publicKey))
+        } catch SecureEncryptionError.message(let errorMessage) {
+            reject(nil, errorMessage, nil)
+        } catch {
+            reject(nil, "Unexpected Error", nil)
+        }
     }
     
     @objc(signMessage:keyName:resolver:rejecter:)
@@ -33,7 +45,13 @@ class SecureEncryptionModule: NSObject {
         
         let secKey = SecureEncryptionModule.loadKey(name:key as String)!
         
-        resolve(Signature.sign(message: message as String, privateKey: secKey))
+        do {
+         try resolve(Signature.sign(message: message as String, privateKey: secKey))
+    } catch SecureEncryptionError.message(let errorMessage) {
+        reject(nil, errorMessage, nil)
+    } catch {
+        reject(nil, "Unexpected Error", nil)
+    }
     }
     
     @objc(verifySignature:signedString:keyName:resolver:rejecter:)
@@ -43,16 +61,22 @@ class SecureEncryptionModule: NSObject {
         let secKey = SecureEncryptionModule.loadKey(name:key as String)
         
         guard secKey != nil else {
-            resolve("No such key exists")
+            reject(nil, "Cant get Public Key", nil)
             return
         }
         
         guard let publicKey = SecKeyCopyPublicKey(secKey!) else {
-            resolve("Cant get Public Key")
+            reject(nil, "Cant get Public Key", nil)
             return
         }
         
-        resolve(Signature.verify(signature: signature as String, signedString: message as String, publicKey: publicKey))
+        do {
+         try resolve(Signature.verify(signature: signature as String, signedString: message as String, publicKey: publicKey))
+    } catch SecureEncryptionError.message(let errorMessage) {
+        reject(nil, errorMessage, nil)
+    } catch {
+        reject(nil, "Unexpected Error", nil)
+    }
     }
     
     @objc(isKeySecuredOnHardware:resolver:rejecter:)
@@ -61,7 +85,7 @@ class SecureEncryptionModule: NSObject {
         let secKey = SecureEncryptionModule.loadKey(name:keyName as String)
         
         guard secKey != nil else {
-            resolve("No such key exists")
+            reject(nil, "Cant get Public Key", nil)
             return
         }
         
@@ -103,28 +127,55 @@ class SecureEncryptionModule: NSObject {
         var error: Unmanaged<CFError>?
         guard let privateKey = SecKeyCreateRandomKey(attributes as CFDictionary, &error) else {
             let err = error!.takeRetainedValue() as Error
-            resolve("Error while creating KeyPair")
+            reject(nil, "Error while creating KeyPair", err)
             print(err)
             return
         }
         
         guard let publicKey = SecKeyCopyPublicKey(privateKey) else {
-            resolve("Cant get key")
-            print("Could not find public key")
+            reject(nil, "Cant get Public Key", nil)
             return
         }
         
         guard let cfdata = SecKeyCopyExternalRepresentation(publicKey, &error) else {
-            resolve("Could not export key")
+            reject(nil, "Cant export Public Key", nil)
             print(error!)
             return
         }
-                
-       let data:Data = cfdata as Data
-       let b64Key = data.base64EncodedString()
+        
+         let publicKeyDER = createSubjectPublicKeyInfo(rawPublicKeyData: cfdata as Data)
+        
         
         print("Successfully created keypiar")
-        resolve(b64Key)
+        resolve(publicKeyDER.base64EncodedString());
+    }
+    
+    @objc(getKey:resolver:rejecter:)
+    func getKey(_ alias: NSString, resolver resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
+        let secKey = SecureEncryptionModule.loadKey(name:alias as String)
+        
+        guard secKey != nil else {
+            reject(nil, "Cant get Public Key", nil)
+            return
+        }
+        
+        var error: Unmanaged<CFError>?
+        guard let publicKey = SecKeyCopyPublicKey(secKey!) else {
+            reject(nil, "Cant get Public Key", nil)
+            return
+        }
+        
+        guard let cfdata = SecKeyCopyExternalRepresentation(publicKey, &error) else {
+            reject(nil, "Cant export Public Key", nil)
+            print(error!)
+            return
+        }
+        
+        let publicKeyDER = createSubjectPublicKeyInfo(rawPublicKeyData: cfdata as Data)
+        
+        
+        print("Successfully loaded keypiar")
+        resolve(publicKeyDER.base64EncodedString());
     }
     
     static func loadKey(name: String) -> SecKey? {
@@ -143,7 +194,15 @@ class SecureEncryptionModule: NSObject {
             print("Error: No key found")
             return nil
         }
-                
+        
         return (item as! SecKey)
     }
+}
+
+func createSubjectPublicKeyInfo(rawPublicKeyData: Data) -> Data {
+    let secp256r1Header = Data(_: [
+        0x30, 0x59, 0x30, 0x13, 0x06, 0x07, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x02, 0x01, 0x06, 0x08, 0x2a,
+        0x86, 0x48, 0xce, 0x3d, 0x03, 0x01, 0x07, 0x03, 0x42, 0x00
+        ])
+    return secp256r1Header + rawPublicKeyData
 }

@@ -17,7 +17,7 @@ const SecureEncryptionModule = NativeModules.SecureEncryptionModule
       }
     );
 
-export function generateKeyPair(alias: String): Promise<any> {
+export function generateKeyPair(alias: String): Promise<string> {
   return SecureEncryptionModule.generateKeyPair(alias);
 }
 
@@ -31,6 +31,10 @@ export function decrypt(encryptedText: String, keyName: String): Promise<any> {
 
 export function sign(message: String, keyName: String): Promise<any> {
   return SecureEncryptionModule.signMessage(message, keyName);
+}
+
+export function getKey(alias: string): Promise<string> {
+  return SecureEncryptionModule.getKey(alias);
 }
 
 export function verify(
