@@ -1,6 +1,7 @@
 import { fetchFromApi } from "lib/http";
 import React, { useEffect } from "react";
 import { Text, View } from "react-native";
+import { initGenerateEcdsaKey } from "react-native-blockchain-crypto-mpc";
 import {
   generateKeyPair,
   getKey,
@@ -24,6 +25,10 @@ const Header = () => {
         })
         .catch(() => createProfile(setAuth));
     };
+
+    initGenerateEcdsaKey()
+      .then((x) => console.log("init step for generate", x))
+      .catch((e) => console.log("Error on init", e));
     onStartup();
   }, [setAuth]);
 

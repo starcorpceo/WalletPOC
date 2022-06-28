@@ -1,21 +1,12 @@
 # react-native-blockchain-crypto-mpc
 
 React Native wrapper for (blockchain-crypto-mpc)[https://github.com/unboundsecurity/blockchain-crypto-mpc]
+Requires a Backend powered by websocket to act as second party for Multi Party Computation
 
 ## Installation
 
 ```sh
 npm install react-native-blockchain-crypto-mpc
-```
-
-## Usage
-
-```js
-import { multiply } from "react-native-blockchain-crypto-mpc";
-
-// ...
-
-const result = await multiply(3, 7);
 ```
 
 ## Contributing
