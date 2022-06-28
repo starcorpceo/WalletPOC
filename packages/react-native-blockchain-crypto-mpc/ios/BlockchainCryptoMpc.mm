@@ -40,7 +40,6 @@ RCT_EXPORT_METHOD(importGenericSecret:(NSArray*)secret
     char secretChars[size];
     react_array_to_char_array(secret, size, secretChars);
 
-    //std::vector<uint8_t> seed_key = hex2bin(secret);
     if ((rv = MPCCrypto_initImportGenericSecret(1, (const uint8_t *)secretChars, (int)size, &context)))
         resolve(@(&"Failure " [ rv ]));
 
@@ -401,26 +400,5 @@ static int context_from_buf(const std::vector<uint8_t> &mem, MPCCryptoContext *&
 {
   return MPCCrypto_contextFromBuf(mem.data(), (int)mem.size(), &context);
 }
-
-static std::vector<uint8_t> hex2bin(const std::string &src)
-{
-  int dst_size = (int)src.length() / 2;
-  std::vector<uint8_t> dst(dst_size);
-  for (int i = 0; i < dst_size; i++)
-    dst[i] = hex2int(src[i * 2]) * 16 + hex2int(src[i * 2 + 1]);
-  return dst;
-}
-
-static int hex2int(char input)
-{
-  if (input >= '0' && input <= '9')
-    return input - '0';
-  if (input >= 'A' && input <= 'F')
-    return input - 'A' + 10;
-  if (input >= 'a' && input <= 'f')
-    return input - 'a' + 10;
-  return -1;
-}
-
 
 @end
