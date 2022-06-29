@@ -1,5 +1,4 @@
-import bitcoin, { SignerAsync } from 'bitcoinjs-lib';
-import { Buffer } from 'buffer';
+const bitcoin = require('bitcoinjs-lib');
 import Elliptic from 'elliptic';
 import * as React from 'react';
 import { Button, ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -57,7 +56,7 @@ export default function App() {
     console.log(address);
     setAddress(address);
 
-    fetchBalanceAndTransactions(setTransactions, setBalance);
+    fetchBalanceAndTransactions(address, setTransactions, setBalance);
   };
 
   const sendBTC = async (senderPubKeyKub: Buffer | undefined) => {
@@ -66,33 +65,44 @@ export default function App() {
       return;
     }
 
-    console.log('last transaction small : ', transactions[0].hash);
+    console.log('last transaction small : ', JSON.stringify(transactions));
 
-    const myEc: SignerAsync = {
+    const myEc: bitcoin.SignerAsync = {
       publicKey: senderPubKeyKub as Buffer,
       sign: signEcdsa,
     };
+    try {
+      const psbt = new bitcoin.Psbt({ TESTNET })
+        .addInput({
+          hash: transactions[0].hash,
+          index: 0, //transactions[0].index,
+          witnessUtxo: {
+            script: Buffer.from(
+              '76a91445628a2afc77aa0ca805b5960a9cf06695bbaf5688ac',
+              'hex'
+            ),
+            value: 100000,
+          },
+          // nonWitnessUtxo: Buffer.from(transactions[0].hex, 'hex'),
+        })
+        .addOutput({
+          address: 'mxuQMQAsnbYTRqWhenF1Hj4qf5CvcE8L8c',
+          value: 0.0001 * 100000000,
+        })
+        .addOutput({
+          address: address,
+          value:
+            transactions[0].outputs[1].value - 0.0001 * 100000000 - 0.00005,
+        });
 
-    const psbt = new bitcoin.Psbt({ TESTNET })
-      .addInput({
-        hash: transactions[0].hash,
-        index: transactions[0].index,
-        nonWitnessUtxo: Buffer.from(transactions[0].hash, 'hex'),
-      })
-      .addOutput({
-        address: 'mxuQMQAsnbYTRqWhenF1Hj4qf5CvcE8L8c',
-        value: 0.0001 * 100000000,
-      })
-      .addOutput({
-        address: address,
-        value: transactions[0].outputs[1].value - 0.0001 * 100000000 - 0.00005,
-      });
+      psbt.signAllInputsAsync(myEc);
 
-    psbt.signAllInputsAsync(myEc);
+      psbt.finalizeAllInputs();
 
-    psbt.finalizeAllInputs();
-
-    console.log('Extracted Transaction', psbt.extractTransaction().toHex());
+      console.log('Extracted Transaction', psbt.extractTransaction().toHex());
+    } catch (e) {
+      console.error('error while ', e);
+    }
 
     /*const resp = await fetch(
       `https://api-eu1.tatum.io/v3/bitcoin/broadcast`,
@@ -161,6 +171,7 @@ const styles = StyleSheet.create({
 });
 
 const fetchBalanceAndTransactions = async (
+  address: string,
   setTransactions: Function,
   setBalance: Function
 ) => {
