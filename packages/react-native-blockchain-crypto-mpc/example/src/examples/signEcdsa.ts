@@ -3,63 +3,60 @@ import {
   getSignature,
   initSignEcdsa,
   step,
-  verifySignature,
 } from 'react-native-blockchain-crypto-mpc';
 import { ActionStatus, getApi } from './shared';
 
-export const signEcdsa = (
-  setSuccess: Function,
-  setSignResOnClient: Function
-) => {
-  const ws = new WebSocket(getApi('ws') + '/sign');
-  let signStatus: ActionStatus = 'Init';
+export const signEcdsa = (message: Buffer): Promise<Buffer> => {
+  return new Promise((res) => {
+    const ws = new WebSocket(getApi('ws') + '/sign');
+    let signStatus: ActionStatus = 'Init';
 
-  const stringToSign = 'Hello World';
-  const bufferToSign = Buffer.from(stringToSign);
-  const messageChars = [...bufferToSign];
+    const messageChars = [...message];
 
-  ws.onopen = () => {
-    ws.send(bufferToSign);
-  };
+    ws.onopen = () => {
+      ws.send(message);
+    };
 
-  ws.onmessage = (message: WebSocketMessageEvent) => {
-    switch (signStatus) {
-      case 'Init':
-        const msg = JSON.parse(message.data);
+    ws.onmessage = (wsMessage: WebSocketMessageEvent) => {
+      switch (signStatus) {
+        case 'Init':
+          const msg = JSON.parse(wsMessage.data);
 
-        if (msg.value !== 'Start') {
-          return;
-        }
+          if (msg.value !== 'Start') {
+            return;
+          }
 
-        signStatus = 'Stepping';
+          signStatus = 'Stepping';
 
-        initSignEcdsa(messageChars).then((success) => {
-          success && step(null).then((stepMsg) => ws.send(stepMsg));
-        });
+          initSignEcdsa(messageChars).then((success) => {
+            success && step(null).then((stepMsg) => ws.send(stepMsg));
+          });
 
-        break;
-      case 'Stepping':
-        step(message.data).then((stepMsg) => ws.send(stepMsg));
-        break;
-    }
-  };
+          break;
+        case 'Stepping':
+          step(wsMessage.data).then((stepMsg) => ws.send(stepMsg));
+          break;
+      }
+    };
 
-  ws.onerror = (error) => {
-    console.log('err', error);
-  };
+    ws.onerror = (error) => {
+      console.log('err', error);
+    };
 
-  ws.onclose = (event) => {
-    console.log('closed', event);
+    ws.onclose = (event) => {
+      console.log('closed', event);
 
-    getSignature().then((signature) => {
-      fetch(getApi('http') + '/verify', {
-        method: 'POST',
-        body: JSON.stringify({ message: messageChars, signature }),
-      }).then(async (success) => setSuccess(await success.json()));
+      getSignature().then((signature) => {
+        res(Buffer.from(signature));
+        // fetch(getApi('http') + '/verify', {
+        //   method: 'POST',
+        //   body: JSON.stringify({ message: messageChars, signature }),
+        // }).then(async (success) => setSuccess(await success.json()));
 
-      verifySignature(messageChars, signature).then((success) => {
-        setSignResOnClient(success);
+        // verifySignature(messageChars, signature).then((success) => {
+        //   res(signature);
+        // });
       });
-    });
-  };
+    };
+  });
 };

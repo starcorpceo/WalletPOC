@@ -1,115 +1,106 @@
+import bitcoin, { SignerAsync } from 'bitcoinjs-lib';
+import { Buffer } from 'buffer';
+import Elliptic from 'elliptic';
 import * as React from 'react';
-import {
-  Button,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
-import Elliptic from "elliptic";
+import { Button, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { deriveBIP32 } from './examples/deriveBip32';
 import { importSecret } from './examples/importSecret';
 import { signEcdsa } from './examples/signEcdsa';
-import { JSONRPCClient } from "json-rpc-2.0";
 
-import "../shim"
-const ec = new Elliptic.ec("secp256k1");
-const bitcoin = require('bitcoinjs-lib');
+import '../shim';
 
-import { RegtestUtils } from 'regtest-client';
+const ec = new Elliptic.ec('secp256k1');
 
-const APIPASS = process.env.APIPASS || 'satoshi';
-const APIURL = process.env.APIURL || 'https://regtest.bitbank.cc/1';
-
-export const regtestUtils = new RegtestUtils({ APIPASS, APIURL });
-
-const dhttp = regtestUtils.dhttp;
 const TESTNET = bitcoin.networks.testnet;
 
-const apiKey = "89156412-0b04-4ed1-aede-d4546b60697c";
+const tatumApiKey = '89156412-0b04-4ed1-aede-d4546b60697c';
+
+// const testSecret =
+//   '153649e88ae8337f53451d8d0f4e6fd7e1860620923fc04192c8abc2370b68dc';
+// Lautsch
 
 const testSecret =
   '153649e88ae8337f53451d8d0f4e6fd7e1860626923fc04192c8abc2370b68dc';
+// Matsi
 
 // tstbtc back to mv4rnyY3Su5gjcDNzbMLKBQkBicCtHUtFB
 
 export default function App() {
-  const [serverMessage, setServerMessage] = React.useState<string | undefined>();
-  // const [clientPubKey, setClientPubKey] = React.useState<any | undefined>();
-  // const [seedShare, setSeedShare] = React.useState<any | undefined>();
-
-  const [signSuccess, setSignSuccess] = React.useState<boolean>();
-  const [signResOnClient, setSignResOnClient] = React.useState<boolean>();
-
-  const [secret, setSecret] = React.useState<string>(testSecret);
+  const [senderPubKeyBuf, setSenderPubKeyBuf] = React.useState<Buffer>();
   const [address, setAddress] = React.useState<any>();
   const [balance, setBalance] = React.useState<any>();
   const [transactions, setTransactions] = React.useState<any>();
 
-  const importSecretOnPress = async () => {
-    await importSecret(secret!, setServerMessage);
-    deriveBIPMaster();
+  const importSecretOnPress = async (setSenderPubKeyBuf: Function) => {
+    await importSecret(testSecret, (seed: string) =>
+      console.log('Seed share', seed)
+    );
+    deriveBIPMaster(setSenderPubKeyBuf);
   };
 
-  const deriveBIPMaster = async () => {
+  const deriveBIPMaster = async (setSenderPubKeyBuf: Function) => {
     const pk = await deriveBIP32();
 
     const key = ec.keyFromPublic(pk.slice(23));
-    const pubkeyBuf = Buffer.from(key.getPublic().encode('hex'), 'hex')
-    const pubkey = bitcoin.ECPair.fromPublicKey(pubkeyBuf)
-    const { address } = bitcoin.payments.p2pkh({ pubkey: pubkey.publicKey, network: TESTNET });
+
+    // For BitcoinJs
+    const pubkeyBuf = Buffer.from(key.getPublic().encode('hex', false), 'hex');
+    setSenderPubKeyBuf(pubkeyBuf);
+
+    const pubkey = bitcoin.ECPair.fromPublicKey(pubkeyBuf);
+    const { address } = bitcoin.payments.p2pkh({
+      pubkey: pubkey.publicKey,
+      network: TESTNET,
+    });
     //const address = "mmqpxx41Fr1kKGSGkVbeJjqeKK3itcy2e6"
     //const address = "3FZbgi29cpjq2GjdwV8eyHuJJnkLtktZc5"
-    console.log(address)
-    setAddress(address)
+    console.log(address);
+    setAddress(address);
 
-    fetch(`https://api-eu1.tatum.io/v3/bitcoin/address/balance/${address}`,
-    {
-      method: 'GET',
-      headers: {
-        'x-api-key': apiKey
-      }
-    }).then((response) => response.text().then((resp) => setBalance(JSON.parse(resp).incoming)))
-
-
-    const queryTransactions = new URLSearchParams({
-      pageSize: '10',
-      offset: '0'
-    }).toString();
-    
-    const resp = await fetch(
-      `https://api-eu1.tatum.io/v3/bitcoin/transaction/address/${address}?${queryTransactions}`,
-      {
-        method: 'GET',
-        headers: {
-          'x-api-key': apiKey
-        }
-      }
-    );
-    
-    const trx = await resp.text();
-    console.log(trx);
-    setTransactions(JSON.parse(trx))
-    
-    
+    fetchBalanceAndTransactions(setTransactions, setBalance);
   };
 
-  const signTransaction = async () => {
+  const sendBTC = async (senderPubKeyKub: Buffer | undefined) => {
+    if (senderPubKeyBuf === undefined) {
+      console.log('Sender Pub Key empty quit bitch');
+      return;
+    }
 
-    var tx = new bitcoin.TransactionBuilder();
+    console.log('last transaction small : ', transactions[0].hash);
 
-    await signEcdsa(setSignSuccess,setSignResOnClient)
-  };
+    const myEc: SignerAsync = {
+      publicKey: senderPubKeyKub as Buffer,
+      sign: signEcdsa,
+    };
 
-  const sendBTC = async () => {
+    const psbt = new bitcoin.Psbt({ TESTNET })
+      .addInput({
+        hash: transactions[0].hash,
+        index: transactions[0].index,
+        nonWitnessUtxo: Buffer.from(transactions[0].hash, 'hex'),
+      })
+      .addOutput({
+        address: 'mxuQMQAsnbYTRqWhenF1Hj4qf5CvcE8L8c',
+        value: 0.0001 * 100000000,
+      })
+      .addOutput({
+        address: address,
+        value: transactions[0].outputs[1].value - 0.0001 * 100000000 - 0.00005,
+      });
+
+    psbt.signAllInputsAsync(myEc);
+
+    psbt.finalizeAllInputs();
+
+    console.log('Extracted Transaction', psbt.extractTransaction().toHex());
+
     /*const resp = await fetch(
       `https://api-eu1.tatum.io/v3/bitcoin/broadcast`,
       {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-api-key': apiKey
+          'x-api-key': tatumApiKey
         },
         body: JSON.stringify({
           txData: '62BD544D1B9031EFC330A3E855CC3A0D51CA5131455C1AB3BCAC6D243F65460D',
@@ -119,28 +110,12 @@ export default function App() {
     
     const data = await resp.json();
     console.log(data);*/
-
-    console.log("last transaction small : " , transactions[0].hash)
-
-    const psbt = new bitcoin.Psbt({TESTNET})
-      .addInput({
-        hash: transactions[0].hash,
-        index: transactions[0].index,
-        nonWitnessUtxo: Buffer.from(transactions[0].hash, 'hex')
-      }) 
-      .addOutput({
-        address: "",
-        value: (0.0001 * 100000000), 
-      })
-      .addOutput({
-        address: address,
-        value: ((transactions[0].outputs[1].value - (0.0001 * 100000000)) - 0.00005), 
-      })
-  }
+  };
 
   const getAddress = async () => {
-    importSecretOnPress();
+    importSecretOnPress(setSenderPubKeyBuf);
   };
+  console.log('oida', address);
 
   return (
     <ScrollView>
@@ -149,18 +124,18 @@ export default function App() {
         <Text>Your BTC-address: {address}</Text>
         <Text>Balance: {balance} BTC</Text>
 
-        <View style={{textAlign: "center"}}>    
+        <View style={{ textAlign: 'center' }}>
           <Text>Latest transaction</Text>
-          {transactions && transactions.map((t) => {
-              return(
-                <Text> + {t.outputs[1].value / 100000000} BTC</Text>
-              )
-            })
-          }
+          {transactions &&
+            transactions.map((t) => {
+              return <Text> + {t.outputs[1].value / 100000000} BTC</Text>;
+            })}
         </View>
 
-        <Button onPress={sendBTC} title="Send 0.0001 BTC" />
-
+        <Button
+          onPress={() => sendBTC(senderPubKeyBuf)}
+          title="Send 0.0001 BTC"
+        />
       </View>
     </ScrollView>
   );
@@ -184,3 +159,36 @@ const styles = StyleSheet.create({
     backgroundColor: 'grey',
   },
 });
+
+const fetchBalanceAndTransactions = async (
+  setTransactions: Function,
+  setBalance: Function
+) => {
+  fetch(`https://api-eu1.tatum.io/v3/bitcoin/address/balance/${address}`, {
+    method: 'GET',
+    headers: {
+      'x-api-key': tatumApiKey,
+    },
+  }).then((response) =>
+    response.text().then((resp) => setBalance(JSON.parse(resp).incoming))
+  );
+
+  const queryTransactions = new URLSearchParams({
+    pageSize: '10',
+    offset: '0',
+  }).toString();
+
+  const resp = await fetch(
+    `https://api-eu1.tatum.io/v3/bitcoin/transaction/address/${address}?${queryTransactions}`,
+    {
+      method: 'GET',
+      headers: {
+        'x-api-key': tatumApiKey,
+      },
+    }
+  );
+
+  const trx = await resp.text();
+  console.log(trx);
+  setTransactions(JSON.parse(trx));
+};
