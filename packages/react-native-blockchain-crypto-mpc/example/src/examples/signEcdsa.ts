@@ -6,13 +6,18 @@ import {
 import { ActionStatus, getApi } from './shared';
 
 export const signEcdsa = (message: Buffer): Promise<Buffer> => {
+  console.log('signecdas');
   return new Promise((res) => {
+    console.log('promise create');
+
     const ws = new WebSocket(getApi('ws') + '/sign');
     let signStatus: ActionStatus = 'Init';
 
     const messageChars = [...message];
 
     ws.onopen = () => {
+      console.log('conn open');
+
       ws.send(message);
     };
 
@@ -46,7 +51,7 @@ export const signEcdsa = (message: Buffer): Promise<Buffer> => {
       console.log('closed', event);
 
       getSignature().then((signature) => {
-        res(Buffer.from(signature));
+        res(Buffer.from(new Uint8Array([...signature, 0x01])));
         // fetch(getApi('http') + '/verify', {
         //   method: 'POST',
         //   body: JSON.stringify({ message: messageChars, signature }),

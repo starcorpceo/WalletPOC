@@ -1,12 +1,12 @@
-const bitcoin = require('bitcoinjs-lib');
 import Elliptic from 'elliptic';
 import * as React from 'react';
 import { Button, ScrollView, StyleSheet, Text, View } from 'react-native';
+import '../shim';
 import { deriveBIP32 } from './examples/deriveBip32';
 import { importSecret } from './examples/importSecret';
 import { signEcdsa } from './examples/signEcdsa';
 
-import '../shim';
+import * as bitcoin from 'bitcoinjs-lib';
 
 const ec = new Elliptic.ec('secp256k1');
 
@@ -14,12 +14,12 @@ const TESTNET = bitcoin.networks.testnet;
 
 const tatumApiKey = '89156412-0b04-4ed1-aede-d4546b60697c';
 
-// const testSecret =
-//   '153649e88ae8337f53451d8d0f4e6fd7e1860620923fc04192c8abc2370b68dc';
+const testSecret =
+  '153649e88ae8337f53451d8d0f4e6fd7e1860620923fc04192c8abc2370b68dc';
 // Lautsch
 
-const testSecret =
-  '153649e88ae8337f53451d8d0f4e6fd7e1860626923fc04192c8abc2370b68dc';
+// const testSecret =
+//   '153649e88ae8337f53451d8d0f4e6fd7e1860626923fc04192c8abc2370b68dc';
 // Matsi
 
 // tstbtc back to mv4rnyY3Su5gjcDNzbMLKBQkBicCtHUtFB
@@ -44,9 +44,11 @@ export default function App() {
 
     // For BitcoinJs
     const pubkeyBuf = Buffer.from(key.getPublic().encode('hex', false), 'hex');
-    setSenderPubKeyBuf(pubkeyBuf);
 
     const pubkey = bitcoin.ECPair.fromPublicKey(pubkeyBuf);
+
+    setSenderPubKeyBuf(pubkey.publicKey);
+
     const { address } = bitcoin.payments.p2pkh({
       pubkey: pubkey.publicKey,
       network: TESTNET,
@@ -56,70 +58,69 @@ export default function App() {
     console.log(address);
     setAddress(address);
 
-    fetchBalanceAndTransactions(address, setTransactions, setBalance);
+    fetchBalanceAndTransactions(address || '', setTransactions, setBalance);
   };
 
   const sendBTC = async (senderPubKeyKub: Buffer | undefined) => {
-    if (senderPubKeyBuf === undefined) {
+    if (senderPubKeyKub === undefined) {
       console.log('Sender Pub Key empty quit bitch');
       return;
     }
 
-    console.log('last transaction small : ', JSON.stringify(transactions));
+    console.log('we clain pub key is', {
+      pubKey: Buffer.from(senderPubKeyKub).toString('hex'),
+    });
 
     const myEc: bitcoin.SignerAsync = {
       publicKey: senderPubKeyKub as Buffer,
-      sign: signEcdsa,
+      sign: async (hash) => {
+        const sig = await signEcdsa(hash);
+
+        return sig;
+      },
     };
+
+    const psbt = new bitcoin.Psbt({ network: TESTNET })
+      .addInput({
+        hash: transactions[0].hash,
+        index: 1, //transactions[0].index,
+        nonWitnessUtxo: Buffer.from(transactions[0].hex, 'hex'),
+      })
+      .addOutput({
+        address: 'mxuQMQAsnbYTRqWhenF1Hj4qf5CvcE8L8c',
+        value: 0.0001 * 100000000,
+      })
+      .addOutput({
+        address: address,
+        value:
+          transactions[0].outputs[1].value -
+          0.0001 * 100000000 -
+          0.00005 * 100000000,
+      });
+
     try {
-      const psbt = new bitcoin.Psbt({ TESTNET })
-        .addInput({
-          hash: transactions[0].hash,
-          index: 0, //transactions[0].index,
-          witnessUtxo: {
-            script: Buffer.from(
-              '76a91445628a2afc77aa0ca805b5960a9cf06695bbaf5688ac',
-              'hex'
-            ),
-            value: 100000,
-          },
-          // nonWitnessUtxo: Buffer.from(transactions[0].hex, 'hex'),
-        })
-        .addOutput({
-          address: 'mxuQMQAsnbYTRqWhenF1Hj4qf5CvcE8L8c',
-          value: 0.0001 * 100000000,
-        })
-        .addOutput({
-          address: address,
-          value:
-            transactions[0].outputs[1].value - 0.0001 * 100000000 - 0.00005,
-        });
-
-      psbt.signAllInputsAsync(myEc);
-
+      await psbt.signAllInputsAsync(myEc);
+      console.log('all ok ', psbt.validateSignaturesOfAllInputs());
       psbt.finalizeAllInputs();
-
-      console.log('Extracted Transaction', psbt.extractTransaction().toHex());
-    } catch (e) {
-      console.error('error while ', e);
+    } catch (err) {
+      console.error('wtf', err);
     }
 
-    /*const resp = await fetch(
-      `https://api-eu1.tatum.io/v3/bitcoin/broadcast`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': tatumApiKey
-        },
-        body: JSON.stringify({
-          txData: '62BD544D1B9031EFC330A3E855CC3A0D51CA5131455C1AB3BCAC6D243F65460D',
-        })
-      }
-    );
-    
+    console.log('Extracted Transaction', psbt.extractTransaction().toHex());
+
+    const resp = await fetch(`https://api-eu1.tatum.io/v3/bitcoin/broadcast`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': tatumApiKey,
+      },
+      body: JSON.stringify({
+        txData: psbt.extractTransaction().toHex(),
+      }),
+    });
+
     const data = await resp.json();
-    console.log(data);*/
+    console.log('result after sending transact', data);
   };
 
   const getAddress = async () => {
