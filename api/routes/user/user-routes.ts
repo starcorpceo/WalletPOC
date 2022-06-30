@@ -1,4 +1,4 @@
-import { route } from "@lib/route";
+import { nonceRoute, setNonceRoute } from "@lib/route";
 import { FastifyInstance, FastifyRequest, FastifySchema } from "fastify";
 import {
   CreateUserRequest,
@@ -7,13 +7,17 @@ import {
 } from "./user";
 import { createUser, verifyUser } from "./user.service";
 
-const postCreateUser = route<CreateUserResponse>((req: FastifyRequest) => {
-  return createUser(req.body as CreateUserRequest);
-});
+const postCreateUser = setNonceRoute<CreateUserResponse>(
+  (req: FastifyRequest, nonce: string) => {
+    return createUser(req.body as CreateUserRequest, nonce);
+  }
+);
 
-const postVerifyUser = route<boolean>((req: FastifyRequest) => {
-  return verifyUser(req.body as VerifyUserRequest);
-});
+const postVerifyUser = nonceRoute<boolean>(
+  (req: FastifyRequest, nonce: string) => {
+    return verifyUser(req.body as VerifyUserRequest, nonce);
+  }
+);
 
 const registerUserRoutes = (server: FastifyInstance) => {
   server.post("/user/create", { schema: createUserSchema }, postCreateUser);
@@ -33,11 +37,10 @@ const createUserSchema: FastifySchema = {
 const verifyUserSchema: FastifySchema = {
   body: {
     type: "object",
-    required: ["devicePublicKey", "userId", "message", "signature"],
+    required: ["devicePublicKey", "userId", "signature"],
     properties: {
       devicePublicKey: { type: "string", maxLength: 130, minLength: 88 },
       userId: { type: "string", maxLength: 36, minLength: 36 },
-      message: { type: "string", maxLength: 24, minLength: 24 },
       signature: { type: "string", maxLength: 96, minLength: 96 },
     },
   },

@@ -9,22 +9,24 @@ import {
 import { getUser, persistUserCreation } from "./user.repository";
 
 export const createUser = (
-  request: CreateUserRequest
+  request: CreateUserRequest,
+  nonce: string
 ): ResultAsync<CreateUserResponse, RouteError> => {
   return ResultAsync.fromPromise(persistUserCreation(request), (e) =>
     other("Err while creating user", e as Error)
   ).map((user) => {
     return {
-      nonce: crypto.randomBytes(16).toString("base64"),
+      nonce,
       userId: user.id,
     };
   });
 };
 
 export const verifyUser = (
-  request: VerifyUserRequest
+  request: VerifyUserRequest,
+  message: string
 ): ResultAsync<boolean, RouteError> => {
-  const { message, signature } = request;
+  const { signature } = request;
 
   return ResultAsync.fromPromise(getUser(request), (e) => e as RouteError).map(
     (user) => {

@@ -8,7 +8,8 @@ export enum HttpMethod {
 export const fetchFromApi = async <T>(
   path: string,
   body?: any,
-  method?: HttpMethod
+  method?: HttpMethod,
+  args?: RequestInit
 ): Promise<T> => {
   const response = await fetch(getApiUrl("http") + path, {
     method: determineMethod(body, method),
@@ -16,6 +17,7 @@ export const fetchFromApi = async <T>(
     headers: {
       "Content-Type": "application/json",
     },
+    ...args,
   });
 
   const content: T = await response.json();

@@ -1,3 +1,4 @@
+import fastifyCookie from "@fastify/cookie";
 import websocketPlugin from "@fastify/websocket";
 import config from "@lib/config";
 import { PrismaClient } from "@prisma/client";
@@ -12,6 +13,9 @@ const server: FastifyInstance = fastify();
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 server.register(websocketPlugin);
+server.register(fastifyCookie, {
+  secret: config.cookieSecret,
+});
 
 export const client: PrismaClient = new PrismaClient({
   datasources: { db: { url: config.databaseUrl } },
