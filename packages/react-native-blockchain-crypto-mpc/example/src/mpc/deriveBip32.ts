@@ -1,6 +1,9 @@
-import { initDeriveBIP32, step, getResultDeriveBIP32, getPublicKey, getShare } from 'react-native-blockchain-crypto-mpc';
+/**
+ * Deriving a wallet based on previous seed
+ */
+
+import { initDeriveBIP32, step, getResultDeriveBIP32, getPublicKey } from 'react-native-blockchain-crypto-mpc';
 import { getApi } from './shared';
-import {Buffer} from "buffer"
 
 export const deriveBIP32 = (): Promise<any> => {
   return new Promise((res) => {
