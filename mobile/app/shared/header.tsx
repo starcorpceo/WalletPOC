@@ -21,6 +21,7 @@ const Header = () => {
         })
         .catch(() => createProfile(setAuth));
     };
+
     onStartup();
   }, [setAuth]);
 

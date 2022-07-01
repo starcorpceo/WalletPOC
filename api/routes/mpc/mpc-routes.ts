@@ -1,5 +1,10 @@
 import { SocketStream } from "@fastify/websocket";
-import { FastifyInstance, FastifyRequest } from "fastify";
+import {
+  DoneFuncWithErrOrRes,
+  FastifyInstance,
+  FastifyReply,
+  FastifyRequest,
+} from "fastify";
 import { initDeriveBIP32 } from "./ecdsa/bip";
 import { initGenerateEcdsaKey } from "./ecdsa/init";
 import { importGenericSecret, initGenerateGenericSecret } from "./ecdsa/secret";
@@ -12,7 +17,31 @@ export type ActionStatus = "Init" | "Stepping";
 const route = "/mpc/ecdsa";
 
 const registerMcpRoutes = (server: FastifyInstance): void => {
+  // Open Routes
   server.get("/mpc/test", testMcp);
+  server.post(route + "/verify", verifyEcdsaSignature);
+
+  // Routes that need Authentication
+  server.register(async function plugin(privatePlugin, opts) {
+    privatePlugin.addHook("onRequest", authenticate);
+
+    registerPrivateMpcRoutes(privatePlugin);
+  });
+};
+
+const authenticate = (
+  req: FastifyRequest,
+  res: FastifyReply,
+  done: DoneFuncWithErrOrRes
+) => {
+  // const signedNonce = req.cookies["authnonce"];
+  // const nonce = req.unsignCookie(signedNonce).value;
+  // if (!isNonceValid(nonce)) done(new Error("Missing Header"));
+  // console.log(nonce);
+  // done();
+};
+
+const registerPrivateMpcRoutes = (server: FastifyInstance) => {
   server.register(async function (server) {
     server.get(
       route + "/secret",
@@ -58,8 +87,6 @@ const registerMcpRoutes = (server: FastifyInstance): void => {
       }
     );
   });
-
-  server.post(route + "/verify", verifyEcdsaSignature);
 };
 
 export default registerMcpRoutes;

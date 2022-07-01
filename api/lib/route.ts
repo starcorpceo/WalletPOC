@@ -2,6 +2,7 @@ import crypto from "crypto";
 import { FastifyReply, FastifyRequest } from "fastify";
 import { ResultAsync } from "neverthrow";
 import { invalidAuthRequest, mapRouteError, RouteError } from "./error";
+import { isNonceValid } from "./nonce";
 
 /**
  * Custom subset of the JSON spec that omits the 'password' field from JSON objects.
@@ -59,10 +60,10 @@ export const nonceRoute = <T>(handler: NonceRouteHandler<T>) => {
   return (req: FastifyRequest, res: FastifyReply) => {
     const signedNonce = req.cookies["authnonce"];
 
-    const nonce = req.unsignCookie(signedNonce).value;
+    const nonce = req.unsignCookie(signedNonce).value || "";
 
     // Crypto.randomBytes(16)  encoded as base64 string results in 24 characters
-    if (!nonce || nonce.length !== 24) {
+    if (!isNonceValid(nonce)) {
       wrapHandler(invalidAuthRequest, res);
       return;
     }
