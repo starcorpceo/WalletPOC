@@ -303,6 +303,8 @@ PODS:
     - glog
   - react-native-blockchain-crypto-mpc (0.1.0):
     - React-Core
+  - react-native-randombytes (3.6.1):
+    - React-Core
   - react-native-safe-area-context (4.2.5):
     - RCT-Folly
     - RCTRequired
@@ -439,6 +441,7 @@ DEPENDENCIES:
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
   - react-native-blockchain-crypto-mpc (from `../node_modules/react-native-blockchain-crypto-mpc`)
+  - react-native-randombytes (from `../node_modules/react-native-randombytes`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - react-native-secure-encryption-module (from `../node_modules/react-native-secure-encryption-module`)
   - React-perflogger (from `../node_modules/react-native/ReactCommon/reactperflogger`)
@@ -532,6 +535,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/logger"
   react-native-blockchain-crypto-mpc:
     :path: "../node_modules/react-native-blockchain-crypto-mpc"
+  react-native-randombytes:
+    :path: "../node_modules/react-native-randombytes"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
   react-native-secure-encryption-module:
@@ -609,6 +614,7 @@ SPEC CHECKSUMS:
   React-jsinspector: 218a2503198ff28a085f8e16622a8d8f507c8019
   React-logger: f79dd3cc0f9b44f5611c6c7862badd891a862cf8
   react-native-blockchain-crypto-mpc: 81ff95c772afa6b4b622781b8137df04534d6ee1
+  react-native-randombytes: 421f1c7d48c0af8dbcd471b0324393ebf8fe7846
   react-native-safe-area-context: ebf8c413eb8b5f7c392a036a315eb7b46b96845f
   react-native-secure-encryption-module: fe94477d763d01c4e528834980db6f7ee8bb1a37
   React-perflogger: 30ab8d6db10e175626069e742eead3ebe8f24fd5

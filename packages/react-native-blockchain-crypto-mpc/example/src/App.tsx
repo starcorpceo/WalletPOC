@@ -1,9 +1,8 @@
 import * as React from 'react';
-import { Button, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Button, ScrollView, Text, View } from 'react-native';
 import styles from './App.styles';
 
-import { generateWalletFromSeed, generateWallet } from './generator';
-import { getLatestTransactions } from './transaction/getTransaction';
+import { generateWallet, generateWalletFromSeed } from './generator';
 import type { IWallet } from './wallet';
 
 export default function App() {

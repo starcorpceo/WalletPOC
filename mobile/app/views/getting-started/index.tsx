@@ -1,4 +1,5 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import BitcoinWallet from "bitcoin/view/bitcoin-wallet";
 import React from "react";
 import {
   Button,
@@ -28,6 +29,8 @@ const GettingStarted = ({ navigation }: Props) => {
           onPress={() => navigation.navigate("CreateWallet")}
           title="Log In"
         />
+
+        <BitcoinWallet />
       </>
     </View>
   );

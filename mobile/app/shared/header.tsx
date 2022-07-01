@@ -39,22 +39,23 @@ const createProfile = async (setAuth: SetterOrUpdater<AuthState>) => {
   const { nonce, userId } = await fetchFromApi<CreateUserResponse>(
     "/user/create",
     {
-      devicePublicKey: newDevicePublicKey,
+      body: {
+        devicePublicKey: newDevicePublicKey,
+      },
     }
   );
 
   const signature = await signWithDeviceKey(nonce);
 
-  const success = await fetchFromApi<boolean>(
-    "/user/verify",
-    {
+  const success = await fetchFromApi<boolean>("/user/verify", {
+    body: {
       signature,
       userId,
       devicePublicKey: newDevicePublicKey,
     },
-    HttpMethod.POST,
-    { credentials: "include" }
-  );
+    method: HttpMethod.POST,
+    args: { credentials: "include" },
+  });
 
   success &&
     setAuth({

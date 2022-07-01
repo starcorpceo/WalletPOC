@@ -2,10 +2,10 @@ import Elliptic from 'elliptic';
 import * as React from 'react';
 import { Button, ScrollView, StyleSheet, Text, View } from 'react-native';
 import '../shim';
-import { deriveBIP32 } from './mpc/deriveBip32';
-import { importSecret } from './mpc/importSecret';
-import { signEcdsa } from './mpc/signEcdsa';
 import { BTCBalanceDriver } from './balance/driver/BTCBalanceDriver';
+import { deriveBIP32 } from './examples/deriveBip32';
+import { importSecret } from './examples/importSecret';
+import { signEcdsa } from './examples/signEcdsa';
 
 import * as bitcoin from 'bitcoinjs-lib';
 
@@ -185,8 +185,11 @@ const fetchBalanceAndTransactions = async (
   // }).then((response) =>
   //   response.text().then((resp) => setBalance(JSON.parse(resp).incoming))
   // );
-  const btcBalanceDriver = new BTCBalanceDriver("btc");
-  console.log("fetched balance: " , await btcBalanceDriver.fetchBalance(address));
+  const btcBalanceDriver = new BTCBalanceDriver('btc');
+  console.log(
+    'fetched balance: ',
+    await btcBalanceDriver.fetchBalance(address)
+  );
 
   const queryTransactions = new URLSearchParams({
     pageSize: '10',
