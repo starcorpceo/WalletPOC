@@ -1,6 +1,8 @@
+import crypto from "crypto";
 import { FastifyReply, FastifyRequest } from "fastify";
 import { ResultAsync } from "neverthrow";
-import { mapRouteError, RouteError } from "./error";
+import { invalidAuthRequest, mapRouteError, RouteError } from "./error";
+import { isNonceValid } from "./nonce";
 
 /**
  * Custom subset of the JSON spec that omits the 'password' field from JSON objects.
@@ -22,6 +24,10 @@ export type JSONObject = { [k: string]: JSONValues } & { password?: never };
 type RouteResult<T> = ResultAsync<T, RouteError>;
 
 type RouteHandler<T> = (req: FastifyRequest) => RouteResult<T>;
+type NonceRouteHandler<T> = (
+  req: FastifyRequest,
+  nonce: string
+) => RouteResult<T>;
 
 /*
  * Sends appropriate HTTP FastifyReplys for a RouteHandler<T>
@@ -39,13 +45,6 @@ const wrapHandler = <T>(
       console.error("Failed to work on request", error);
       const { statusCode, errorMsg } = mapRouteError(error);
       res.status(statusCode).send({ error: errorMsg });
-    })
-    .mapErr((parseError) => {
-      console.error("Failed to parse", parseError);
-
-      res.status(400).send({
-        error: parseError,
-      });
     });
 };
 
@@ -57,20 +56,30 @@ export const route = <T>(handler: RouteHandler<T>) => {
   };
 };
 
-type PrivateRouteHandler<T> = (req: FastifyRequest) => RouteResult<T>;
-
-export const protectedRoute = <T>(handler: PrivateRouteHandler<T>) => {
+export const nonceRoute = <T>(handler: NonceRouteHandler<T>) => {
   return (req: FastifyRequest, res: FastifyReply) => {
-    // TODO: For routes with authentication use something like below to decouple auth checking from the routes logic
-    // const sessionMgr = new SessionManager(req);
-    // sessionMgr
-    //   .getSessionUser()
-    //   .map((adminWithoutPassword) =>
-    //     wrapHandler(handler(req, adminWithoutPassword), res)
-    //   )
-    //   .mapErr((error) => {
-    //     const { statusCode, errorMsg } = mapRouteError(error);
-    //     res.status(statusCode).json({ error: errorMsg });
-    //   });
+    const signedNonce = req.cookies["authnonce"];
+
+    const nonce = req.unsignCookie(signedNonce).value || "";
+
+    // Crypto.randomBytes(16)  encoded as base64 string results in 24 characters
+    if (!isNonceValid(nonce)) {
+      wrapHandler(invalidAuthRequest, res);
+      return;
+    }
+
+    wrapHandler(handler(req, nonce), res);
+  };
+};
+
+export const setNonceRoute = <T>(handler: NonceRouteHandler<T>) => {
+  return (req: FastifyRequest, res: FastifyReply) => {
+    const nonce = crypto.randomBytes(16).toString("base64");
+
+    res.setCookie("authnonce", nonce, {
+      signed: true,
+    });
+
+    wrapHandler(handler(req, nonce), res);
   };
 };

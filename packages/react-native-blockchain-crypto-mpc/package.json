@@ -17,6 +17,7 @@
     "!lib/typescript/example",
     "!android/build",
     "!ios/build",
+    "!ios/openssl",
     "!**/__tests__",
     "!**/__fixtures__",
     "!**/__mocks__"

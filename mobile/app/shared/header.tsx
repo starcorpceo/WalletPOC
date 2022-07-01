@@ -1,11 +1,8 @@
-import { fetchFromApi } from "lib/http";
+import { signWithDeviceKey } from "lib/auth";
+import { fetchFromApi, HttpMethod } from "lib/http";
 import React, { useEffect } from "react";
 import { Text, View } from "react-native";
-import {
-  generateKeyPair,
-  getKey,
-  sign,
-} from "react-native-secure-encryption-module";
+import { generateKeyPair, getKey } from "react-native-secure-encryption-module";
 import { SetterOrUpdater, useRecoilState } from "recoil";
 import { AuthState, authState } from "state/atoms";
 import { CreateUserResponse } from "../api-types/user";
@@ -24,6 +21,7 @@ const Header = () => {
         })
         .catch(() => createProfile(setAuth));
     };
+
     onStartup();
   }, [setAuth]);
 
@@ -45,16 +43,18 @@ const createProfile = async (setAuth: SetterOrUpdater<AuthState>) => {
     }
   );
 
-  const signature = await sign(nonce, constants.deviceKeyName);
+  const signature = await signWithDeviceKey(nonce);
 
-  console.log("request to ", { signature, newDevicePublicKey, nonce });
-
-  const success = await fetchFromApi<boolean>("/user/verify", {
-    message: nonce,
-    signature,
-    userId,
-    devicePublicKey: newDevicePublicKey,
-  });
+  const success = await fetchFromApi<boolean>(
+    "/user/verify",
+    {
+      signature,
+      userId,
+      devicePublicKey: newDevicePublicKey,
+    },
+    HttpMethod.POST,
+    { credentials: "include" }
+  );
 
   success &&
     setAuth({

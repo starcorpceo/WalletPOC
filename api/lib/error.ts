@@ -1,3 +1,4 @@
+import { ResultAsync } from "neverthrow";
 import logger from "./logger";
 
 interface HttpError {
@@ -107,3 +108,8 @@ export const badRequest = (context: string): RouteError => ({
   type: "BadRequest",
   context,
 });
+
+export const invalidAuthRequest = ResultAsync.fromPromise(
+  Promise.reject(),
+  (_) => badRequest("Invalid Request on Private Endpoint")
+);
