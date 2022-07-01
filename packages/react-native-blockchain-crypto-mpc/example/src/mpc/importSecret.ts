@@ -1,3 +1,10 @@
+/**
+ * Importing an seed(secret) - CAVE - single point of failure
+ *
+ * @param {string} secret Conventional seed, here called secret
+ * @param {Function} setSeedShare Function to return the client side seed share
+ */
+
 import { Buffer } from 'buffer';
 import {
   getShare,

@@ -1,100 +1,54 @@
 import * as React from 'react';
-import {
-  Button,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
-import { deriveBIP32 } from './examples/deriveBip32';
-import { importSecret } from './examples/importSecret';
-import { signEcdsa } from './examples/signEcdsa';
+import { Button, ScrollView, StyleSheet, Text, View } from 'react-native';
+import styles from './App.styles';
 
-const testSecret =
-  '153649e88ae8337f53451d8d0f4e6fd7e1860626923fc04192c8abc2370b68dc';
+import { generateWalletFromSeed, generateWallet } from './generator';
+import { getLatestTransactions } from './transaction/getTransaction';
+import type { IWallet } from './wallet';
 
 export default function App() {
-  const [serverMessage, setServerMessage] = React.useState<
-    string | undefined
-  >();
-   // const [clientPubKey, setClientPubKey] = React.useState<any | undefined>();
-  // const [seedShare, setSeedShare] = React.useState<any | undefined>();
+  const [wallet, setWallet] = React.useState<IWallet>();
 
-   const [signSuccess, setSignSuccess] = React.useState<boolean>();
-   const [signResOnClient, setSignResOnClient] = React.useState<boolean>();
-
-  const [secret, setSecret] = React.useState<string>(testSecret);
-  const [xPub, setxPub] = React.useState<any>();
-  const [derivedShare, setDerivedShare] = React.useState<any>();
-
-  React.useEffect(() => {
-    const doit = async () => {
-      //await generateSecret(setServerMessage, setSeedShare);
-      // await generateEcdsa(setServerMessage, setClientPubKey);
-      //await signEcdsa(setSignSuccess, setSignResOnClient);
-    };
-
-    doit();
-  }, []);
-
-  const importSecretOnPress = async () => {
-    await importSecret(secret!, setServerMessage);
+  const importWallet = async () => {
+    setWallet(
+      await generateWalletFromSeed(
+        '153649e88ae8337f53451d8d0f4e6fd7e1860626923fc04192c8abc2370b68dc'
+      )
+    );
   };
 
-  const deriveBIPMaster = async () => {
-    await deriveBIP32(setxPub, setDerivedShare);
+  const generateNewWallet = async () => {
+    setWallet(await generateWallet());
   };
 
-  const signStuff = async () => {
-    await signEcdsa(setSignSuccess,setSignResOnClient)
+  const refreshBalance = async () => {
+    setWallet(await wallet!.refreshBalance()); //doesnt trigger rerender - see line 34
+  };
+
+  const transac = async () => {
+    setWallet(await wallet!.refreshTransactions());
   };
 
   return (
     <ScrollView>
       <View style={styles.container}>
-        <Text>Hex Seed:</Text>
-        <TextInput
-          style={styles.input}
-          value={testSecret}
-          onChangeText={setSecret}
-        />
-        <Button onPress={importSecretOnPress} title="Import now">
-          Import now
-        </Button>
-        <Text>Result init client: {JSON.stringify(serverMessage)}</Text>
-        <Button onPress={deriveBIPMaster} title="Derive" />
-        <Text>xPub: {JSON.stringify(xPub)}</Text>
-        <Text>Derived Sahre: {JSON.stringify(derivedShare)}</Text>
-        {/* <Text>Result generic secret: {JSON.stringify(seedShare)}</Text> */}
-        
+        <Button onPress={importWallet} title="Import Wallet" />
+        <Button onPress={generateNewWallet} title="Generate Wallet" />
 
-        <Button onPress={signStuff} title="Sign Stuff" />
-        {/* <Text>Pub key client: {JSON.stringify(clientPubKey)}</Text> */}
-        <Text>Signature verified by Server: {JSON.stringify(signSuccess)}</Text>
-        <Text>
-          Signature verified by Client: {JSON.stringify(signResOnClient)}
-        </Text>
+        <Text>Address: {wallet?.config.address}</Text>
+
+        <View style={styles.row}>
+          <Text>Balance: {wallet?.balance.getValue()} BTC</Text>
+          <Button onPress={refreshBalance} title="refresh" />
+        </View>
+
+        <Button onPress={transac} title="load transac" />
+        {wallet?.transactions.map((t) => {
+          return (
+            <Text key={t.hash}> + {t.outputs[1].value / 100000000} BTC</Text>
+          );
+        })}
       </View>
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 50,
-  },
-  box: {
-    width: 60,
-    height: 60,
-    marginVertical: 20,
-  },
-  input: {
-    width: 280,
-    height: 30,
-    backgroundColor: 'grey',
-  },
-});
