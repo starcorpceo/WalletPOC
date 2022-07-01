@@ -11,9 +11,7 @@ import {
 } from 'react-native-blockchain-crypto-mpc';
 import { getApi } from './shared';
 
-export const generateSecret = (
-  setSeedShare: Function
-): Promise<any> => {
+export const generateSecret = (setSeedShare: Function): Promise<any> => {
   return new Promise((res) => {
     const ws = new WebSocket(getApi('ws') + '/secret');
 

@@ -2,7 +2,12 @@
  * Deriving a wallet based on previous seed
  */
 
-import { initDeriveBIP32, step, getResultDeriveBIP32, getPublicKey } from 'react-native-blockchain-crypto-mpc';
+import {
+  initDeriveBIP32,
+  step,
+  getResultDeriveBIP32,
+  getPublicKey,
+} from 'react-native-blockchain-crypto-mpc';
 import { getApi } from './shared';
 
 export const deriveBIP32 = (): Promise<any> => {
@@ -26,13 +31,13 @@ export const deriveBIP32 = (): Promise<any> => {
     };
 
     ws.onclose = (event) => {
-
       console.log('closed', event);
 
       getResultDeriveBIP32().then((success) => {
-        success && getPublicKey().then((key) => {
-          res( key )
-        })
+        success &&
+          getPublicKey().then((key) => {
+            res(key);
+          });
       });
     };
   });

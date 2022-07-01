@@ -12,10 +12,10 @@
  */
 
 export interface IWalletConfig {
-    symbol: string;
-    name: null | string;
-    chain: string;
-    address: string | undefined;
-    publicKey: null | Buffer;
-    isTestnet: boolean;
+  symbol: string;
+  name: null | string;
+  chain: string;
+  address: string | undefined;
+  publicKey: null | Buffer;
+  isTestnet: boolean;
 }

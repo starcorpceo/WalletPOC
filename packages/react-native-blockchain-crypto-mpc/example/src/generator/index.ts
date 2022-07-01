@@ -1,1 +1,1 @@
-export {generateWalletFromSeed, generateWallet} from './walletGenerator'
+export { generateWalletFromSeed, generateWallet } from './walletGenerator';

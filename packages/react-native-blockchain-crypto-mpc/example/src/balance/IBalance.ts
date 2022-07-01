@@ -8,8 +8,8 @@
  */
 
 export interface IBalance {
-    symbol: string,
-    getValue(): number,
-    getUnconfirmedBalance(): number,
-    getConfirmedBalance(): number,
+  symbol: string;
+  getValue(): number;
+  getUnconfirmedBalance(): number;
+  getConfirmedBalance(): number;
 }
