@@ -23,6 +23,10 @@ import Header from "./shared/header";
 import GettingStarted from "./views/getting-started";
 import CreateWallet from "./views/getting-started/create-wallet";
 
+// declare global {
+//   const Buffer: Buffer;
+// }
+
 const App = () => {
   const isDarkMode = useColorScheme() === "dark";
 

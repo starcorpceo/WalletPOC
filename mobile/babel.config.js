@@ -9,6 +9,10 @@ module.exports = {
         alias: {
           lib: "./app/lib",
           state: "./app/state",
+          bitcoin: "./app/wallet/bitcoin",
+          wallet: "./app/wallet/",
+          config: "./app/config/",
+          shim: "./shim.js",
         },
       },
     ],

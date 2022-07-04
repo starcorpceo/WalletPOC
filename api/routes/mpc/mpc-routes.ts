@@ -34,6 +34,7 @@ const authenticate = (
   res: FastifyReply,
   done: DoneFuncWithErrOrRes
 ) => {
+  done();
   // const signedNonce = req.cookies["authnonce"];
   // const nonce = req.unsignCookie(signedNonce).value;
   // if (!isNonceValid(nonce)) done(new Error("Missing Header"));

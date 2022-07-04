@@ -1,4 +1,5 @@
 import { Platform } from "react-native";
+import { apiKeys } from "../wallet/endpoints";
 
 export enum HttpMethod {
   POST = "POST",
@@ -7,11 +8,31 @@ export enum HttpMethod {
 
 export const fetchFromApi = async <T>(
   path: string,
-  body?: any,
-  method?: HttpMethod,
-  args?: RequestInit
+  params?: HttpParams
 ): Promise<T> => {
-  const response = await fetch(getApiUrl("http") + path, {
+  return fetchFrom(getApiUrl("http") + path, params);
+};
+
+export const fetchFromTatum = async <T>(
+  url: string,
+  params?: HttpParams
+): Promise<T> => {
+  return fetchFrom(url, {
+    ...params,
+    args: {
+      ...params?.args,
+      headers: {
+        ...params?.args?.headers,
+        "x-api-key": apiKeys.tatum,
+      },
+    },
+  });
+};
+
+const fetchFrom = async <T>(url: string, params?: HttpParams): Promise<T> => {
+  const { body, method, args } = params || {};
+
+  const response = await fetch(url, {
     method: determineMethod(body, method),
     body: JSON.stringify(body),
     headers: {
@@ -41,4 +62,10 @@ const getApiUrl = (protocol: "ws" | "http"): string => {
   const localIp = Platform.OS === "android" ? "10.0.2.2" : "127.0.0.1";
 
   return `${protocol}://${localIp}:8080`;
+};
+
+export type HttpParams = {
+  args?: RequestInit;
+  method?: HttpMethod;
+  body?: any;
 };
