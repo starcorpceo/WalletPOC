@@ -2,43 +2,31 @@
  * Deriving a wallet based on previous seed
  */
 
-import {
-  initDeriveBIP32,
-  step,
-  getResultDeriveBIP32,
-  getPublicKey,
-} from 'react-native-blockchain-crypto-mpc';
+import { initDeriveBIP32, step } from 'react-native-blockchain-crypto-mpc';
 import { getApi } from './shared';
 
-export const deriveBIP32 = (): Promise<any> => {
+export const deriveBIP32 = (share: string): Promise<string> => {
   return new Promise((res) => {
     const ws = new WebSocket(getApi('ws') + '/derive');
 
     ws.onopen = () => {
-      initDeriveBIP32().then((success) => {
+      initDeriveBIP32(share).then((success) => {
         console.log('starting steps for derive');
-        success && step(null).then((stepMsg) => ws.send(stepMsg));
+        success && step(null).then((stepMsg) => ws.send(stepMsg.message));
       });
     };
 
     ws.onmessage = (message: WebSocketMessageEvent) => {
       console.log('derive messag from server');
-      step(message.data).then((stepMsg) => ws.send(stepMsg));
+      step(message.data).then((stepMsg) => {
+        ws.send(stepMsg.message);
+
+        stepMsg.finished && stepMsg.context && res(stepMsg.context);
+      });
     };
 
     ws.onerror = (error) => {
       console.log('err', error);
-    };
-
-    ws.onclose = (event) => {
-      console.log('closed', event);
-
-      getResultDeriveBIP32().then((success) => {
-        success &&
-          getPublicKey().then((key) => {
-            res(key);
-          });
-      });
     };
   });
 };

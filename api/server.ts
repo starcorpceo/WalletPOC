@@ -36,7 +36,7 @@ server.listen({ port: 8080 }, (err, address) => {
 });
 
 process.on("uncaughtException", (err) => {
-  logger.error("Uncaugh Exception " + err);
+  logger.error(err, "Uncaugh Exception");
   logger.warn("Shutting down server because of uncaught exception");
 
   process.exit(1);

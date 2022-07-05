@@ -23,7 +23,3 @@ export const step = (message: string, context: Context): string | boolean => {
 
   return false;
 };
-
-export const isError = (
-  stepResult: number[] | boolean
-): stepResult is boolean => stepResult === true || stepResult === false;

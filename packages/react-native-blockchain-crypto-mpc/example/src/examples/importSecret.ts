@@ -5,60 +5,39 @@
  * @param {Function} setSeedShare Function to return the client side seed share
  */
 
-import { Buffer } from 'buffer';
 import {
-  getShare,
-  importGenericSecret,
+  initImportGenericSecret,
   step,
 } from 'react-native-blockchain-crypto-mpc';
-import { ActionStatus, getApi } from './shared';
+import { getApi } from './shared';
 
-export const importSecret = (
-  secret: string,
-  setSeedShare: Function
-): Promise<any> => {
+export const importSecret = (secret: string): Promise<string> => {
   return new Promise((res) => {
     const ws = new WebSocket(getApi('ws') + '/import');
-    let importStatus: ActionStatus = 'Init';
-
-    const secretBuffer = Buffer.from(secret, 'hex');
-    const secretChars = [...secretBuffer];
 
     ws.onopen = () => {
-      ws.send(secretBuffer);
+      ws.send(secret);
     };
 
     ws.onmessage = (message: WebSocketMessageEvent) => {
-      switch (importStatus) {
-        case 'Init':
-          const msg = JSON.parse(message.data);
+      const msg = JSON.parse(message.data);
 
-          if (msg.value !== 'Start') {
-            return;
-          }
-
-          importStatus = 'Stepping';
-
-          importGenericSecret(secretChars).then((success) => {
-            success && step(null).then((stepMsg) => ws.send(stepMsg));
-          });
-          break;
-        case 'Stepping':
-          step(message.data).then((stepMsg) => ws.send(stepMsg));
-          break;
+      if (msg.value !== 'Start') {
+        return;
       }
+
+      initImportGenericSecret(secret).then((success) => {
+        success &&
+          step(null).then((stepMsg) => {
+            ws.send(stepMsg.message);
+
+            stepMsg.finished && stepMsg.share && res(stepMsg.share);
+          });
+      });
     };
 
     ws.onerror = (error) => {
       console.log('err', error);
-    };
-
-    ws.onclose = (event) => {
-      console.log('closed', event);
-      getShare().then((share) => {
-        setSeedShare(JSON.stringify(share));
-        res(true);
-      });
     };
   });
 };

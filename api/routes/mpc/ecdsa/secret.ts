@@ -32,6 +32,8 @@ export const importGenericSecret = (connection: SocketStream) => {
   let context: Context;
   let status: ActionStatus = "Init";
 
+  console.log("open import");
+
   connection.socket.on("message", (message) => {
     switch (status) {
       case "Init":
@@ -55,6 +57,7 @@ const stepWithMessage = (connection, message, context): void => {
   const stepOutput = step(message.toString(), context);
 
   if (stepOutput === true) {
+    console.log("importt done");
     // TODO: Remove this in favor of real database
     db.shareBuf = context.getNewShare();
 

@@ -1,53 +1,124 @@
-import * as React from 'react';
-import { Button, ScrollView, Text, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import {
+  getPublicKey,
+  getResultDeriveBIP32,
+  getSignature,
+  verifySignature,
+} from 'react-native-blockchain-crypto-mpc';
 import styles from './App.styles';
-
-import { generateWallet, generateWalletFromSeed } from './generator';
-import type { IWallet } from './wallet';
+import {
+  deriveBIP32,
+  generateEcdsa,
+  importSecret,
+  signEcdsa,
+} from './examples';
+import { getApi } from './examples/shared';
 
 export default function App() {
-  const [wallet, setWallet] = React.useState<IWallet>();
+  const messageToSign = 'Sign me please';
+  const secret =
+    '153649e88ae8337f53451d8d0f4e6fd7e1860620923fc04192c8abc2370b68dc';
 
-  const importWallet = async () => {
-    setWallet(
-      await generateWalletFromSeed(
-        '153649e88ae8337f53451d8d0f4e6fd7e1860626923fc04192c8abc2370b68dc'
-      )
-    );
-  };
+  const [share, setShare] = useState('');
+  const [publicKey, setPublicKey] = useState('');
+  const [signature, setSignature] = useState('');
+  const [verifyLocal, setVerifyLocal] = useState<boolean>();
+  const [verifyServer, setVerifyServer] = useState<any>();
+  const [importedShare, setImportedShare] = useState('');
+  const [derivedShare, setDerivedShare] = useState('');
+  // const [generatedSecretShare, setGeneratedSecretShare] = useState('');
 
-  const generateNewWallet = async () => {
-    setWallet(await generateWallet());
-  };
+  useEffect(() => {
+    const onStartUp = async () => {
+      // --- Start Generating Keypair
+      const generatedShare = await generateEcdsa();
+      setShare(generatedShare);
+      setPublicKey(await getPublicKey(generatedShare));
 
-  const refreshBalance = async () => {
-    setWallet(await wallet!.refreshBalance()); //doesnt trigger rerender - see line 34
-  };
+      // --- Start signing a message
+      const signContext = await signEcdsa(messageToSign, generatedShare);
 
-  const transac = async () => {
-    setWallet(await wallet!.refreshTransactions());
-  };
+      const signatureResult = await getSignature(signContext);
+      setSignature(signatureResult);
+
+      // --- Start validating a signature
+      setVerifyLocal(
+        await verifySignature(messageToSign, signatureResult, generatedShare)
+      );
+
+      const response = await fetch(getApi('http') + '/verify', {
+        method: 'POST',
+        body: JSON.stringify({
+          message: messageToSign,
+          signature: signatureResult,
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      setVerifyServer(JSON.stringify(await response.json()));
+
+      // --- Start generating a random secret
+      // const randomSecretContext = await generateSecret();
+
+      // setGeneratedSecretShare(await getShare(randomSecretContext));
+
+      // --- Start importing a secret from another wallet
+      const shareFromSecret = await importSecret(secret);
+
+      setImportedShare(shareFromSecret);
+
+      // --- Start deriving a keypair from the imported wallet
+      const deriveContext = await deriveBIP32(shareFromSecret);
+
+      setDerivedShare(await getResultDeriveBIP32(deriveContext));
+    };
+
+    onStartUp();
+  }, []);
 
   return (
     <ScrollView>
       <View style={styles.container}>
-        <Button onPress={importWallet} title="Import Wallet" />
-        <Button onPress={generateNewWallet} title="Generate Wallet" />
-
-        <Text>Address: {wallet?.config.address}</Text>
-
-        <View style={styles.row}>
-          <Text>Balance: {wallet?.balance.getValue()} BTC</Text>
-          <Button onPress={refreshBalance} title="refresh" />
+        <View style={groupStyle}>
+          <Text>Client side Key Share: {share.slice(0, 23)}</Text>
+          <Text>Client side Public Key: {publicKey}</Text>
         </View>
 
-        <Button onPress={transac} title="load transac" />
-        {wallet?.transactions.map((t) => {
-          return (
-            <Text key={t.hash}> + {t.outputs[1].value / 100000000} BTC</Text>
-          );
-        })}
+        <View style={groupStyle}>
+          <Text>Message to sign: {messageToSign}</Text>
+          <Text>Signature: {signature}</Text>
+        </View>
+
+        <View style={groupStyle}>
+          <Text>OK Local: {`${verifyLocal}`}</Text>
+          <Text>OK Server: {`${verifyServer}`}</Text>
+        </View>
+
+        {/* <View style={groupStyle}>
+          <Text>
+            Secret Share generated from Random Secret : {generatedSecretShare}
+          </Text>
+        </View> */}
+
+        <View style={groupStyle}>
+          <Text>Importing Secret: {secret}</Text>
+          <Text>Imported Share: {importedShare.slice(0, 23)}</Text>
+        </View>
+
+        <View style={groupStyle}>
+          <Text>Derived Share: {derivedShare.slice(0, 23)}</Text>
+        </View>
       </View>
     </ScrollView>
   );
 }
+
+const groupStyle = {
+  borderBottomColor: 'black',
+  borderBottomWidth: StyleSheet.hairlineWidth,
+  paddingBottom: 10,
+  marginBottom: 10,
+};
