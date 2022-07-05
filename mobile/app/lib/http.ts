@@ -58,7 +58,7 @@ const determineMethod = (body?: any, method?: HttpMethod): HttpMethod => {
   return HttpMethod.GET;
 };
 
-const getApiUrl = (protocol: "ws" | "http"): string => {
+export const getApiUrl = (protocol: "ws" | "http"): string => {
   const localIp = Platform.OS === "android" ? "10.0.2.2" : "127.0.0.1";
 
   return `${protocol}://${localIp}:8080`;

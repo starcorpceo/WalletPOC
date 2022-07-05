@@ -1,9 +1,23 @@
-import { Platform } from 'react-native';
+export type ActionStatus = "Init" | "Stepping";
 
-export type ActionStatus = 'Init' | 'Stepping';
+// const authenticatedMpc =
+//   (userId: string, devicePublicKey: string) =>
+//   async (path: string, onMessage: () => void, onOpen: () => void) => {
+//     const { nonce } = await fetchFromApi<CreateNonceResponse>("/getNonce");
 
-export const getApi = (protocoll: 'ws' | 'http'): string => {
-  const localIp = Platform.OS === 'android' ? '10.0.2.2' : '127.0.0.1';
+//     const deviceSignature = await signWithDeviceKey(nonce);
 
-  return `${protocoll}://${localIp}:8080/mpc/ecdsa`;
-};
+//     const ws = new WebSocket(getApiUrl("ws") + path, undefined, {
+//       headers: {
+//         userId,
+//         devicePublicKey,
+//         deviceSignature,
+//       },
+//     });
+
+//     return new Promise((res, rej) => {
+//       ws.onopen = onOpen;
+//       ws.onmessage = onMessage;
+//       ws.onerror = (err) => rej(err);
+//     });
+//   };

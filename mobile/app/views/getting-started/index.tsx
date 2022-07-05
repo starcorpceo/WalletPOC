@@ -27,7 +27,7 @@ const GettingStarted = ({ navigation }: Props) => {
         <Text style={textStyle}>Welcome to Secure Wallet</Text>
         <Button
           onPress={() => navigation.navigate("CreateWallet")}
-          title="Log In"
+          title="Create New Wallet"
         />
 
         <BitcoinWallet />

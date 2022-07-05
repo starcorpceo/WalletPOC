@@ -3,8 +3,8 @@
 // derive several wallets
 
 import Elliptic from "elliptic";
+import { deriveBIP32, generateSecret, importSecret } from "lib/mpc";
 import "shim";
-import { deriveBIP32, generateSecret, importSecret } from "./mpc";
 import { IConstructor, IWallet, WalletConfig } from "./wallet";
 const ec = new Elliptic.ec("secp256k1");
 
@@ -15,16 +15,9 @@ export const generateWalletFromSeed = async <T extends IWallet>(
 ): Promise<T> => {
   console.log("generating wallet from seed " + seed.slice(0, 5), "...");
 
-  await importSecret(seed, (seedShare: string) => {
-    // TODO: Dont depend on cpp magic and actually handle seedShare
+  const share = await importSecret(seed);
 
-    console.log(
-      "Seed share",
-      Buffer.from(seedShare).toString("hex").slice(0, 5) + "..."
-    );
-  });
-
-  return await derive(Wallet, pubKeyTransformer);
+  return await derive(Wallet, pubKeyTransformer, share);
 };
 
 export const generateWallet = async <T extends IWallet>(
@@ -32,22 +25,16 @@ export const generateWallet = async <T extends IWallet>(
   pubKeyTransformer: PubKeyToWalletConfig
 ): Promise<T> => {
   console.log("generating new wallet...");
-  await generateSecret((seedShare: string) => {
-    // TODO: Dont depend on cpp magic and actually handle seedShare
-
-    console.log(
-      "Seed share",
-      Buffer.from(seedShare).toString("hex").slice(0, 5) + "..."
-    );
-  });
-  return await derive(Wallet, pubKeyTransformer);
+  const share = await generateSecret();
+  return await derive(Wallet, pubKeyTransformer, share);
 };
 
 const derive = async <T extends IWallet>(
   Wallet: IConstructor<T>,
-  pubKeyBufToWalletConfig: PubKeyToWalletConfig
+  pubKeyBufToWalletConfig: PubKeyToWalletConfig,
+  share: string
 ): Promise<T> => {
-  const pubKeyDER = await deriveBIP32();
+  const pubKeyDER = await deriveBIP32(share);
 
   const ecPair = ec.keyFromPublic(pubKeyDER.slice(23));
 

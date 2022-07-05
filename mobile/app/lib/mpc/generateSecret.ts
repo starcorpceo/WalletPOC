@@ -4,15 +4,15 @@
  * @param {Function} setSeedShare Function to return the client side seed share
  */
 
+import { getApiUrl } from "lib/http";
 import {
   initGenerateGenericSecret,
   step,
-} from 'react-native-blockchain-crypto-mpc';
-import { getApi } from './shared';
+} from "react-native-blockchain-crypto-mpc";
 
 export const generateSecret = (): Promise<string> => {
   return new Promise((res) => {
-    const ws = new WebSocket(getApi('ws') + '/secret');
+    const ws = new WebSocket(getApiUrl("ws") + "/secret");
 
     ws.onopen = () => {
       initGenerateGenericSecret().then((success) => {
@@ -24,12 +24,12 @@ export const generateSecret = (): Promise<string> => {
       step(message.data).then((stepMsg) => {
         ws.send(stepMsg.message);
 
-        stepMsg.finished && stepMsg.context && res(stepMsg.context);
+        stepMsg.finished && stepMsg.share && res(stepMsg.share);
       });
     };
 
     ws.onerror = (error) => {
-      console.log('err', error);
+      console.log("err", error);
     };
   });
 };
