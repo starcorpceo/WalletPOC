@@ -1,7 +1,7 @@
 import { SocketStream } from "@fastify/websocket";
 import logger from "@lib/logger";
 import Context from "../../../crypto-mpc-js/lib/context";
-import { User, Wallets } from "../../user/user";
+import { User, Wallet } from "../../user/user";
 import { createWalletBySecret } from "../../user/wallets.repository";
 import { step } from "../step";
 
@@ -15,13 +15,13 @@ export const generateGenericSecret = (connection: SocketStream, user: User) => {
 
     if (stepOutput === true) {
       createWalletBySecret(user, context.getNewShare().toString("base64"))
-        .then((wallets: Wallets) =>
+        .then((wallet: Wallet) =>
           logger.info(
             {
-              ...wallets,
-              secret: wallets.genericSecret?.slice(0, 23),
+              ...wallet,
+              secret: wallet.genericSecret?.slice(0, 23),
             },
-            "Wallet main key saved from Ecdsa Init"
+            "Wallet Generic Secret Created"
           )
         )
         .catch((err) =>

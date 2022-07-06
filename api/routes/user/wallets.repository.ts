@@ -1,12 +1,12 @@
 import { client } from "./../../server";
-import { User, Wallets } from "./user";
+import { User, Wallet } from "./user";
 
 // Create by Share directly, this will be obsolete at some point
 export const createWalletByShare = (
   user: User,
   share: string
-): Promise<Wallets> => {
-  return client.wallets.create({
+): Promise<Wallet> => {
+  return client.wallet.create({
     data: {
       mainShare: share,
       user: {
@@ -24,8 +24,8 @@ export const createWalletByShare = (
 export const createWalletBySecret = (
   user: User,
   secret: string
-): Promise<Wallets> => {
-  return client.wallets.create({
+): Promise<Wallet> => {
+  return client.wallet.create({
     data: {
       genericSecret: secret,
       user: {

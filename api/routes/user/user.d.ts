@@ -3,7 +3,7 @@ export interface User {
   devicePublicKey: string;
 }
 
-export interface Wallets {
+export interface Wallet {
   id: string;
   mainShare: string | null;
   genericSecret: string | null;

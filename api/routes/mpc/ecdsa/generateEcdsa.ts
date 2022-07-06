@@ -1,11 +1,11 @@
 import { Context } from "@crypto-mpc";
 import { SocketStream } from "@fastify/websocket";
 import logger from "@lib/logger";
-import { User, Wallets } from "../../user/user";
+import { User, Wallet } from "../../user/user";
 import { createWalletByShare } from "../../user/wallets.repository";
 import { step } from "../step";
 
-export const initGenerateEcdsaKey = (connection: SocketStream, user: User) => {
+export const generateEcdsaKey = (connection: SocketStream, user: User) => {
   let context: Context;
 
   connection.socket.on("message", (message) => {
@@ -15,7 +15,7 @@ export const initGenerateEcdsaKey = (connection: SocketStream, user: User) => {
 
     if (stepOutput === true) {
       createWalletByShare(user, context.getNewShare().toString("base64"))
-        .then((wallets: Wallets) =>
+        .then((wallets: Wallet) =>
           logger.info(
             {
               ...wallets,

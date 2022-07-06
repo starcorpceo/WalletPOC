@@ -10,12 +10,12 @@ generator client {
 model User {
     id              String   @default(uuid())
     devicePublicKey String
-    wallets         Wallets?
+    wallets         Wallet[]
 
     @@unique([id, devicePublicKey])
 }
 
-model Wallets {
+model Wallet {
     id            String  @id @default(uuid())
     genericSecret String?
     mainShare     String?
@@ -24,6 +24,4 @@ model Wallets {
     user            User   @relation(fields: [userId, devicePublicKey], references: [id, devicePublicKey])
     userId          String
     devicePublicKey String
-
-    @@unique([userId, devicePublicKey])
 }
