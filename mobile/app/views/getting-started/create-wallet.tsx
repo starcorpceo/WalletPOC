@@ -14,9 +14,14 @@ const CreateWallet = () => {
     const createWallet = async () => {
       if (mainKeyShare && mainKeyShare !== "") return;
 
-      const newMainKeyShare = await generateEcdsa(devicePublicKey, userId);
+      const newMainKeyShare = await generateEcdsa(
+        devicePublicKey,
+        userId,
+        "/mpc/ecdsa/generateEcdsa"
+      );
 
-      console.log("new share", newMainKeyShare);
+      // const secret = await generateSecret();
+
       setAuth((currentState: AuthState) => {
         return {
           ...currentState,

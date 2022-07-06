@@ -1,23 +1,33 @@
+import { signWithDeviceKey } from "lib/auth";
+import { fetchFromApi, getApiUrl } from "lib/http";
+import { CreateNonceResponse } from "../../api-types/auth";
+
 export type ActionStatus = "Init" | "Stepping";
 
-// const authenticatedMpc =
-//   (userId: string, devicePublicKey: string) =>
-//   async (path: string, onMessage: () => void, onOpen: () => void) => {
-//     const { nonce } = await fetchFromApi<CreateNonceResponse>("/getNonce");
+// TODO give this some type in order to make sense
+export type MPCError = any;
 
-//     const deviceSignature = await signWithDeviceKey(nonce);
+type MPCHandler<T> = (
+  resolve: (value: T) => void,
+  reject: (error: MPCError) => void,
+  ws: WebSocket
+) => void;
 
-//     const ws = new WebSocket(getApiUrl("ws") + path, undefined, {
-//       headers: {
-//         userId,
-//         devicePublicKey,
-//         deviceSignature,
-//       },
-//     });
+export const authenticatedMpc =
+  <T>(mpcHandler: MPCHandler<T>) =>
+  async (devicePublicKey: string, userId: string, path: string): Promise<T> => {
+    const { nonce } = await fetchFromApi<CreateNonceResponse>("/getNonce");
+    const deviceSignature = await signWithDeviceKey(nonce);
 
-//     return new Promise((res, rej) => {
-//       ws.onopen = onOpen;
-//       ws.onmessage = onMessage;
-//       ws.onerror = (err) => rej(err);
-//     });
-//   };
+    const ws = new WebSocket(getApiUrl("ws") + path, undefined, {
+      headers: {
+        userId,
+        devicePublicKey,
+        deviceSignature,
+      },
+    });
+
+    return new Promise((res, rej) => {
+      mpcHandler(res, rej, ws);
+    });
+  };
