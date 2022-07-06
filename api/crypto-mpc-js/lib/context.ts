@@ -116,7 +116,7 @@ class Context {
     return result;
   }
 
-  getNewShare() {
+  getNewShare(): Buffer {
     return this.newShare;
   }
 

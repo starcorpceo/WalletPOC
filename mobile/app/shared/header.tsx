@@ -58,9 +58,12 @@ const createProfile = async (setAuth: SetterOrUpdater<AuthState>) => {
   });
 
   success &&
-    setAuth({
-      userId,
-      devicePublicKey: newDevicePublicKey,
+    setAuth((oldState) => {
+      return {
+        ...oldState,
+        userId,
+        devicePublicKey: newDevicePublicKey,
+      };
     });
 };
 

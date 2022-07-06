@@ -18,31 +18,36 @@ export const authenticate = async (req: FastifyRequest, res: FastifyReply) => {
       nonce
     )
   ) {
-    console.log((userid as string).length);
+    console.log("invalid req");
 
     throw new Error("Invalid Request to Mpc Endpoint");
   }
 
-  const user = await getUser({
-    userId: userid as string,
-    devicePublicKey: devicepublickey as string,
-  });
+  try {
+    const user = await getUser({
+      userId: userid as string,
+      devicePublicKey: devicepublickey as string,
+    });
 
-  const verifier = crypto
-    .createVerify("SHA256")
-    .update(nonce as string, "utf-8");
+    const verifier = crypto
+      .createVerify("SHA256")
+      .update(nonce as string, "utf-8");
 
-  const result = verifier.verify(
-    {
-      key: buildPubKey(user.devicePublicKey),
-      format: "pem",
-      type: "pkcs1",
-    },
-    Buffer.from(devicesignature as string, "base64")
-  );
+    const result = verifier.verify(
+      {
+        key: buildPubKey(user.devicePublicKey),
+        format: "pem",
+        type: "pkcs1",
+      },
+      Buffer.from(devicesignature as string, "base64")
+    );
 
-  if (!result) {
-    throw new Error("Invalid Signature");
+    if (!result) {
+      throw new Error("Invalid Signature");
+    }
+    req["user"] = user;
+  } catch (e) {
+    console.error("Error while authenticating", e);
   }
 };
 

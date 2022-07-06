@@ -1,5 +1,5 @@
 import { notFound } from "@lib/error";
-import { client } from "../../server";
+import { client } from "./../../server";
 import { CreateUserRequest, User } from "./user";
 
 export const persistUserCreation = (

@@ -3,6 +3,11 @@ export interface User {
   devicePublicKey: string;
 }
 
+export interface Wallets {
+  id: string;
+  mainShare: string;
+}
+
 export interface CreateUserRequest {
   devicePublicKey: string;
 }

@@ -7,11 +7,13 @@ const { persistAtom } = recoilPersist({ storage: CustomStorage });
 export interface AuthState {
   devicePublicKey: string;
   userId: string;
+  mainKeyShare: string;
 }
 
-const initialAuthState: AuthState = {
+export const initialAuthState: AuthState = {
   devicePublicKey: "",
   userId: "",
+  mainKeyShare: "",
 };
 
 export const authState = atom({

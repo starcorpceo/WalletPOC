@@ -8,8 +8,21 @@ generator client {
 }
 
 model User {
-    id              String @default(uuid())
+    id              String   @default(uuid())
     devicePublicKey String
+    wallets         Wallets?
 
     @@unique([id, devicePublicKey])
+}
+
+model Wallets {
+    id        String @id @default(uuid())
+    mainShare String
+
+
+    user            User   @relation(fields: [userId, devicePublicKey], references: [id, devicePublicKey])
+    userId          String
+    devicePublicKey String
+
+    @@unique([userId, devicePublicKey])
 }
