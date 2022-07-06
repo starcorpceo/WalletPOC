@@ -11,6 +11,9 @@ RCT_EXTERN_METHOD(generateKeyPair:(NSString)alias
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 
+RCT_EXTERN_METHOD(deleteKeyPair:(NSString)alias
+                  resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
 
 RCT_EXTERN_METHOD(encrypt:(NSString)clearText
                   keyName:(NSString)key

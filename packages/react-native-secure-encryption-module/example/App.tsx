@@ -7,9 +7,17 @@
  */
 
 import React from 'react';
-import {SafeAreaView, ScrollView, StatusBar, Text, View} from 'react-native';
+import {
+  Button,
+  SafeAreaView,
+  ScrollView,
+  StatusBar,
+  Text,
+  View,
+} from 'react-native';
 import {
   decrypt,
+  deleteKeyPair,
   encrypt,
   generateKeyPair,
   getKey,
@@ -17,6 +25,8 @@ import {
   sign,
   verify,
 } from 'react-native-secure-encryption-module';
+
+const keyName = 'NewKey';
 
 const App = () => {
   const [result, setResult] = React.useState<string>();
@@ -33,26 +43,26 @@ const App = () => {
   React.useEffect(() => {
     const doit = async () => {
       console.log('Generating Keypiar');
-      const key = await generateKeyPair('NewKey');
+      const key = await generateKeyPair(keyName);
 
       setResult(key);
 
-      encrypt(originalValue, 'NewKey')
+      encrypt(originalValue, keyName)
         .then(async encryptedVal => {
           setEncrypted(encryptedVal);
-          const decryptedVal = await decrypt(encryptedVal, 'NewKey');
+          const decryptedVal = await decrypt(encryptedVal, keyName);
           console.log('Decrypted', decryptedVal);
           setDecrypted(decryptedVal);
         })
         .catch(setEncrypted);
 
-      const sig = await sign(messageToSign, 'NewKey');
+      const sig = await sign(messageToSign, keyName);
       setSignature(sig);
 
-      const signatureOk = await verify(sig, messageToSign, 'NewKey');
+      const signatureOk = await verify(sig, messageToSign, keyName);
       setOk(signatureOk);
 
-      const isSecure = await isKeySecuredOnHardware('NewKey');
+      const isSecure = await isKeySecuredOnHardware(keyName);
       setSecure(isSecure);
 
       try {
@@ -65,22 +75,39 @@ const App = () => {
   }, []);
 
   return (
-    <SafeAreaView>
-      <StatusBar />
-      <ScrollView contentInsetAdjustmentBehavior="automatic">
-        <View style={{backgroundColor: 'white'}}>
-          <Text>Original Text: {`${originalValue}`}</Text>
-          <Text>Generation Result: {`${result}`}</Text>
-          <Text>Encrypted Value: {`${encrypted}`}</Text>
-          <Text>Decrypted Value: {`${decrypted}`}</Text>
-          <Text>Message To Sign: {messageToSign}</Text>
-          <Text>Signed Value: {`${signature}`}</Text>
-          <Text>Signature ok : {`${ok}`}</Text>
-          <Text>Is key secured on hardware Level: {`${secure}`}</Text>
-        </View>
-      </ScrollView>
+    <SafeAreaView style={{}}>
+      <>
+        <StatusBar />
+        <ScrollView contentInsetAdjustmentBehavior="automatic">
+          <View style={{backgroundColor: 'white'}}>
+            <Text>Original Text: {`${originalValue}`}</Text>
+            <Text>Generation Result: {`${result}`}</Text>
+            <Text>Encrypted Value: {`${encrypted}`}</Text>
+            <Text>Decrypted Value: {`${decrypted}`}</Text>
+            <Text>Message To Sign: {messageToSign}</Text>
+            <Text>Signed Value: {`${signature}`}</Text>
+            <Text>Signature ok : {`${ok}`}</Text>
+            <Text>Is key secured on hardware Level: {`${secure}`}</Text>
+            <Button onPress={deleteKey} title="Delete Key" />
+          </View>
+        </ScrollView>
+      </>
     </SafeAreaView>
   );
+};
+
+const deleteKey = async () => {
+  try {
+    await deleteKeyPair(keyName);
+
+    getKey(keyName)
+      .then(key => console.log('Key found, this is weird', key))
+      .catch(e =>
+        console.log('Key not found, that means deletion was a success!', e),
+      );
+  } catch (e) {
+    console.error('Delete Key was not successfull', e);
+  }
 };
 
 export default App;

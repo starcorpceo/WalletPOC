@@ -37,6 +37,10 @@ export function getKey(alias: string): Promise<string> {
   return SecureEncryptionModule.getKey(alias);
 }
 
+export function deleteKeyPair(alias: string): Promise<true> {
+  return SecureEncryptionModule.deleteKeyPair(alias);
+}
+
 export function verify(
   signature: String,
   message: String,
