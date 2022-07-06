@@ -1,31 +1,34 @@
-import { Context } from "@crypto-mpc";
 import { SocketStream } from "@fastify/websocket";
 import logger from "@lib/logger";
+import Context from "../../../crypto-mpc-js/lib/context";
 import { User, Wallets } from "../../user/user";
-import { createWalletByShare } from "../../user/wallets.repository";
+import { createWalletBySecret } from "../../user/wallets.repository";
 import { step } from "../step";
 
-export const initGenerateEcdsaKey = (connection: SocketStream, user: User) => {
+export const generateGenericSecret = (connection: SocketStream, user: User) => {
   let context: Context;
 
   connection.socket.on("message", (message) => {
-    if (!context) context = Context.createGenerateEcdsaKey(2);
+    if (!context) context = Context.createGenerateGenericSecretContext(2, 256);
 
     const stepOutput = step(message.toString(), context);
 
     if (stepOutput === true) {
-      createWalletByShare(user, context.getNewShare().toString("base64"))
+      createWalletBySecret(user, context.getNewShare().toString("base64"))
         .then((wallets: Wallets) =>
           logger.info(
             {
               ...wallets,
-              mainShare: wallets.mainShare?.slice(0, 23),
+              secret: wallets.genericSecret?.slice(0, 23),
             },
             "Wallet main key saved from Ecdsa Init"
           )
         )
         .catch((err) =>
-          logger.error({ err }, "Error while saving main key from Ecdas Init")
+          logger.error(
+            { err },
+            "Error while saving generic Secret from generate"
+          )
         );
 
       connection.socket.close();
@@ -36,6 +39,6 @@ export const initGenerateEcdsaKey = (connection: SocketStream, user: User) => {
   });
 
   connection.socket.on("error", (err) => {
-    logger.error({ err }, "Error on Init Ecdsa Websocket");
+    logger.error({ err }, "error");
   });
 };

@@ -8,12 +8,14 @@ export interface AuthState {
   devicePublicKey: string;
   userId: string;
   mainKeyShare: string;
+  genericSecret: string;
 }
 
 export const initialAuthState: AuthState = {
   devicePublicKey: "",
   userId: "",
   mainKeyShare: "",
+  genericSecret: "",
 };
 
 export const authState = atom({

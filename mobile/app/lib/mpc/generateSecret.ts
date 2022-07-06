@@ -4,32 +4,33 @@
  * @param {Function} setSeedShare Function to return the client side seed share
  */
 
-import { getApiUrl } from "lib/http";
 import {
   initGenerateGenericSecret,
   step,
 } from "react-native-blockchain-crypto-mpc";
+import { authenticatedMpc, Share } from "./shared";
 
-export const generateSecret = (): Promise<string> => {
-  return new Promise((res) => {
-    const ws = new WebSocket(getApiUrl("ws") + "/secret");
+export const createGenericSecret = authenticatedMpc<Share>(
+  "/mpc/ecdsa/generateSecret",
+  (resolve, reject, websocket) => {
+    websocket.onopen = () => {
+      console.log("open  secret message");
 
-    ws.onopen = () => {
       initGenerateGenericSecret().then((success) => {
-        success && step(null).then((stepMsg) => ws.send(stepMsg.message));
+        success &&
+          step(null).then((stepMsg) => {
+            websocket.send(stepMsg.message);
+            stepMsg.finished && stepMsg.share && resolve(stepMsg.share);
+          });
       });
     };
 
-    ws.onmessage = (message: WebSocketMessageEvent) => {
-      step(message.data).then((stepMsg) => {
-        ws.send(stepMsg.message);
+    // This action only requires one step. No onMessage event is needed
 
-        stepMsg.finished && stepMsg.share && res(stepMsg.share);
-      });
+    websocket.onerror = (error) => {
+      reject(error);
     };
 
-    ws.onerror = (error) => {
-      console.log("err", error);
-    };
-  });
-};
+    websocket.onclose = (e) => {};
+  }
+);

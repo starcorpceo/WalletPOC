@@ -1,7 +1,8 @@
 import { initGenerateEcdsaKey, step } from "react-native-blockchain-crypto-mpc";
-import { authenticatedMpc } from "./shared";
+import { authenticatedMpc, Share } from "./shared";
 
-export const generateEcdsa = authenticatedMpc<string>(
+export const generateEcdsa = authenticatedMpc<Share>(
+  "/mpc/ecdsa/generateEcdsa",
   (resolve, reject, websocket) => {
     websocket.onopen = () => {
       console.log("Start generate ecdsa key");

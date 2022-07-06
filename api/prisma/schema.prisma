@@ -16,8 +16,9 @@ model User {
 }
 
 model Wallets {
-    id        String @id @default(uuid())
-    mainShare String
+    id            String  @id @default(uuid())
+    genericSecret String?
+    mainShare     String?
 
 
     user            User   @relation(fields: [userId, devicePublicKey], references: [id, devicePublicKey])

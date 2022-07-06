@@ -5,7 +5,8 @@ export interface User {
 
 export interface Wallets {
   id: string;
-  mainShare: string;
+  mainShare: string | null;
+  genericSecret: string | null;
 }
 
 export interface CreateUserRequest {

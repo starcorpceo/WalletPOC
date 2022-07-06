@@ -2,6 +2,11 @@ import { signWithDeviceKey } from "lib/auth";
 import { fetchFromApi, getApiUrl } from "lib/http";
 import { CreateNonceResponse } from "../../api-types/auth";
 
+export type Share = string;
+export type Context = string;
+
+export type MPCResult = Share | Context | void;
+
 export type ActionStatus = "Init" | "Stepping";
 
 // TODO give this some type in order to make sense
@@ -14,8 +19,8 @@ type MPCHandler<T> = (
 ) => void;
 
 export const authenticatedMpc =
-  <T>(mpcHandler: MPCHandler<T>) =>
-  async (devicePublicKey: string, userId: string, path: string): Promise<T> => {
+  <MPCResult>(path: string, mpcHandler: MPCHandler<MPCResult>) =>
+  async (devicePublicKey: string, userId: string): Promise<MPCResult> => {
     const { nonce } = await fetchFromApi<CreateNonceResponse>("/getNonce");
     const deviceSignature = await signWithDeviceKey(nonce);
 

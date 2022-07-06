@@ -5,30 +5,6 @@ import logger from "@lib/logger";
 import { ActionStatus } from "../mpc-routes";
 import { step } from "../step";
 
-export const initGenerateGenericSecret = (connection: SocketStream) => {
-  let context: Context;
-
-  connection.socket.on("message", (message) => {
-    if (!context) context = Context.createGenerateGenericSecretContext(2, 256);
-
-    const stepOutput = step(message.toString(), context);
-
-    if (stepOutput === true) {
-      // TODO: Remove this in favor of real database
-      db.shareBuf = context.getNewShare();
-
-      connection.socket.close();
-      return;
-    }
-
-    connection.socket.send(stepOutput as string);
-  });
-
-  connection.socket.on("error", (err) => {
-    logger.error({ err }, "error");
-  });
-};
-
 export const importGenericSecret = (connection: SocketStream) => {
   let context: Context;
   let status: ActionStatus = "Init";

@@ -1,10 +1,14 @@
 import { signWithDeviceKey } from "lib/auth";
 import { fetchFromApi, HttpMethod } from "lib/http";
 import React, { useEffect } from "react";
-import { Text, View } from "react-native";
-import { generateKeyPair, getKey } from "react-native-secure-encryption-module";
+import { Button, Text, View } from "react-native";
+import {
+  deleteKeyPair,
+  generateKeyPair,
+  getKey,
+} from "react-native-secure-encryption-module";
 import { SetterOrUpdater, useRecoilState } from "recoil";
-import { AuthState, authState } from "state/atoms";
+import { AuthState, authState, initialAuthState } from "state/atoms";
 import { CreateUserResponse } from "../api-types/user";
 import constants from "../config/constants";
 
@@ -29,6 +33,14 @@ const Header = () => {
     <View>
       <Text>Your Device Key: {auth.devicePublicKey.slice(0, 5)}...</Text>
       <Text>Your User id: {auth.userId}</Text>
+
+      <Button
+        onPress={() => {
+          setAuth((_: AuthState) => initialAuthState);
+          deleteKeyPair(constants.deviceKeyName);
+        }}
+        title="Reset Local State"
+      />
     </View>
   );
 };

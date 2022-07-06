@@ -3,8 +3,9 @@ import { FastifyInstance, FastifyRequest } from "fastify";
 import { User } from "../user/user";
 import { authenticate } from "./authentication";
 import { initDeriveBIP32 } from "./ecdsa/bip";
+import { generateGenericSecret } from "./ecdsa/generateSecret";
 import { initGenerateEcdsaKey } from "./ecdsa/init";
-import { importGenericSecret, initGenerateGenericSecret } from "./ecdsa/secret";
+import { importGenericSecret } from "./ecdsa/secret";
 import { signWithEcdsaShare } from "./ecdsa/sign";
 import { verifyEcdsaSignature } from "./ecdsa/verify";
 
@@ -30,10 +31,11 @@ const registerMcpRoutes = (server: FastifyInstance): void => {
 const registerPrivateMpcRoutes = (server: FastifyInstance) => {
   server.register(async function (server) {
     server.get(
-      route + "/secret",
+      route + "/generateSecret",
       { websocket: true },
       (connection: SocketStream, req: FastifyRequest) => {
-        initGenerateGenericSecret(connection);
+        const user: User = req["user"];
+        generateGenericSecret(connection, user);
       }
     );
   });
