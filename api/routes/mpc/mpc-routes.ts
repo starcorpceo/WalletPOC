@@ -7,7 +7,6 @@ import { initGenerateEcdsaKey } from "./ecdsa/init";
 import { importGenericSecret, initGenerateGenericSecret } from "./ecdsa/secret";
 import { signWithEcdsaShare } from "./ecdsa/sign";
 import { verifyEcdsaSignature } from "./ecdsa/verify";
-import testMcp from "./test";
 
 export type ActionStatus = "Init" | "Stepping";
 
@@ -15,12 +14,14 @@ const route = "/mpc/ecdsa";
 
 const registerMcpRoutes = (server: FastifyInstance): void => {
   // Open Routes
-  server.get("/mpc/test", testMcp);
   server.post(route + "/verify", verifyEcdsaSignature);
 
   // Routes that need Authentication
   server.register(async function plugin(privatePlugin, opts) {
     privatePlugin.addHook("onRequest", authenticate);
+    privatePlugin.addHook("onError", async (request, reply, error) => {
+      request.log.error({ request: request.body, error }, "Error on MPC Route");
+    });
 
     registerPrivateMpcRoutes(privatePlugin);
   });

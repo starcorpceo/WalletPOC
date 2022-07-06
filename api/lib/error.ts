@@ -53,11 +53,7 @@ export const mapRouteError = (err: RouteError): HttpError => {
     }
 
     case "Other": {
-      const errorInfo = [err.error ? err.error : "", `Context: ${err.context}`]
-        .filter((val) => val !== "")
-        .join("\n");
-
-      logger.error(errorInfo);
+      logger.error({ err }, "Other Error occured");
 
       return {
         statusCode: 500,

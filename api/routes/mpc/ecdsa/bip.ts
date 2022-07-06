@@ -1,6 +1,7 @@
 import { Context } from "@crypto-mpc";
 import { SocketStream } from "@fastify/websocket";
 import { db } from "@lib/dev-db";
+import logger from "@lib/logger";
 import { step } from "../step";
 
 export const initDeriveBIP32 = (connection: SocketStream) => {
@@ -26,6 +27,6 @@ export const initDeriveBIP32 = (connection: SocketStream) => {
   });
 
   connection.socket.on("error", (err) => {
-    console.log("error", err);
+    logger.error({ err }, "error");
   });
 };

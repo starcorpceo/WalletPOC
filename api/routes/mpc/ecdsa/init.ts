@@ -1,5 +1,6 @@
 import { Context } from "@crypto-mpc";
 import { SocketStream } from "@fastify/websocket";
+import logger from "@lib/logger";
 import { User, Wallets } from "../../user/user";
 import { createWallet } from "../../user/wallets.repository";
 import { step } from "../step";
@@ -15,12 +16,17 @@ export const initGenerateEcdsaKey = (connection: SocketStream, user: User) => {
     if (stepOutput === true) {
       createWallet(user, context.getNewShare().toString("base64"))
         .then((wallets: Wallets) =>
-          console.log("user created", {
-            ...wallets,
-            mainShare: wallets.mainShare.slice(0, 23),
-          })
+          logger.info(
+            {
+              ...wallets,
+              mainShare: wallets.mainShare.slice(0, 23),
+            },
+            "Wallet main key saved from Ecdsa Init"
+          )
         )
-        .catch((e) => console.error("Error while creating wallet", e));
+        .catch((err) =>
+          logger.error({ err }, "Error while saving main key from Ecdas Init")
+        );
 
       connection.socket.close();
       return;
@@ -30,6 +36,6 @@ export const initGenerateEcdsaKey = (connection: SocketStream, user: User) => {
   });
 
   connection.socket.on("error", (err) => {
-    console.log("error", err);
+    logger.error({ err }, "Error on Init Ecdsa Websocket");
   });
 };

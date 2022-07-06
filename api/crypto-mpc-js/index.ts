@@ -3,6 +3,5 @@
 import Context from "./lib/context";
 import Message from "./lib/message";
 import Share from "./lib/share";
-import utils from "./lib/utils";
 
-export { Context, Share, Message, utils };
+export { Context, Share, Message };
