@@ -1,11 +1,12 @@
 import { Context } from "@crypto-mpc";
 import { SocketStream } from "@fastify/websocket";
-import { db } from "@lib/dev-db";
 import logger from "@lib/logger";
+import { User } from "../../user/user";
 import { ActionStatus } from "../mpc-routes";
-import { step } from "../step";
+import { processLastStep } from "../step/secret";
+import { step } from "../step/step";
 
-export const importGenericSecret = (connection: SocketStream) => {
+export const importGenericSecret = (connection: SocketStream, user: User) => {
   let context: Context;
   let status: ActionStatus = "Init";
 
@@ -18,7 +19,16 @@ export const importGenericSecret = (connection: SocketStream) => {
         break;
 
       case "Stepping":
-        stepWithMessage(connection, message, context);
+        {
+          const stepOutput = step(message.toString(), context);
+
+          if (stepOutput === true) {
+            processLastStep(user, context, connection);
+            return;
+          }
+
+          connection.socket.send(stepOutput);
+        }
         break;
     }
   });
@@ -26,18 +36,4 @@ export const importGenericSecret = (connection: SocketStream) => {
   connection.socket.on("error", (err) => {
     logger.error({ err }, "error");
   });
-};
-
-const stepWithMessage = (connection, message, context): void => {
-  const stepOutput = step(message.toString(), context);
-
-  if (stepOutput === true) {
-    // TODO: Remove this in favor of real database
-    db.shareBuf = context.getNewShare();
-
-    connection.socket.close();
-    return;
-  }
-
-  connection.socket.send(stepOutput);
 };

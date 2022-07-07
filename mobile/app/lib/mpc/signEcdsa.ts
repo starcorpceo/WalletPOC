@@ -1,11 +1,11 @@
-import { Buffer } from 'buffer';
-import { initSignEcdsa, step } from 'react-native-blockchain-crypto-mpc';
-import { ActionStatus, getApi } from './shared';
+import { Buffer } from "buffer";
+import { initSignEcdsa, step } from "react-native-blockchain-crypto-mpc";
+import { ActionStatus } from ".";
 
 export const signEcdsa = (message: string, share: string): Promise<string> => {
   return new Promise((res) => {
-    const ws = new WebSocket(getApi('ws') + '/sign');
-    let signStatus: ActionStatus = 'Init';
+    const ws = new WebSocket(getApi("ws") + "/sign");
+    let signStatus: ActionStatus = "Init";
 
     ws.onopen = () => {
       ws.send(Buffer.from(message));
@@ -13,21 +13,21 @@ export const signEcdsa = (message: string, share: string): Promise<string> => {
 
     ws.onmessage = (wsMessage: WebSocketMessageEvent) => {
       switch (signStatus) {
-        case 'Init':
+        case "Init":
           const msg = JSON.parse(wsMessage.data);
 
-          if (msg.value !== 'Start') {
+          if (msg.value !== "Start") {
             return;
           }
 
-          signStatus = 'Stepping';
+          signStatus = "Stepping";
 
           initSignEcdsa(message, share).then((success) => {
             success && step(null).then((stepMsg) => ws.send(stepMsg.message));
           });
 
           break;
-        case 'Stepping':
+        case "Stepping":
           step(wsMessage.data).then((stepMsg) => {
             ws.send(stepMsg.message);
             stepMsg.finished && stepMsg.context && res(stepMsg.context);
@@ -38,7 +38,7 @@ export const signEcdsa = (message: string, share: string): Promise<string> => {
     };
 
     ws.onerror = (error) => {
-      console.log('err', error);
+      console.log("err", error);
     };
   });
 };

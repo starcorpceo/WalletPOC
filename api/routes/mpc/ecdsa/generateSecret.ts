@@ -1,9 +1,9 @@
 import { SocketStream } from "@fastify/websocket";
 import logger from "@lib/logger";
 import Context from "../../../crypto-mpc-js/lib/context";
-import { User, Wallet } from "../../user/user";
-import { createWalletBySecret } from "../../user/wallets.repository";
-import { step } from "../step";
+import { User } from "../../user/user";
+import { processLastStep } from "../step/secret";
+import { step } from "../step/step";
 
 export const generateGenericSecret = (connection: SocketStream, user: User) => {
   let context: Context;
@@ -14,24 +14,7 @@ export const generateGenericSecret = (connection: SocketStream, user: User) => {
     const stepOutput = step(message.toString(), context);
 
     if (stepOutput === true) {
-      createWalletBySecret(user, context.getNewShare().toString("base64"))
-        .then((wallet: Wallet) =>
-          logger.info(
-            {
-              ...wallet,
-              secret: wallet.genericSecret?.slice(0, 23),
-            },
-            "Wallet Generic Secret Created"
-          )
-        )
-        .catch((err) =>
-          logger.error(
-            { err },
-            "Error while saving generic Secret from generate"
-          )
-        );
-
-      connection.socket.close();
+      processLastStep(user, context, connection);
       return;
     }
 

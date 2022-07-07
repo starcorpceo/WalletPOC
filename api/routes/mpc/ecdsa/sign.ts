@@ -3,7 +3,7 @@ import { SocketStream } from "@fastify/websocket";
 import { db } from "@lib/dev-db";
 import logger from "@lib/logger";
 import { ActionStatus } from "../mpc-routes";
-import { step } from "../step";
+import { step } from "../step/step";
 
 export const signWithEcdsaShare = (connection: SocketStream) => {
   let context: Context;

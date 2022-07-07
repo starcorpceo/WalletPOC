@@ -2,7 +2,7 @@ import { SocketStream } from "@fastify/websocket";
 import { FastifyInstance, FastifyRequest } from "fastify";
 import { User } from "../user/user";
 import { authenticate } from "./authentication";
-import { initDeriveBIP32 } from "./ecdsa/bip";
+import { deriveBIP32 } from "./ecdsa/deriveBIP32";
 import { generateEcdsaKey } from "./ecdsa/generateEcdsa";
 import { generateGenericSecret } from "./ecdsa/generateSecret";
 import { importGenericSecret } from "./ecdsa/importSecret";
@@ -44,7 +44,8 @@ const registerPrivateMpcRoutes = (server: FastifyInstance) => {
       route + "/import",
       { websocket: true },
       (connection: SocketStream, req: FastifyRequest) => {
-        importGenericSecret(connection);
+        const user: User = req["user"];
+        importGenericSecret(connection, user);
       }
     );
   });
@@ -53,7 +54,8 @@ const registerPrivateMpcRoutes = (server: FastifyInstance) => {
       route + "/derive",
       { websocket: true },
       (connection: SocketStream, req: FastifyRequest) => {
-        initDeriveBIP32(connection);
+        const user: User = req["user"];
+        deriveBIP32(connection, user);
       }
     );
   });
@@ -72,6 +74,7 @@ const registerPrivateMpcRoutes = (server: FastifyInstance) => {
       route + "/sign",
       { websocket: true },
       (connection: SocketStream, req: FastifyRequest) => {
+        const user: User = req["user"];
         signWithEcdsaShare(connection);
       }
     );

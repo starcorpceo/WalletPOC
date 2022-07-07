@@ -8,36 +8,38 @@
 import {
   initImportGenericSecret,
   step,
-} from 'react-native-blockchain-crypto-mpc';
-import { getApi } from './shared';
+} from "react-native-blockchain-crypto-mpc";
+import { authenticatedMpc, getServerShareId, Share } from ".";
 
-export const importSecret = (secret: string): Promise<string> => {
-  return new Promise((res) => {
-    const ws = new WebSocket(getApi('ws') + '/import');
+export const importSecret = authenticatedMpc<Share>(
+  "/mpc/ecdsa/import",
+  (resolve, reject, websocket, secret) => {
+    let clientShare: string;
 
-    ws.onopen = () => {
-      ws.send(secret);
+    websocket.onopen = () => {
+      websocket.send(secret);
     };
 
-    ws.onmessage = (message: WebSocketMessageEvent) => {
-      const msg = JSON.parse(message.data);
+    websocket.onmessage = (message: WebSocketMessageEvent) => {
+      const serverShareId = getServerShareId(message);
 
-      if (msg.value !== 'Start') {
+      if (serverShareId && clientShare) {
+        resolve({ clientShare, serverShareId });
         return;
       }
 
       initImportGenericSecret(secret).then((success) => {
         success &&
           step(null).then((stepMsg) => {
-            ws.send(stepMsg.message);
+            websocket.send(stepMsg.message);
 
-            stepMsg.finished && stepMsg.share && res(stepMsg.share);
+            if (stepMsg.finished && stepMsg.share) clientShare = stepMsg.share;
           });
       });
     };
 
-    ws.onerror = (error) => {
-      console.log('err', error);
+    websocket.onerror = (error) => {
+      reject(error);
     };
-  });
-};
+  }
+);

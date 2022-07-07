@@ -3,10 +3,19 @@ export interface User {
   devicePublicKey: string;
 }
 
+export interface Secret {
+  share: string;
+}
+
 export interface Wallet {
   id: string;
   mainShare: string | null;
   genericSecret: string | null;
+}
+
+export interface SecretWallet {
+  id: string;
+  genericSecret: string;
 }
 
 export interface CreateUserRequest {

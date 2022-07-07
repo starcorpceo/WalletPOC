@@ -8,24 +8,33 @@ import {
   initGenerateGenericSecret,
   step,
 } from "react-native-blockchain-crypto-mpc";
-import { authenticatedMpc, Share } from "./shared";
+import { authenticatedMpc, getServerShareId, Share } from ".";
 
 export const createGenericSecret = authenticatedMpc<Share>(
   "/mpc/ecdsa/generateSecret",
   (resolve, reject, websocket) => {
-    websocket.onopen = () => {
-      console.log("open  secret message");
+    let clientShare: string;
 
+    websocket.onopen = () => {
       initGenerateGenericSecret().then((success) => {
         success &&
           step(null).then((stepMsg) => {
             websocket.send(stepMsg.message);
-            stepMsg.finished && stepMsg.share && resolve(stepMsg.share);
+
+            if (stepMsg.finished && stepMsg.share) clientShare = stepMsg.share;
           });
       });
     };
 
-    // This action only requires one step. No onMessage event is needed
+    websocket.onmessage = (message: WebSocketMessageEvent) => {
+      console.log("message", message.data);
+      const serverShareId = getServerShareId(message);
+
+      if (serverShareId && clientShare) {
+        resolve({ clientShare, serverShareId });
+        return;
+      }
+    };
 
     websocket.onerror = (error) => {
       reject(error);
