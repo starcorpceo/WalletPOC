@@ -1,6 +1,6 @@
 import { notFound, other } from "@lib/error";
 import { client } from "../../server";
-import { SecretWallet, User, Wallet } from "./user";
+import { SecretWallet, ShareWallet, User, Wallet } from "./user";
 
 // Create by Share directly, this will be obsolete at some point
 export const createWalletByShare = (
@@ -41,7 +41,7 @@ export const createWalletBySecret = (
   });
 };
 
-export const getWalletForSecret = async (id: string): Promise<SecretWallet> => {
+export const getSecretWallet = async (id: string): Promise<SecretWallet> => {
   const wallet = await client.wallet.findUnique({
     where: {
       id,
@@ -58,7 +58,7 @@ export const getWalletForSecret = async (id: string): Promise<SecretWallet> => {
   return wallet as SecretWallet;
 };
 
-export const getWallet = async (id: string): Promise<Wallet> => {
+export const getShareWallet = async (id: string): Promise<ShareWallet> => {
   const wallet = await client.wallet.findUnique({
     where: {
       id,
@@ -67,5 +67,10 @@ export const getWallet = async (id: string): Promise<Wallet> => {
 
   if (!wallet) throw notFound("No Wallet Found");
 
-  return wallet;
+  if (wallet.mainShare === null)
+    throw other(
+      "Wallet was fetched for working with mainShare but Wallet does not have share"
+    );
+
+  return wallet as ShareWallet;
 };

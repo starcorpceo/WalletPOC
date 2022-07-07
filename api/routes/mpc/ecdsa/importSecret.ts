@@ -3,7 +3,7 @@ import { SocketStream } from "@fastify/websocket";
 import logger from "@lib/logger";
 import { User } from "../../user/user";
 import { ActionStatus } from "../mpc-routes";
-import { processLastStep } from "../step/secret";
+import { finishBySavingGenericSecret } from "../step/secret";
 import { step } from "../step/step";
 
 export const importGenericSecret = (connection: SocketStream, user: User) => {
@@ -23,7 +23,7 @@ export const importGenericSecret = (connection: SocketStream, user: User) => {
           const stepOutput = step(message.toString(), context);
 
           if (stepOutput === true) {
-            processLastStep(user, context, connection);
+            finishBySavingGenericSecret(user, context, connection);
             return;
           }
 

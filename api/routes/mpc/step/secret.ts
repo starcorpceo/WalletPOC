@@ -4,7 +4,7 @@ import Context from "../../../crypto-mpc-js/lib/context";
 import { User } from "../../user/user";
 import { createWalletBySecret } from "../../user/wallet.repository";
 
-export const processLastStep = async (
+export const finishBySavingGenericSecret = async (
   user: User,
   context: Context,
   connection: SocketStream

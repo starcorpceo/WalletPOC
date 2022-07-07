@@ -24,7 +24,15 @@ export const deriveBIP32 = authenticatedShareMpc<Context>(
     websocket.onmessage = (message: WebSocketMessageEvent) => {
       switch (deriveStatus) {
         case "Init":
-          if (!isValidStart) return;
+          if (!isValidStart(message)) {
+            websocket.close();
+            reject(
+              new Error(
+                "Something went wrong when starting up derive communication"
+              )
+            );
+            return;
+          }
 
           deriveStatus = "Stepping";
           initDeriveBIP32(secret).then((success) => {

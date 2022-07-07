@@ -3,10 +3,14 @@ import {
   deriveBIP32,
   generateEcdsa,
   importSecret,
+  signEcdsa,
 } from "lib/mpc";
 import React, { useCallback, useState } from "react";
 import { Button, StyleSheet, Text, TextInput, View } from "react-native";
-import { getResultDeriveBIP32 } from "react-native-blockchain-crypto-mpc";
+import {
+  getResultDeriveBIP32,
+  verifySignature,
+} from "react-native-blockchain-crypto-mpc";
 import { useRecoilState } from "recoil";
 import { AuthState, authState } from "state/atoms";
 
@@ -14,6 +18,11 @@ const CreateWallet = () => {
   const [secretToImport, setSecretToImport] = useState(
     "153649e88ae8337f53451d8d0f4e6fd7e1860620923fc04192c8abc2370b68dc"
   );
+
+  const [messageToSign, setMessageToSign] = useState("Sign me please");
+
+  const [signature, setSignature] = useState("");
+  const [signOK, setSignOK] = useState<boolean>();
 
   const [auth, setAuth] = useRecoilState<AuthState>(authState);
   const { devicePublicKey, userId, mainKeyShare, genericSecret } = auth;
@@ -78,6 +87,30 @@ const CreateWallet = () => {
     });
   }, [genericSecret, userId, setAuth, devicePublicKey]);
 
+  const signCallback = useCallback(async () => {
+    const signature = await signEcdsa(
+      devicePublicKey,
+      userId,
+      mainKeyShare.serverShareId,
+      mainKeyShare.clientShare,
+      messageToSign
+    );
+
+    console.log("Setting", signature);
+
+    setSignature(signature);
+  }, [mainKeyShare, messageToSign, userId, setSignature, devicePublicKey]);
+
+  const verifyCallback = useCallback(async () => {
+    const ok = await verifySignature(
+      messageToSign,
+      signature,
+      mainKeyShare.clientShare
+    );
+
+    setSignOK(ok);
+  }, [messageToSign, signature, mainKeyShare, setSignOK]);
+
   return (
     <View>
       <View style={groupStyle}>
@@ -101,6 +134,14 @@ const CreateWallet = () => {
 
       <View style={groupStyle}>
         <Button title="Derive from generic Secret" onPress={deriveCallback} />
+      </View>
+
+      <View style={groupStyle}>
+        <Text>Sign "{messageToSign}" with current Key Share</Text>
+        <Button title="Sign!" onPress={signCallback} />
+        <Text>Signature: {signature}</Text>
+        <Button title="Verify!" onPress={verifyCallback} />
+        <Text>OK: {`${signOK}`}</Text>
       </View>
     </View>
   );

@@ -2,7 +2,7 @@ import { Context } from "@crypto-mpc";
 import { SocketStream } from "@fastify/websocket";
 import logger from "@lib/logger";
 import { User } from "../../user/user";
-import { processLastStep } from "../step/share";
+import { finishBySavingShare } from "../step/share";
 import { step } from "../step/step";
 
 export const generateEcdsaKey = (connection: SocketStream, user: User) => {
@@ -14,7 +14,7 @@ export const generateEcdsaKey = (connection: SocketStream, user: User) => {
     const stepOutput = step(message.toString(), context);
 
     if (stepOutput === true) {
-      processLastStep(user, context, connection);
+      finishBySavingShare(user, context, connection);
       return;
     }
 

@@ -92,10 +92,26 @@ export const getServerShareId = (
   }
 };
 
-export const isValidStart = (message: WebSocketMessageEvent) => {
-  const msg = JSON.parse(message.data);
+export const isSignatureDone = (
+  message: WebSocketMessageEvent
+): string | undefined => {
+  try {
+    const msg = JSON.parse(message.data);
 
-  return msg.value === "Start";
+    return msg.done;
+  } catch (err) {
+    return;
+  }
+};
+
+export const isValidStart = (message: WebSocketMessageEvent) => {
+  try {
+    const msg = JSON.parse(message.data);
+
+    return msg.value === "Start";
+  } catch (err) {
+    return;
+  }
 };
 
 export { deriveBIP32 } from "./deriveBip32";

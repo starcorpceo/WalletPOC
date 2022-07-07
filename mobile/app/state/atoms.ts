@@ -1,4 +1,4 @@
-import { Share } from "lib/mpc/shared";
+import { Share } from "lib/mpc";
 import { atom } from "recoil";
 import { recoilPersist } from "recoil-persist";
 import { CustomStorage } from "./storage";

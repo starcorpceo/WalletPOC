@@ -1,44 +1,56 @@
 import { Buffer } from "buffer";
-import { initSignEcdsa, step } from "react-native-blockchain-crypto-mpc";
-import { ActionStatus } from ".";
+import {
+  getSignature,
+  initSignEcdsa,
+  step,
+} from "react-native-blockchain-crypto-mpc";
+import { authenticatedShareMpc, isValidStart } from ".";
 
-export const signEcdsa = (message: string, share: string): Promise<string> => {
-  return new Promise((res) => {
-    const ws = new WebSocket(getApi("ws") + "/sign");
-    let signStatus: ActionStatus = "Init";
+type SignStatus = "InitShare" | "InitMessage" | "Stepping";
 
-    ws.onopen = () => {
-      ws.send(Buffer.from(message));
+export const signEcdsa = authenticatedShareMpc<string>(
+  "/mpc/ecdsa/sign",
+  (resolve, reject, websocket, serverShareId, share, messageToSign) => {
+    let signStatus: SignStatus = "InitShare";
+
+    websocket.onopen = () => {
+      websocket.send(serverShareId);
+
+      signStatus = "InitMessage";
     };
 
-    ws.onmessage = (wsMessage: WebSocketMessageEvent) => {
+    websocket.onmessage = (message: WebSocketMessageEvent) => {
       switch (signStatus) {
-        case "Init":
-          const msg = JSON.parse(wsMessage.data);
-
-          if (msg.value !== "Start") {
-            return;
-          }
+        case "InitMessage":
+          websocket.send(Buffer.from(messageToSign));
 
           signStatus = "Stepping";
 
-          initSignEcdsa(message, share).then((success) => {
-            success && step(null).then((stepMsg) => ws.send(stepMsg.message));
-          });
-
           break;
+
         case "Stepping":
-          step(wsMessage.data).then((stepMsg) => {
-            ws.send(stepMsg.message);
-            stepMsg.finished && stepMsg.context && res(stepMsg.context);
+          if (isValidStart(message)) {
+            initSignEcdsa(messageToSign, share).then((success) => {
+              success &&
+                step(null).then((stepMsg) => websocket.send(stepMsg.message));
+            });
+            return;
+          }
+
+          step(message.data).then(async (stepMsg) => {
+            websocket.send(stepMsg.message);
+
+            stepMsg.finished &&
+              stepMsg.context &&
+              resolve(await getSignature(stepMsg.context));
           });
 
           break;
       }
     };
 
-    ws.onerror = (error) => {
+    websocket.onerror = (error) => {
       console.log("err", error);
     };
-  });
-};
+  }
+);

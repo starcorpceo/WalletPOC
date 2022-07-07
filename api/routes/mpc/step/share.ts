@@ -4,7 +4,7 @@ import Context from "../../../crypto-mpc-js/lib/context";
 import { User } from "../../user/user";
 import { createWalletByShare } from "../../user/wallet.repository";
 
-export const processLastStep = async (
+export const finishBySavingShare = async (
   user: User,
   context: Context,
   connection: SocketStream

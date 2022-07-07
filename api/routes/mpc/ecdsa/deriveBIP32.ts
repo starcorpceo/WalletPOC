@@ -2,9 +2,9 @@ import { Context } from "@crypto-mpc";
 import { SocketStream } from "@fastify/websocket";
 import logger from "@lib/logger";
 import { SecretWallet, User } from "../../user/user";
-import { getWalletForSecret } from "../../user/wallet.repository";
+import { getSecretWallet } from "../../user/wallet.repository";
 import { ActionStatus } from "../mpc-routes";
-import { processLastStep } from "../step/share";
+import { finishBySavingShare } from "../step/share";
 import { step } from "../step/step";
 
 export const deriveBIP32 = async (connection: SocketStream, user: User) => {
@@ -17,7 +17,7 @@ export const deriveBIP32 = async (connection: SocketStream, user: User) => {
     switch (status) {
       case "Init":
         try {
-          secret = await getWalletForSecret(message.toString());
+          secret = await getSecretWallet(message.toString());
           status = "Stepping";
           connection.socket.send(JSON.stringify({ value: "Start" }));
         } catch (err) {
@@ -28,8 +28,9 @@ export const deriveBIP32 = async (connection: SocketStream, user: User) => {
         break;
       case "Stepping":
         {
-          if (!context)
-            context = Context.createDeriveBIP32Context(
+          context =
+            context ||
+            Context.createDeriveBIP32Context(
               2,
               Buffer.from(secret.genericSecret, "base64"),
               0,
@@ -39,7 +40,7 @@ export const deriveBIP32 = async (connection: SocketStream, user: User) => {
           const stepOutput = step(message.toString(), context);
 
           if (stepOutput === true) {
-            processLastStep(user, context, connection);
+            finishBySavingShare(user, context, connection);
             return;
           }
 
