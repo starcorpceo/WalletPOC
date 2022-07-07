@@ -9,9 +9,9 @@ import {
   initImportGenericSecret,
   step,
 } from "react-native-blockchain-crypto-mpc";
-import { authenticatedMpc, getServerShareId, Share } from ".";
+import { authenticatedCreateShareMpc, getServerShareId, Share } from ".";
 
-export const importSecret = authenticatedMpc<Share>(
+export const importSecret = authenticatedCreateShareMpc<Share>(
   "/mpc/ecdsa/import",
   (resolve, reject, websocket, secret) => {
     let clientShare: string;

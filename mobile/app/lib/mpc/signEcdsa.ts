@@ -4,13 +4,13 @@ import {
   initSignEcdsa,
   step,
 } from "react-native-blockchain-crypto-mpc";
-import { authenticatedShareMpc, isValidStart } from ".";
+import { authenticatedShareActionMpc, isValidStart } from ".";
 
 type SignStatus = "InitShare" | "InitMessage" | "Stepping";
 
-export const signEcdsa = authenticatedShareMpc<string>(
+export const signEcdsa = authenticatedShareActionMpc<string>(
   "/mpc/ecdsa/sign",
-  (resolve, reject, websocket, serverShareId, share, messageToSign) => {
+  (resolve, reject, websocket, serverShareId, clientShare, messageToSign) => {
     let signStatus: SignStatus = "InitShare";
 
     websocket.onopen = () => {
@@ -30,7 +30,7 @@ export const signEcdsa = authenticatedShareMpc<string>(
 
         case "Stepping":
           if (isValidStart(message)) {
-            initSignEcdsa(messageToSign, share).then((success) => {
+            initSignEcdsa(messageToSign, clientShare).then((success) => {
               success &&
                 step(null).then((stepMsg) => websocket.send(stepMsg.message));
             });

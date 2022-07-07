@@ -18,27 +18,31 @@ export type ActionStatus = "Init" | "Stepping";
 // TODO give this some type in order to make sense
 export type MPCError = any;
 
-type MPCHandler<T> = (
+type CreateShareMPCHandler<T> = (
   resolve: (value: T) => void,
   reject: (error: MPCError) => void,
   ws: WebSocket,
-  ...args: string[]
+  genericSecret?: string
 ) => void;
 
-type MPCShareHandler<T> = (
+type ShareActionMPCHandler<T> = (
   resolve: (value: T) => void,
   reject: (error: MPCError) => void,
   ws: WebSocket,
   serverShareId: string,
-  ...args: string[]
+  clientShare: string,
+  ...data: string[]
 ) => void;
 
-export const authenticatedMpc =
-  <MPCResult>(path: string, mpcHandler: MPCHandler<MPCResult>) =>
+export const authenticatedCreateShareMpc =
+  <MPCResult>(
+    path: string,
+    createShareMPCHandler: CreateShareMPCHandler<MPCResult>
+  ) =>
   async (
     devicePublicKey: string,
     userId: string,
-    ...args: string[]
+    genericSecret?: string
   ): Promise<MPCResult> => {
     const { nonce } = await fetchFromApi<CreateNonceResponse>("/getNonce");
     const deviceSignature = await signWithDeviceKey(nonce);
@@ -52,17 +56,21 @@ export const authenticatedMpc =
     });
 
     return new Promise((res, rej) => {
-      mpcHandler(res, rej, ws, ...args);
+      createShareMPCHandler(res, rej, ws, genericSecret);
     });
   };
 
-export const authenticatedShareMpc =
-  <MPCResult>(path: string, mpcHandler: MPCShareHandler<MPCResult>) =>
+export const authenticatedShareActionMpc =
+  <MPCResult>(
+    path: string,
+    shareActionMpcHandler: ShareActionMPCHandler<MPCResult>
+  ) =>
   async (
     devicePublicKey: string,
     userId: string,
     serverShareId: string,
-    ...args: string[]
+    clientShare: string,
+    ...data: string[]
   ): Promise<MPCResult> => {
     const { nonce } = await fetchFromApi<CreateNonceResponse>("/getNonce");
     const deviceSignature = await signWithDeviceKey(nonce);
@@ -76,7 +84,7 @@ export const authenticatedShareMpc =
     });
 
     return new Promise((res, rej) => {
-      mpcHandler(res, rej, ws, serverShareId, ...args);
+      shareActionMpcHandler(res, rej, ws, serverShareId, clientShare, ...data);
     });
   };
 

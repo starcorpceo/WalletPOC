@@ -5,13 +5,13 @@
 import { initDeriveBIP32, step } from "react-native-blockchain-crypto-mpc";
 import {
   ActionStatus,
-  authenticatedShareMpc,
+  authenticatedShareActionMpc,
   Context,
   getServerShareId,
   isValidStart,
 } from ".";
 
-export const deriveBIP32 = authenticatedShareMpc<Context>(
+export const deriveBIP32 = authenticatedShareActionMpc<Context>(
   "/mpc/ecdsa/derive",
   (resolve, reject, websocket, serverShareId, secret) => {
     let clientContext: string;
@@ -51,7 +51,7 @@ export const deriveBIP32 = authenticatedShareMpc<Context>(
             return;
           }
 
-          console.log("derive messag from server");
+          console.log("derive message from server");
           step(message.data).then((stepMsg) => {
             websocket.send(stepMsg.message);
 

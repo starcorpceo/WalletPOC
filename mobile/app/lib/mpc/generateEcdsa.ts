@@ -1,7 +1,7 @@
 import { initGenerateEcdsaKey, step } from "react-native-blockchain-crypto-mpc";
-import { authenticatedMpc, getServerShareId, Share } from ".";
+import { authenticatedCreateShareMpc, getServerShareId, Share } from ".";
 
-export const generateEcdsa = authenticatedMpc<Share>(
+export const generateEcdsa = authenticatedCreateShareMpc<Share>(
   "/mpc/ecdsa/generateEcdsa",
   (resolve, reject, websocket) => {
     let clientShare: string;

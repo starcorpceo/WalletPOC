@@ -29,7 +29,6 @@ const CreateWallet = () => {
 
   const generateEcdsaCallback = useCallback(async () => {
     const newMainKeyShare = await generateEcdsa(devicePublicKey, userId);
-    console.log("this new generic will go in store", newMainKeyShare);
 
     setAuth((currentState: AuthState) => {
       return {
@@ -41,7 +40,6 @@ const CreateWallet = () => {
 
   const generateSecretCallback = useCallback(async () => {
     const newGenericSecret = await createGenericSecret(devicePublicKey, userId);
-    console.log("this will go in store", newGenericSecret);
 
     setAuth((currentState: AuthState) => {
       return {
@@ -95,8 +93,6 @@ const CreateWallet = () => {
       mainKeyShare.clientShare,
       messageToSign
     );
-
-    console.log("Setting", signature);
 
     setSignature(signature);
   }, [mainKeyShare, messageToSign, userId, setSignature, devicePublicKey]);
