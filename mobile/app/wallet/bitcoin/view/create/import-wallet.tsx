@@ -1,6 +1,6 @@
-import { BitcoinWallet } from "bitcoin/controller/bitcoin-wallet";
+import { BitcoinWallets } from "bitcoin/controller/bitcoin-wallet";
 import { pubKeyTransformer } from "bitcoin/controller/bitcoinjs";
-import { btcWalletsState } from "bitcoin/state/atoms";
+import { bitcoinWalletsState } from "bitcoin/state/atoms";
 import React, { useState } from "react";
 import { Button, TextInput, View } from "react-native";
 import { useSetRecoilState } from "recoil";
@@ -11,12 +11,12 @@ const testSeed: string =
 
 const ImportWallet = () => {
   const [seed, setSeed] = useState<string>(testSeed);
-  const setWallet = useSetRecoilState(btcWalletsState);
+  const setWallet = useSetRecoilState(bitcoinWalletsState);
 
   const importWallet = async () => {
     const wallet = await generateWalletFromSeed(
       testSeed,
-      BitcoinWallet,
+      BitcoinWallets,
       pubKeyTransformer
     );
 
@@ -24,8 +24,12 @@ const ImportWallet = () => {
   };
 
   return (
-    <View>
-      <TextInput value={seed} />
+    <View style={{ padding: 4 }}>
+      <TextInput
+        onChangeText={setSeed}
+        value={seed}
+        style={{ backgroundColor: "white", padding: 4 }}
+      />
       <Button onPress={importWallet} title="Import Wallet" />
     </View>
   );

@@ -1,16 +1,16 @@
-import { BitcoinWallet } from "bitcoin/controller/bitcoin-wallet";
+import { BitcoinWallets } from "bitcoin/controller/bitcoin-wallet";
 import { pubKeyTransformer } from "bitcoin/controller/bitcoinjs";
-import { btcWalletsState } from "bitcoin/state/atoms";
+import { bitcoinWalletsState } from "bitcoin/state/atoms";
 import React from "react";
 import { Button } from "react-native";
 import { useSetRecoilState } from "recoil";
 import { generateWallet } from "wallet/generator";
 
 const GenerateWallet = () => {
-  const setWallet = useSetRecoilState(btcWalletsState);
+  const setWallet = useSetRecoilState(bitcoinWalletsState);
 
   const startGenerate = async () => {
-    const wallet = await generateWallet(BitcoinWallet, pubKeyTransformer);
+    const wallet = await generateWallet(BitcoinWallets, pubKeyTransformer);
 
     setWallet((currentWallets) => [...currentWallets, wallet]);
   };

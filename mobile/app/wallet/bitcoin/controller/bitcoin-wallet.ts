@@ -2,7 +2,7 @@ import { fetchFromTatum } from "lib/http";
 import endpoints from "wallet/endpoints";
 import { Balance, IWallet, Transaction, WalletConfig } from "wallet/wallet";
 
-export class BitcoinWallet implements IWallet {
+export class BitcoinWallets implements IWallet {
   config: WalletConfig;
   transactions: Transaction[] = [];
   balance?: Balance;
@@ -11,7 +11,7 @@ export class BitcoinWallet implements IWallet {
     this.config = config;
   }
 
-  refreshBalance = async (): Promise<BitcoinWallet> => {
+  refreshBalance = async (): Promise<BitcoinWallets> => {
     console.log("balaance", this.balance);
 
     this.balance = await getBalance(this);
@@ -20,7 +20,7 @@ export class BitcoinWallet implements IWallet {
     return { ...this };
   };
 
-  refreshTransactions = async (): Promise<BitcoinWallet> => {
+  refreshTransactions = async (): Promise<BitcoinWallets> => {
     this.transactions = await getLatestTransactions(this, 10, 0);
     console.log("transactions", this.balance);
 

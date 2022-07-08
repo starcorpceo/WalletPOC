@@ -1,14 +1,6 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import BitcoinWallet from "bitcoin/view/bitcoin-wallet";
 import React from "react";
-import {
-  Button,
-  StyleProp,
-  Text,
-  TextStyle,
-  useColorScheme,
-  View,
-} from "react-native";
+import { StyleProp, Text, TextStyle, useColorScheme, View } from "react-native";
 
 type Props = NativeStackScreenProps<NavigationRoutes, "GettingStarted">;
 
@@ -23,15 +15,7 @@ const GettingStarted = ({ navigation }: Props) => {
 
   return (
     <View>
-      <>
-        <Text style={textStyle}>Welcome to Secure Wallet</Text>
-        <Button
-          onPress={() => navigation.navigate("TestMpc")}
-          title="Test MPC Key Handling"
-        />
-
-        <BitcoinWallet />
-      </>
+      <Text>Has to be implemented</Text>
     </View>
   );
 };
