@@ -14,7 +14,7 @@ import {
 import { useRecoilState } from "recoil";
 import { AuthState, authState } from "state/atoms";
 
-const CreateWallet = () => {
+const TestMpc = () => {
   const [secretToImport, setSecretToImport] = useState(
     "153649e88ae8337f53451d8d0f4e6fd7e1860620923fc04192c8abc2370b68dc"
   );
@@ -150,4 +150,4 @@ const groupStyle = {
   marginBottom: 10,
 };
 
-export default CreateWallet;
+export default TestMpc;
