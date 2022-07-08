@@ -1,40 +1,30 @@
-import {
-  getPublicKey,
-  initGenerateEcdsaKey,
-  step,
-} from 'react-native-blockchain-crypto-mpc';
+import { initGenerateEcdsaKey, step } from 'react-native-blockchain-crypto-mpc';
 import { getApi } from './shared';
 
-export const generateEcdsa = (
-  setServerMessage: Function,
-  setClientPubKey: Function
-): Promise<any> => {
-  return new Promise((res) => {
+export const generateEcdsa = (): Promise<string> => {
+  return new Promise((resolve, reject) => {
     const ws = new WebSocket(getApi('ws') + '/init');
 
     ws.onopen = () => {
       console.log('Start generate ecdsa key');
       initGenerateEcdsaKey().then((success) => {
-        if (success) step(null).then((stepMsg) => ws.send(stepMsg));
+        if (success)
+          step(null).then((stepMsg) => {
+            ws.send(stepMsg.message);
+          });
       });
     };
 
     ws.onmessage = (message: WebSocketMessageEvent) => {
-      step(message.data).then((stepMsg) => ws.send(stepMsg));
-      setServerMessage(message.data);
+      step(message.data).then((stepMsg) => {
+        ws.send(stepMsg.message);
+
+        stepMsg.finished && stepMsg.share && resolve(stepMsg.share);
+      });
     };
 
     ws.onerror = (error) => {
-      console.log('err', error);
-    };
-
-    ws.onclose = (event) => {
-      console.log('closed', event);
-
-      getPublicKey().then((pubKey) => {
-        setClientPubKey(JSON.stringify(pubKey));
-        res(true);
-      });
+      reject(error);
     };
   });
 };

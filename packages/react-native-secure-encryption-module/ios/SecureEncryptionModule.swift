@@ -94,6 +94,28 @@ class SecureEncryptionModule: NSObject {
         resolve(true)
     }
     
+    @objc(deleteKeyPair:resolver:rejecter:)
+    func deleteKeyPair(_ alias: NSString, resolver resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
+        let tag = (alias as String).data(using: .utf8)!
+        
+        let query: [String: Any] = [
+            kSecClass as String                 : kSecClassKey,
+            kSecAttrApplicationTag as String    : tag,
+            kSecAttrKeyType as String           : kSecAttrKeyTypeEC,
+            kSecReturnRef as String             : true
+        ]
+
+        
+        let status = SecItemDelete(query as CFDictionary)
+        
+        guard status == errSecSuccess else {
+            reject(status.description, "Error while deleting key", nil)
+            return;
+        }
+        
+        resolve(true);
+    }
+    
     @objc(generateKeyPair:resolver:rejecter:)
     func generateKeyPair(_ alias: NSString, resolver resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
         print("Generating Key Pair")

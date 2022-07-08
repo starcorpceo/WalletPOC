@@ -2,6 +2,7 @@ import crypto from "crypto";
 import { FastifyReply, FastifyRequest } from "fastify";
 import { ResultAsync } from "neverthrow";
 import { invalidAuthRequest, mapRouteError, RouteError } from "./error";
+import logger from "./logger";
 import { isNonceValid } from "./nonce";
 
 /**
@@ -38,11 +39,11 @@ const wrapHandler = <T>(
 ): void => {
   handlerResult
     .map((data) => {
-      console.log("Successfully sending data", data);
+      logger.info({ data }, "Successfully sending data");
       res.status(200).send(data);
     })
     .mapErr((error) => {
-      console.error("Failed to work on request", error);
+      logger.warn({ error }, "Failed to work on request");
       const { statusCode, errorMsg } = mapRouteError(error);
       res.status(statusCode).send({ error: errorMsg });
     });

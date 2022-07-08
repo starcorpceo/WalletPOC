@@ -40,6 +40,18 @@ public class SecureEncryptionModuleModule extends ReactContextBaseJavaModule {
 
   @RequiresApi(api = Build.VERSION_CODES.O)
   @ReactMethod
+  public void deleteKeyPair(String alias, Promise promise) {
+    try {
+      promise.resolve(encryptionService.deleteKeyPair(alias));
+    } catch(Exception e) {
+      e.printStackTrace();
+      promise.reject(e);
+    }
+  }
+  
+
+  @RequiresApi(api = Build.VERSION_CODES.O)
+  @ReactMethod
   public void encrypt(String clearText, String keyName, Promise promise) {
     try {
       promise.resolve(encryptionService.encrypt(keyName, clearText));

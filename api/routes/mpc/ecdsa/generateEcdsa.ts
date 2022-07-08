@@ -1,9 +1,11 @@
 import { Context } from "@crypto-mpc";
 import { SocketStream } from "@fastify/websocket";
-import { db } from "@lib/dev-db";
-import { step } from "../step";
+import logger from "@lib/logger";
+import { User } from "../../user/user";
+import { finishBySavingShare } from "../step/share";
+import { step } from "../step/step";
 
-export const initGenerateEcdsaKey = (connection: SocketStream) => {
+export const generateEcdsaKey = (connection: SocketStream, user: User) => {
   let context: Context;
 
   connection.socket.on("message", (message) => {
@@ -12,10 +14,7 @@ export const initGenerateEcdsaKey = (connection: SocketStream) => {
     const stepOutput = step(message.toString(), context);
 
     if (stepOutput === true) {
-      // TODO: Remove this in favor of real database
-      db.shareBuf = context.getNewShare();
-
-      connection.socket.close();
+      finishBySavingShare(user, context, connection);
       return;
     }
 
@@ -23,6 +22,6 @@ export const initGenerateEcdsaKey = (connection: SocketStream) => {
   });
 
   connection.socket.on("error", (err) => {
-    console.log("error", err);
+    logger.error({ err }, "Error on Init Ecdsa Websocket");
   });
 };

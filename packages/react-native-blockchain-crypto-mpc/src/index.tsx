@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/rules-of-hooks */
+import { Buffer } from 'buffer';
 import { NativeModules, Platform } from 'react-native';
 
 const LINKING_ERROR =
@@ -21,53 +23,113 @@ export function initGenerateGenericSecret(): Promise<boolean> {
   return BlockchainCryptoMpc.initGenerateGenericSecret();
 }
 
-export function importGenericSecret(secret: number[]): Promise<boolean> {
-  return BlockchainCryptoMpc.importGenericSecret(secret);
+export function initImportGenericSecret(secret: string): Promise<boolean> {
+  return BlockchainCryptoMpc.importGenericSecret([
+    ...Buffer.from(secret, 'hex'),
+  ]);
 }
 
-export function initDeriveBIP32(): Promise<boolean> {
-  return BlockchainCryptoMpc.initDeriveBIP32();
+export function initDeriveBIP32(share: string): Promise<boolean> {
+  return new Promise(async (res) => {
+    await useShare(share);
+    const success = await BlockchainCryptoMpc.initDeriveBIP32();
+    res(success);
+  });
 }
-
-export function getResultDeriveBIP32(): Promise<boolean> {
-  return BlockchainCryptoMpc.getResultDeriveBIP32();
-}
-
-/*export function initBackupEcdsaKey(): Promise<boolean> {
-  return BlockchainCryptoMpc.initBackupEcdsaKey();
-}*/
-
-/*export function initRefreshKey(): Promise<boolean> {
-  return BlockchainCryptoMpc.initRefreshKey();
-}*/
 
 export function initGenerateEcdsaKey(): Promise<boolean> {
   return BlockchainCryptoMpc.initGenerateEcdsaKey();
 }
 
-export function initSignEcdsa(message: number[]): Promise<number[]> {
-  return BlockchainCryptoMpc.initSignEcdsa(message);
+export function initSignEcdsa(
+  message: string,
+  share: string
+): Promise<boolean> {
+  return new Promise(async (res) => {
+    await useShare(share);
+    const success = await BlockchainCryptoMpc.initSignEcdsa([
+      ...Buffer.from(message),
+    ]);
+    res(success);
+  });
 }
 
-export function step(messageIn: string | null): Promise<string> {
+export function step(messageIn: string | null): Promise<StepResult> {
   return BlockchainCryptoMpc.step(messageIn);
 }
 
-export function getPublicKey(): Promise<number[]> {
-  return BlockchainCryptoMpc.getPublicKey();
+export function getPublicKey(share: string): Promise<string> {
+  return new Promise(async (res) => {
+    await useShare(share);
+    const key = await BlockchainCryptoMpc.getPublicKey();
+    res(key);
+
+    reset();
+  });
 }
 
-export function getSignature(): Promise<number[]> {
-  return BlockchainCryptoMpc.getSignature();
+export function getSignature(context: string): Promise<string> {
+  return new Promise(async (res) => {
+    await useContext(context);
+    const signature = await BlockchainCryptoMpc.getSignature();
+    res(signature);
+
+    reset();
+  });
 }
 
 export function verifySignature(
-  message: number[],
-  signature: number[]
+  message: string,
+  signature: string,
+  share: string
 ): Promise<boolean> {
-  return BlockchainCryptoMpc.verifySignature(message, signature);
+  return new Promise(async (res) => {
+    await useShare(share);
+    const ok = await BlockchainCryptoMpc.verifySignature(
+      [...Buffer.from(message)],
+      [...Buffer.from(signature, 'base64')]
+    );
+    res(ok);
+
+    reset();
+  });
 }
 
-export function getShare(): Promise<number[]> {
-  return BlockchainCryptoMpc.getShare();
+export function getShare(context: string): Promise<string> {
+  return new Promise(async (res) => {
+    await useContext(context);
+    const share = await BlockchainCryptoMpc.getShare();
+    res(share);
+
+    reset();
+  });
 }
+
+export function getResultDeriveBIP32(context: string): Promise<string> {
+  return new Promise(async (res) => {
+    await useContext(context);
+    const share = await BlockchainCryptoMpc.getResultDeriveBIP32();
+    res(share);
+
+    reset();
+  });
+}
+
+export function useShare(shareBuf: string): Promise<true> {
+  return BlockchainCryptoMpc.useShare(shareBuf);
+}
+
+export function useContext(contextBuf: string): Promise<true> {
+  return BlockchainCryptoMpc.useContext(contextBuf);
+}
+
+export function reset(): Promise<true> {
+  return BlockchainCryptoMpc.reset();
+}
+
+export type StepResult = {
+  finished: boolean;
+  message: string;
+  share?: string;
+  context?: string;
+};

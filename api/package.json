@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc -p tsconfig.json && tsc-alias",
     "start": "node ./build/server.js",
-    "dev": "concurrently \"tsc -w\" \"tsc-alias -w\" \"nodemon build/server.js\"",
+    "dev": "concurrently \"tsc -w\" \"tsc-alias -w\" \"nodemon build/server.js | pino-pretty\"",
     "migrate:dev": "prisma migrate dev && npm run useenv && prisma migrate dev --to-url $BACKUP_DB_URL",
     "useenv": "export $(cat .env | xargs)"
   },
@@ -17,7 +17,7 @@
   "dependencies": {
     "@fastify/cookie": "^7.0.0",
     "@fastify/websocket": "^6.0.1",
-    "@prisma/client": "^3.14.0",
+    "@prisma/client": "^4.0.0",
     "@types/ref-napi": "^3.0.4",
     "ajv": "^6.12.6",
     "eslint-plugin-neverthrow": "^1.1.4",
@@ -38,6 +38,7 @@
     "elliptic": "^6.5.4",
     "eslint": "^8.15.0",
     "nodemon": "^2.0.16",
+    "pino-pretty": "^8.1.0",
     "prisma": "^3.14.0",
     "tsc-alias": "^1.6.7",
     "tweetnacl": "^1.0.3",

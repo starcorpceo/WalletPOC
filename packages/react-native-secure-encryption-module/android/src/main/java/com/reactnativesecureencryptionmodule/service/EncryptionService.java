@@ -58,6 +58,19 @@ public class EncryptionService {
   }
 
   @RequiresApi(api = Build.VERSION_CODES.O)
+  public boolean deleteKeyPair(String alias) throws Exception {
+    try {
+      KeyStore keyStore = KeyStore.getInstance("AndroidKeyStore");
+      keyStore.load(null);
+      keyStore.deleteEntry(alias);
+
+      return true;
+    } catch (Exception e) {
+      throw new Exception("Key not found");
+    }
+  }
+
+  @RequiresApi(api = Build.VERSION_CODES.O)
   public String getKey(String keyName) throws Exception {
     KeyStore.PrivateKeyEntry key = loadKey(keyName);
 
