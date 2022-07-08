@@ -47,6 +47,8 @@ export const authenticatedCreateShareMpc =
     const { nonce } = await fetchFromApi<CreateNonceResponse>("/getNonce");
     const deviceSignature = await signWithDeviceKey(nonce);
 
+    console.log("heraders", userId);
+
     const ws = new WebSocket(getApiUrl("ws") + path, undefined, {
       headers: {
         userId,

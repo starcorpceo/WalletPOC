@@ -1,28 +1,16 @@
-import { Share } from "lib/mpc";
 import { atom } from "recoil";
 import { recoilPersist } from "recoil-persist";
+import { User } from "../api-types/user";
 import { CustomStorage } from "./storage";
 
 const { persistAtom } = recoilPersist({ storage: CustomStorage });
 
-export interface AuthState {
-  devicePublicKey: string;
-  userId: string;
-  mainKeyShare: Share;
-  genericSecret: Share;
-}
+export type AuthState = User;
 
 export const initialAuthState: AuthState = {
   devicePublicKey: "",
-  userId: "",
-  mainKeyShare: {
-    clientShare: "",
-    serverShareId: "",
-  },
-  genericSecret: {
-    clientShare: "",
-    serverShareId: "",
-  },
+  id: "",
+  wallets: [],
 };
 
 export const authState = atom({

@@ -1,7 +1,7 @@
-import { BitcoinWallets } from "bitcoin/controller/bitcoin-wallet";
 import { atom } from "recoil";
+import { BitcoinWallet } from "..";
 
-export type BitcoinWalletsState = BitcoinWallets[];
+export type BitcoinWalletsState = BitcoinWallet[];
 
 const initialWalletState: BitcoinWalletsState = [];
 

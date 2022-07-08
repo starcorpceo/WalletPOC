@@ -13,7 +13,7 @@ import { CreateUserResponse } from "../api-types/user";
 import constants from "../config/constants";
 
 const Header = () => {
-  const [auth, setAuth] = useRecoilState(authState);
+  const [auth, setAuth] = useRecoilState<AuthState>(authState);
 
   useEffect(() => {
     const onStartup = async () => {
@@ -32,7 +32,7 @@ const Header = () => {
   return (
     <View>
       <Text>Your Device Key: {auth.devicePublicKey.slice(0, 5)}...</Text>
-      <Text>Your User id: {auth.userId}</Text>
+      <Text>Your User id: {auth.id}</Text>
 
       <Button
         onPress={() => {
@@ -73,7 +73,7 @@ const createProfile = async (setAuth: SetterOrUpdater<AuthState>) => {
     setAuth((oldState) => {
       return {
         ...oldState,
-        userId,
+        id: userId,
         devicePublicKey: newDevicePublicKey,
       };
     });

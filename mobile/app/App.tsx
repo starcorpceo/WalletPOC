@@ -21,7 +21,7 @@ import {
 import { RecoilRoot } from "recoil";
 import Header from "./shared/header";
 import GettingStarted from "./views/getting-started";
-import TestMpc from "./views/getting-started/test-mpc";
+import TestMpc from "./views/getting-started/test-mpc/test-mpc";
 import Home from "./views/home";
 
 // declare global {

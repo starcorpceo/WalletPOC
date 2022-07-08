@@ -2,9 +2,9 @@ import { BitcoinWalletsState, bitcoinWalletsState } from "bitcoin/state/atoms";
 import React from "react";
 import { Text, View } from "react-native";
 import { useRecoilValue } from "recoil";
-import BitcoinWallet from "./wallet";
+import BitcoinWalletView from "./wallet";
 
-const BitcoinWalletList = () => {
+const BitcoinWalletListView = () => {
   const bitcoinState = useRecoilValue(bitcoinWalletsState);
 
   return (
@@ -23,7 +23,7 @@ const BitcoinWalletList = () => {
         {bitcoinState.map(BitcoinWallet)}
       */}
       {bitcoinState.map((wallet, index) => (
-        <BitcoinWallet wallet={wallet} index={index} />
+        <BitcoinWalletView wallet={wallet} index={index} />
       ))}
     </View>
   );
@@ -32,4 +32,4 @@ const BitcoinWalletList = () => {
 const walletExists = (bitcoinState: BitcoinWalletsState): boolean =>
   bitcoinState && bitcoinState.length > 0;
 
-export default BitcoinWalletList;
+export default BitcoinWalletListView;

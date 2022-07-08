@@ -3,44 +3,52 @@
 // derive several wallets
 
 import Elliptic from "elliptic";
-import { deriveBIP32, generateSecret, importSecret } from "lib/mpc";
+import { createGenericSecret, deriveBIP32, importSecret, Share } from "lib/mpc";
+import { getResultDeriveBIP32 } from "react-native-blockchain-crypto-mpc";
 import "shim";
-import { IConstructor, IWallet, WalletConfig } from "./wallet";
+import { User } from "../api-types/user";
+import { IWallet } from "./wallet";
 const ec = new Elliptic.ec("secp256k1");
 
 export const generateWalletFromSeed = async <T extends IWallet>(
   seed: string,
-  Wallet: IConstructor<T>,
-  pubKeyTransformer: PubKeyToWalletConfig
+  user: User,
+  pubKeyTransformer: PubKeyToWalletConfig<T>
 ): Promise<T> => {
-  console.log("generating wallet from seed " + seed.slice(0, 5), "...");
+  const share = await importSecret(user.devicePublicKey, user.id, seed);
 
-  const share = await importSecret(seed);
-
-  return await derive(Wallet, pubKeyTransformer, share);
+  return await derive<T>(share, user, pubKeyTransformer);
 };
 
 export const generateWallet = async <T extends IWallet>(
-  Wallet: IConstructor<T>,
-  pubKeyTransformer: PubKeyToWalletConfig
+  user: User,
+  pubKeyTransformer: PubKeyToWalletConfig<T>
 ): Promise<T> => {
   console.log("generating new wallet...");
-  const share = await generateSecret();
-  return await derive(Wallet, pubKeyTransformer, share);
+  const share = await createGenericSecret(user.devicePublicKey, user.id);
+  return await derive<T>(share, user, pubKeyTransformer);
 };
 
 const derive = async <T extends IWallet>(
-  Wallet: IConstructor<T>,
-  pubKeyBufToWalletConfig: PubKeyToWalletConfig,
-  share: string
+  share: Share,
+  user: User,
+  pubKeyBufToWalletConfig: PubKeyToWalletConfig<T>
 ): Promise<T> => {
-  const pubKeyDER = await deriveBIP32(share);
+  const context = await deriveBIP32(
+    user.devicePublicKey,
+    user.id,
+    share.serverShareId,
+    share.clientShare
+  );
 
-  const ecPair = ec.keyFromPublic(pubKeyDER.slice(23));
+  const derivedShare = await getResultDeriveBIP32(context.clientContext);
+  console.log("derived", derivedShare);
+
+  const ecPair = ec.keyFromPublic(derivedShare.slice(23));
 
   const pubkeyBuf = Buffer.from(ecPair.getPublic().encode("hex", false), "hex");
 
-  return new Wallet(pubKeyBufToWalletConfig(pubkeyBuf));
+  return pubKeyBufToWalletConfig(pubkeyBuf);
 };
 
-export type PubKeyToWalletConfig = (publicKey: Buffer) => WalletConfig;
+export type PubKeyToWalletConfig<T extends IWallet> = (publicKey: Buffer) => T;

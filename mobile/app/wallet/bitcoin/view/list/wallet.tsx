@@ -14,7 +14,7 @@ type BitcoinWalletProps = {
   index: number;
 };
 
-const BitcoinWallet = ({ wallet, index }: BitcoinWalletProps) => {
+const BitcoinWalletView = ({ wallet, index }: BitcoinWalletProps) => {
   const setBitcoinState = useSetRecoilState(bitcoinWalletsState);
   return (
     <View key={"wallet-" + index}>
@@ -73,4 +73,4 @@ const updateTransactions = (
   ]);
 };
 
-export default BitcoinWallet;
+export default BitcoinWalletView;

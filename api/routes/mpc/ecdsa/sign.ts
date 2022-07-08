@@ -1,7 +1,7 @@
 import { Context } from "@crypto-mpc";
 import { SocketStream } from "@fastify/websocket";
 import logger from "@lib/logger";
-import { ShareWallet } from "../../user/user";
+import { ShareWallet } from "../../user/wallet";
 import { getShareWallet } from "../../user/wallet.repository";
 import { step } from "../step/step";
 
