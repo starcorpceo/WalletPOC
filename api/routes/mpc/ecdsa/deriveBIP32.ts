@@ -29,9 +29,7 @@ export const deriveBIP32 = async (connection: SocketStream, user: User) => {
         break;
       case "Stepping":
         {
-          console.log("parent", parent);
           const share = parent.genericSecret || parent.mainShare;
-          console.log("share", share);
 
           context =
             context ||

@@ -2,6 +2,7 @@ import { BitcoinWalletsState, bitcoinWalletsState } from "bitcoin/state/atoms";
 import React from "react";
 import { Text, View } from "react-native";
 import { useRecoilValue } from "recoil";
+import { IWallet } from "wallet/wallet";
 import BitcoinWalletView from "./wallet";
 
 const BitcoinWalletListView = () => {
@@ -22,8 +23,12 @@ const BitcoinWalletListView = () => {
         If time try shorthand:
         {bitcoinState.map(BitcoinWallet)}
       */}
-      {bitcoinState.map((wallet, index) => (
-        <BitcoinWalletView wallet={wallet} index={index} />
+      {bitcoinState.map((wallet: IWallet, index: number) => (
+        <BitcoinWalletView
+          key={"Wallet-" + index}
+          wallet={wallet}
+          index={index}
+        />
       ))}
     </View>
   );

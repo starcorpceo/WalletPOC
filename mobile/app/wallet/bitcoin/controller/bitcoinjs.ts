@@ -8,7 +8,6 @@ import { BitcoinWallet } from "..";
 export const pubKeyTransformer: PubKeyToWalletConfig<BitcoinWallet> = (
   pubKeyBuf: Buffer
 ) => {
-  console.log("pubkeyBuf", pubKeyBuf, pubKeyBuf.toString("base64"));
   const pubkeyECPair = bitcoin.ECPair.fromPublicKey(pubKeyBuf);
 
   const { address } = bitcoin.payments.p2pkh({

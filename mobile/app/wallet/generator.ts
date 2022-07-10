@@ -3,8 +3,12 @@
 // derive several wallets
 
 import Elliptic from "elliptic";
-import { createGenericSecret, deriveBIP32, importSecret, Share } from "lib/mpc";
-import { getResultDeriveBIP32 } from "react-native-blockchain-crypto-mpc";
+import { createGenericSecret, importSecret, Share } from "lib/mpc";
+import { deriveBIP32NoLocalAuth } from "lib/mpc/deriveBip32";
+import {
+  getPublicKey,
+  getResultDeriveBIP32,
+} from "react-native-blockchain-crypto-mpc";
 import "shim";
 import { User } from "../api-types/user";
 import { IWallet } from "./wallet";
@@ -16,6 +20,7 @@ export const generateWalletFromSeed = async <T extends IWallet>(
   pubKeyTransformer: PubKeyToWalletConfig<T>
 ): Promise<T> => {
   const share = await importSecret(user.devicePublicKey, user.id, seed);
+  console.log("got share", share);
 
   return await derive<T>(share, user, pubKeyTransformer);
 };
@@ -34,7 +39,7 @@ const derive = async <T extends IWallet>(
   user: User,
   pubKeyBufToWalletConfig: PubKeyToWalletConfig<T>
 ): Promise<T> => {
-  const context = await deriveBIP32(
+  const context = await deriveBIP32NoLocalAuth(
     user.devicePublicKey,
     user.id,
     share.serverShareId,
@@ -42,9 +47,11 @@ const derive = async <T extends IWallet>(
   );
 
   const derivedShare = await getResultDeriveBIP32(context.clientContext);
-  console.log("derived", derivedShare);
+  const derivedPubKey = await getPublicKey(derivedShare);
 
-  const ecPair = ec.keyFromPublic(derivedShare.slice(23));
+  const ecPair = ec.keyFromPublic(
+    [...Buffer.from(derivedPubKey, "base64")].slice(23)
+  );
 
   const pubkeyBuf = Buffer.from(ecPair.getPublic().encode("hex", false), "hex");
 

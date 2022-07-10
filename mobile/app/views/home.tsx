@@ -3,6 +3,7 @@ import Bitcoin from "bitcoin/view/bitcoin";
 import React from "react";
 import {
   Button,
+  ScrollView,
   StyleProp,
   Text,
   TextStyle,
@@ -23,7 +24,7 @@ const Home = ({ navigation }: Props) => {
 
   return (
     <View>
-      <>
+      <ScrollView contentContainerStyle={{ paddingBottom: "100%" }}>
         <Text style={textStyle}>Welcome to Secure Wallet</Text>
         <Button
           onPress={() => navigation.navigate("TestMpc")}
@@ -31,7 +32,7 @@ const Home = ({ navigation }: Props) => {
         />
 
         <Bitcoin />
-      </>
+      </ScrollView>
     </View>
   );
 };

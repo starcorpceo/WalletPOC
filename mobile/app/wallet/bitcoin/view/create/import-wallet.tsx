@@ -1,5 +1,5 @@
 import { pubKeyTransformer } from "bitcoin/controller/bitcoinjs";
-import { bitcoinWalletsState } from "bitcoin/state/atoms";
+import { BitcoinWalletsState, bitcoinWalletsState } from "bitcoin/state/atoms";
 import React, { useState } from "react";
 import { Button, TextInput, View } from "react-native";
 import { useSetRecoilState } from "recoil";
@@ -25,7 +25,10 @@ const ImportWallet = ({ user }: ImportWalletProps) => {
       pubKeyTransformer
     );
 
-    setWallet((currentWallets) => [...currentWallets, wallet]);
+    setWallet((currentWallets: BitcoinWalletsState) => [
+      ...currentWallets,
+      wallet,
+    ]);
   };
 
   return (
