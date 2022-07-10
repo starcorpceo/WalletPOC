@@ -1,17 +1,27 @@
 import React from "react";
-import { Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
 interface WalletProps {
   children: React.ReactNode;
+  name: string;
 }
 
-const Wallet = ({ children }: WalletProps) => {
+const Wallets = ({ children, name }: WalletProps) => {
   return (
-    <View>
-      <Text>Hi this is my wallet</Text>
+    <View
+      style={{
+        borderColor: "black",
+        borderWidth: StyleSheet.hairlineWidth,
+        margin: 4,
+        padding: 12,
+      }}
+    >
+      <Text style={{ fontSize: 16, fontWeight: "700", marginBottom: 12 }}>
+        {name}
+      </Text>
       {children}
     </View>
   );
 };
 
-export default Wallet;
+export default Wallets;

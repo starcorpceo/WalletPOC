@@ -3,11 +3,11 @@ import "shim";
 import * as bitcoin from "bitcoinjs-lib";
 import { config } from "config/config";
 import { PubKeyToWalletConfig } from "wallet/generator";
-import { WalletConfig } from "wallet/wallet";
+import { BitcoinWallet } from "..";
 
-export const pubKeyTransformer: PubKeyToWalletConfig = (
+export const pubKeyTransformer: PubKeyToWalletConfig<BitcoinWallet> = (
   pubKeyBuf: Buffer
-): WalletConfig => {
+) => {
   const pubkeyECPair = bitcoin.ECPair.fromPublicKey(pubKeyBuf);
 
   const { address } = bitcoin.payments.p2pkh({
@@ -23,11 +23,14 @@ export const pubKeyTransformer: PubKeyToWalletConfig = (
   }
 
   return {
-    symbol: "BTC",
-    name: "Bitcoin",
-    chain: "Bitcoin",
-    address: address || "",
-    publicKey: pubkeyECPair.publicKey,
-    isTestnet: true,
+    config: {
+      symbol: "BTC",
+      name: "Bitcoin",
+      chain: "Bitcoin",
+      address: address || "",
+      publicKey: pubkeyECPair.publicKey,
+      isTestnet: true,
+    },
+    transactions: [],
   };
 };

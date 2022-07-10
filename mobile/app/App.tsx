@@ -21,7 +21,8 @@ import {
 import { RecoilRoot } from "recoil";
 import Header from "./shared/header";
 import GettingStarted from "./views/getting-started";
-import CreateWallet from "./views/getting-started/create-wallet";
+import TestMpc from "./views/getting-started/test-mpc/test-mpc";
+import Home from "./views/home";
 
 // declare global {
 //   const Buffer: Buffer;
@@ -43,9 +44,10 @@ const App = () => {
         <RecoilRoot>
           <Header />
           <View style={styles.view}>
-            <Stack.Navigator initialRouteName="GettingStarted">
+            <Stack.Navigator initialRouteName="Home">
+              <Stack.Screen name="Home" component={Home} />
               <Stack.Screen name="GettingStarted" component={GettingStarted} />
-              <Stack.Screen name="CreateWallet" component={CreateWallet} />
+              <Stack.Screen name="TestMpc" component={TestMpc} />
             </Stack.Navigator>
           </View>
         </RecoilRoot>

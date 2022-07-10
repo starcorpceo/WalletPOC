@@ -20,8 +20,11 @@ model Wallet {
     genericSecret String?
     mainShare     String?
 
-
     user            User   @relation(fields: [userId, devicePublicKey], references: [id, devicePublicKey])
     userId          String
     devicePublicKey String
+
+    wallets        Wallet[] @relation("DerivedWallets")
+    parentWalletId String?
+    parentWallet   Wallet?  @relation("DerivedWallets", fields: [parentWalletId], references: [id])
 }

@@ -1,6 +1,9 @@
+import { Wallet } from "./wallet";
+
 export interface User {
   id: string;
   devicePublicKey: string;
+  wallets: Wallet[];
 }
 
 export interface CreateUserRequest {

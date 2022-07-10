@@ -2,13 +2,6 @@ export interface IWallet {
   config: WalletConfig;
   transactions: Transaction[];
   balance?: Balance;
-
-  refreshBalance(): Promise<IWallet>;
-  refreshTransactions(): Promise<IWallet>;
-}
-
-interface IConstructor<T> {
-  new (...args: any[]): T;
 }
 
 export interface Balance {

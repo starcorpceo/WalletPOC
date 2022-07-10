@@ -1,8 +1,33 @@
 import { notFound, other } from "@lib/error";
 import { client } from "../../server";
-import { SecretWallet, ShareWallet, User, Wallet } from "./user";
+import { User } from "./user";
+import { SecretWallet, ShareWallet, Wallet } from "./wallet";
 
-// Create by Share directly, this will be obsolete at some point
+export const createWalletByShareOfParent = (
+  user: User,
+  share: string,
+  parent: Wallet
+): Promise<Wallet> => {
+  return client.wallet.create({
+    data: {
+      mainShare: share,
+      parentWallet: {
+        connect: {
+          id: parent.id,
+        },
+      },
+      user: {
+        connect: {
+          id_devicePublicKey: {
+            id: user.id,
+            devicePublicKey: user.devicePublicKey,
+          },
+        },
+      },
+    },
+  });
+};
+
 export const createWalletByShare = (
   user: User,
   share: string
@@ -39,6 +64,18 @@ export const createWalletBySecret = (
       },
     },
   });
+};
+
+export const getWallet = async (id: string): Promise<Wallet> => {
+  const wallet = await client.wallet.findUnique({
+    where: {
+      id,
+    },
+  });
+
+  if (!wallet) throw notFound("No Wallet Found");
+
+  return wallet;
 };
 
 export const getSecretWallet = async (id: string): Promise<SecretWallet> => {

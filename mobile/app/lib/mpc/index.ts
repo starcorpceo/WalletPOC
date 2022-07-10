@@ -1,4 +1,4 @@
-import { signWithDeviceKey } from "lib/auth";
+import { signWithDeviceKey, signWithDeviceKeyNoAuth } from "lib/auth";
 import { fetchFromApi, getApiUrl } from "lib/http";
 import { CreateNonceResponse } from "../../api-types/auth";
 
@@ -37,7 +37,8 @@ type ShareActionMPCHandler<T> = (
 export const authenticatedCreateShareMpc =
   <MPCResult>(
     path: string,
-    createShareMPCHandler: CreateShareMPCHandler<MPCResult>
+    createShareMPCHandler: CreateShareMPCHandler<MPCResult>,
+    requireLocalAuth = true
   ) =>
   async (
     devicePublicKey: string,
@@ -45,7 +46,9 @@ export const authenticatedCreateShareMpc =
     genericSecret?: string
   ): Promise<MPCResult> => {
     const { nonce } = await fetchFromApi<CreateNonceResponse>("/getNonce");
-    const deviceSignature = await signWithDeviceKey(nonce);
+    const deviceSignature = requireLocalAuth
+      ? await signWithDeviceKey(nonce)
+      : await signWithDeviceKeyNoAuth(nonce);
 
     const ws = new WebSocket(getApiUrl("ws") + path, undefined, {
       headers: {
@@ -63,7 +66,8 @@ export const authenticatedCreateShareMpc =
 export const authenticatedShareActionMpc =
   <MPCResult>(
     path: string,
-    shareActionMpcHandler: ShareActionMPCHandler<MPCResult>
+    shareActionMpcHandler: ShareActionMPCHandler<MPCResult>,
+    requireLocalAuth = true
   ) =>
   async (
     devicePublicKey: string,
@@ -73,8 +77,9 @@ export const authenticatedShareActionMpc =
     ...data: string[]
   ): Promise<MPCResult> => {
     const { nonce } = await fetchFromApi<CreateNonceResponse>("/getNonce");
-    const deviceSignature = await signWithDeviceKey(nonce);
-
+    const deviceSignature = requireLocalAuth
+      ? await signWithDeviceKey(nonce)
+      : await signWithDeviceKeyNoAuth(nonce);
     const ws = new WebSocket(getApiUrl("ws") + path, undefined, {
       headers: {
         userId,

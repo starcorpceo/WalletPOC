@@ -27,7 +27,6 @@ export const createGenericSecret = authenticatedCreateShareMpc<Share>(
     };
 
     websocket.onmessage = (message: WebSocketMessageEvent) => {
-      console.log("message", message.data);
       const serverShareId = getServerShareId(message);
 
       if (serverShareId && clientShare) {
