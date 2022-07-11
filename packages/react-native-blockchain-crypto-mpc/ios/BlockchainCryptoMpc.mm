@@ -30,15 +30,19 @@ RCT_EXPORT_METHOD(initGenerateGenericSecret:(RCTPromiseResolveBlock)resolve
 
 
 
-RCT_EXPORT_METHOD(initDeriveBIP32:(RCTPromiseResolveBlock)resolve
+RCT_EXPORT_METHOD(initDeriveBIP32:(nonnull NSNumber*)index withHardened:(nonnull NSNumber*) hardened withResolver:(RCTPromiseResolveBlock)resolve
                   withRejecter:(RCTPromiseRejectBlock)reject)
 {
     
     MPCCrypto_freeContext(context);
     context = nullptr;
     
-    if (MPCCrypto_initDeriveBIP32(1, share, 0, 0, &context)){
+    int hardenedInt = [hardened intValue];
+    int indexInt = [index intValue];
+    
+    if (MPCCrypto_initDeriveBIP32(1, share, hardenedInt, indexInt, &context)){
         resolve(@false);
+        return;
     }
     
     resolve(@true);

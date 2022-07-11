@@ -5,12 +5,16 @@
 import { initDeriveBIP32, step } from 'react-native-blockchain-crypto-mpc';
 import { getApi } from './shared';
 
-export const deriveBIP32 = (share: string): Promise<string> => {
+export const deriveBIP32 = (
+  share: string,
+  index: number,
+  hardened: boolean
+): Promise<string> => {
   return new Promise((res) => {
     const ws = new WebSocket(getApi('ws') + '/derive');
 
     ws.onopen = () => {
-      initDeriveBIP32(share).then((success) => {
+      initDeriveBIP32(share, index, hardened).then((success) => {
         console.log('starting steps for derive');
         success && step(null).then((stepMsg) => ws.send(stepMsg.message));
       });

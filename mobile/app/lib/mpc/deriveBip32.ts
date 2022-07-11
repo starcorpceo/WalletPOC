@@ -2,7 +2,12 @@
  * Deriving a wallet based on previous seed
  */
 
-import { initDeriveBIP32, step } from "react-native-blockchain-crypto-mpc";
+import {
+  getPublicKey,
+  getResultDeriveBIP32,
+  initDeriveBIP32,
+  step,
+} from "react-native-blockchain-crypto-mpc";
 import {
   ActionStatus,
   authenticatedShareActionMpc,
@@ -23,18 +28,31 @@ export const deriveBIP32NoLocalAuth = authenticatedShareActionMpc<Context>(
   false
 );
 
+/**
+ * What works:
+ * Derive Non-Hardened from secret with index = 0
+ * Derive Hardened from Share with index != 0
+ */
 function deriveHandler(
   resolve: (value: Context) => void,
   reject: (error: MPCError) => void,
   websocket: WebSocket,
   serverShareId: string,
-  secret: string
+  secret: string,
+  index: string,
+  hardened: string
 ) {
   let clientContext: string;
   let deriveStatus: ActionStatus = "Init";
 
   websocket.onopen = () => {
-    websocket.send(serverShareId);
+    websocket.send(
+      JSON.stringify({
+        serverShareId,
+        index,
+        hardened,
+      })
+    );
   };
 
   websocket.onmessage = (message: WebSocketMessageEvent) => {
@@ -51,11 +69,30 @@ function deriveHandler(
         }
 
         deriveStatus = "Stepping";
-        initDeriveBIP32(secret).then((success) => {
-          console.log("starting steps for derive");
-          success &&
-            step(null).then((stepMsg) => websocket.send(stepMsg.message));
-        });
+        initDeriveBIP32(secret, Number(index), Number(hardened) === 1).then(
+          (success) => {
+            console.log("starting steps for derive");
+            success &&
+              step(null).then((stepMsg) => {
+                if (stepMsg.finished && stepMsg.context) {
+                  getResultDeriveBIP32(stepMsg.context).then((res) => {
+                    getPublicKey(res).then((res2) =>
+                      console.log("resulting public key", res2)
+                    );
+
+                    console.log("resultingshare", res);
+                  });
+
+                  clientContext = stepMsg.context;
+                  // resolve({serverShareId: undefined, clientContext: stepMsg.context});
+                  return;
+                }
+
+                console.log(stepMsg);
+                websocket.send(stepMsg.message);
+              });
+          }
+        );
 
         break;
 
@@ -80,4 +117,21 @@ function deriveHandler(
   websocket.onerror = (error) => {
     reject(error);
   };
+}
+
+/**
+ *
+ * Special method for non hardend derive from existing share, because it only needs 1 step on the client side
+ */
+function deriveFromShareNonHardened(share: string, index: string) {
+  return new Promise((resolve) => {
+    initDeriveBIP32(share, Number(index), false).then((success) => {
+      success &&
+        step(null).then((stepMsg) => {
+          if (stepMsg.finished && stepMsg.context) {
+            resolve(stepMsg.context);
+          }
+        });
+    });
+  });
 }

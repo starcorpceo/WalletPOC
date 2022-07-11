@@ -29,10 +29,17 @@ export function initImportGenericSecret(secret: string): Promise<boolean> {
   ]);
 }
 
-export function initDeriveBIP32(share: string): Promise<boolean> {
+export function initDeriveBIP32(
+  share: string,
+  index: number,
+  hardened: boolean
+): Promise<boolean> {
   return new Promise(async (res) => {
     await useShare(share);
-    const success = await BlockchainCryptoMpc.initDeriveBIP32();
+    const success = await BlockchainCryptoMpc.initDeriveBIP32(
+      index,
+      hardened ? 1 : 0
+    );
     res(success);
   });
 }

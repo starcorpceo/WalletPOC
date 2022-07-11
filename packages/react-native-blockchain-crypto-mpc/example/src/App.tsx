@@ -71,7 +71,7 @@ export default function App() {
       setImportedShare(shareFromSecret);
 
       // --- Start deriving a keypair from the imported wallet
-      const deriveContext = await deriveBIP32(shareFromSecret);
+      const deriveContext = await deriveBIP32(shareFromSecret, 0, false);
 
       setDerivedShare(await getResultDeriveBIP32(deriveContext));
     };
