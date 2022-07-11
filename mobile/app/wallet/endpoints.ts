@@ -4,6 +4,11 @@ const endpoints = {
       "https://api-eu1.tatum.io/v3/bitcoin/address/balance/" + address,
     transaction: (address: string, query: URLSearchParams) =>
       `https://api-eu1.tatum.io/v3/bitcoin/transaction/address/${address}?${query.toString()}`,
+    utxo: (transactionHash: string, index: number) =>
+      "https://api-eu1.tatum.io/v3/bitcoin/utxo/" +
+      transactionHash +
+      "/" +
+      index,
   },
 };
 

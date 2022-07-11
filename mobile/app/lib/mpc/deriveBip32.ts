@@ -39,8 +39,8 @@ function deriveHandler(
   websocket: WebSocket,
   serverShareId: string,
   secret: string,
-  index: string,
-  hardened: string
+  index = "0",
+  hardened = "0"
 ) {
   let clientContext: string;
   let deriveStatus: ActionStatus = "Init";
