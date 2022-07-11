@@ -86,9 +86,9 @@ const TestMpc = () => {
       </View>
       <ScrollView
         style={{ marginHorizontal: 20 }}
-        contentContainerStyle={{ paddingBottom: wallets.length * 130 }}
+        contentContainerStyle={{ paddingBottom: wallets?.length * 130 }}
       >
-        {wallets.map((wallet: Wallet) => {
+        {wallets?.map((wallet: Wallet) => {
           return (
             <TestMpcWallet
               key={wallet.id}

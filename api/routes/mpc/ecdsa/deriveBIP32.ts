@@ -24,19 +24,12 @@ export const deriveBIP32 = async (connection: SocketStream, user: User) => {
     switch (status) {
       case "Init":
         try {
-          deriveConfig = message.valueOf() as DeriveConfig;
+          deriveConfig = JSON.parse(message.toString()) as DeriveConfig;
 
           parent = await getWallet(deriveConfig.serverShareId);
           status = "Stepping";
           connection.socket.send(JSON.stringify({ value: "Start" }));
-        } catch (err) {
-          logger.error({ err }, "Error while initiating derive");
-          connection.socket.close();
-          return;
-        }
-        break;
-      case "Stepping":
-        try {
+
           const share = parent.genericSecret || parent.mainShare;
 
           context =
@@ -45,16 +38,20 @@ export const deriveBIP32 = async (connection: SocketStream, user: User) => {
               2,
               Buffer.from(share as string, "base64"),
               Number(deriveConfig.index),
-              Boolean(deriveConfig.hardened)
+              Number(deriveConfig.hardened) === 1
             );
         } catch (err) {
-          logger.error({ err }, "Error while Initiating BIP Derive");
+          logger.error(
+            { err, deriveConfig },
+            "Error while initiating Derive Bip32"
+          );
+          connection.socket.close();
+          return;
         }
+        break;
+      case "Stepping":
         try {
-          logger.info({ context, message: message.toString() }, "Context");
-
           const stepOutput = step(message.toString(), context);
-          logger.info({ stepOutput }, "Step output");
 
           if (stepOutput === true) {
             saveShareAsChildOfParentWallet(user, context, parent, connection);
