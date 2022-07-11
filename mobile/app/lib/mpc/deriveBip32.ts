@@ -28,13 +28,21 @@ function deriveHandler(
   reject: (error: MPCError) => void,
   websocket: WebSocket,
   serverShareId: string,
-  secret: string
+  secret: string,
+  index: string,
+  hardened: string
 ) {
   let clientContext: string;
   let deriveStatus: ActionStatus = "Init";
 
   websocket.onopen = () => {
-    websocket.send(serverShareId);
+    websocket.send(
+      JSON.stringify({
+        serverShareId,
+        index,
+        hardened,
+      })
+    );
   };
 
   websocket.onmessage = (message: WebSocketMessageEvent) => {
@@ -51,11 +59,13 @@ function deriveHandler(
         }
 
         deriveStatus = "Stepping";
-        initDeriveBIP32(secret).then((success) => {
-          console.log("starting steps for derive");
-          success &&
-            step(null).then((stepMsg) => websocket.send(stepMsg.message));
-        });
+        initDeriveBIP32(secret, Number(index), Boolean(hardened)).then(
+          (success) => {
+            console.log("starting steps for derive");
+            success &&
+              step(null).then((stepMsg) => websocket.send(stepMsg.message));
+          }
+        );
 
         break;
 

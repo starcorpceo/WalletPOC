@@ -311,7 +311,7 @@ PODS:
     - RCTTypeSafety
     - React
     - ReactCommon/turbomodule/core
-  - react-native-secure-encryption-module (0.0.6):
+  - react-native-secure-encryption-module (0.0.7):
     - React-Core
   - React-perflogger (0.68.1)
   - React-RCTActionSheet (0.68.1):
@@ -616,7 +616,7 @@ SPEC CHECKSUMS:
   react-native-blockchain-crypto-mpc: 3766a5d5d543f47d53a7530e31d48b62d844d2c7
   react-native-randombytes: 421f1c7d48c0af8dbcd471b0324393ebf8fe7846
   react-native-safe-area-context: ebf8c413eb8b5f7c392a036a315eb7b46b96845f
-  react-native-secure-encryption-module: fe94477d763d01c4e528834980db6f7ee8bb1a37
+  react-native-secure-encryption-module: c7955a8f48573982613b3617f1365e3e324f1131
   React-perflogger: 30ab8d6db10e175626069e742eead3ebe8f24fd5
   React-RCTActionSheet: 4b45da334a175b24dabe75f856b98fed3dfd6201
   React-RCTAnimation: d6237386cb04500889877845b3e9e9291146bc2e
