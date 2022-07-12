@@ -7,10 +7,10 @@ const { persistAtom } = recoilPersist({ storage: CustomStorage });
 
 export type BitcoinWalletsState = BitcoinWallet[];
 
-const initialWalletState: BitcoinWalletsState = [];
+export const initialBitcoinState: BitcoinWalletsState = [];
 
 export const bitcoinWalletsState = atom({
   key: "bitcoinWallets",
-  default: initialWalletState,
+  default: initialBitcoinState,
   effects_UNSTABLE: [persistAtom],
 });

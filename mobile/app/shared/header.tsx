@@ -1,3 +1,8 @@
+import {
+  BitcoinWalletsState,
+  bitcoinWalletsState,
+  initialBitcoinState,
+} from "bitcoin/state/atoms";
 import { signWithDeviceKey } from "lib/auth";
 import { fetchFromApi, HttpMethod } from "lib/http";
 import React, { useEffect } from "react";
@@ -7,13 +12,14 @@ import {
   generateKeyPair,
   getKey,
 } from "react-native-secure-encryption-module";
-import { SetterOrUpdater, useRecoilState } from "recoil";
+import { SetterOrUpdater, useRecoilState, useSetRecoilState } from "recoil";
 import { AuthState, authState, initialAuthState } from "state/atoms";
 import { CreateUserResponse } from "../api-types/user";
 import constants from "../config/constants";
 
 const Header = () => {
   const [auth, setAuth] = useRecoilState<AuthState>(authState);
+  const setBitcoinState = useSetRecoilState(bitcoinWalletsState);
 
   useEffect(() => {
     const onStartup = async () => {
@@ -37,6 +43,7 @@ const Header = () => {
       <Button
         onPress={() => {
           setAuth((_: AuthState) => initialAuthState);
+          setBitcoinState((_: BitcoinWalletsState) => initialBitcoinState);
           deleteKeyPair(constants.deviceKeyName);
         }}
         title="Reset Local State"
