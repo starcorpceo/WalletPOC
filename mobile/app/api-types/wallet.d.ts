@@ -1,6 +1,6 @@
 export interface Wallet {
   id: string;
-  mainShare: string | null;
+  share: string | null;
   genericSecret: string | null;
   parentWalletId: string | null;
 }
@@ -20,5 +20,5 @@ export interface SecretWallet extends Wallet {
  *  */
 export interface ShareWallet extends Wallet {
   id: string;
-  mainShare: string;
+  share: string;
 }

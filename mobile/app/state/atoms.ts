@@ -11,10 +11,11 @@ export const initialAuthState: AuthState = {
   devicePublicKey: "",
   id: "",
   wallets: [],
+  masterWallet: undefined,
 };
 
 export const authState = atom({
-  key: "authState",
+  key: "AuthState",
   default: initialAuthState,
   effects_UNSTABLE: [persistAtom],
 });

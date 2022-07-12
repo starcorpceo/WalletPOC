@@ -79,16 +79,12 @@ function deriveHandler(
                     getPublicKey(res).then((res2) =>
                       console.log("resulting public key", res2)
                     );
-
-                    console.log("resultingshare", res);
                   });
 
                   clientContext = stepMsg.context;
-                  // resolve({serverShareId: undefined, clientContext: stepMsg.context});
                   return;
                 }
 
-                console.log(stepMsg);
                 websocket.send(stepMsg.message);
               });
           }

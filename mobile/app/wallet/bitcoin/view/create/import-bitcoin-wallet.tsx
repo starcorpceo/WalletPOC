@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { Button, TextInput, View } from "react-native";
 import { useSetRecoilState } from "recoil";
 import { BitcoinWallet } from "wallet/bitcoin";
-import { generateWalletFromSeed } from "wallet/generator";
+import { generateCryptoWalletFromSeed } from "wallet/controller/generator";
 import { User } from "../../../../api-types/user";
 
 type ImportWalletProps = {
@@ -14,12 +14,12 @@ type ImportWalletProps = {
 const testSeed: string =
   "153649e88ae8337f53451d8d0f4e6fd7e1860626923fc04192c8abc2370b68dc";
 
-const ImportWallet = ({ user }: ImportWalletProps) => {
+const ImportBitcoinWallet = ({ user }: ImportWalletProps) => {
   const [seed, setSeed] = useState<string>(testSeed);
   const setWallet = useSetRecoilState(bitcoinWalletsState);
 
   const importWallet = async () => {
-    const wallet = await generateWalletFromSeed<BitcoinWallet>(
+    const wallet = await generateCryptoWalletFromSeed<BitcoinWallet>(
       testSeed,
       user,
       pubKeyTransformer
@@ -43,4 +43,4 @@ const ImportWallet = ({ user }: ImportWalletProps) => {
   );
 };
 
-export default ImportWallet;
+export default ImportBitcoinWallet;

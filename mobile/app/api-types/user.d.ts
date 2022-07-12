@@ -4,6 +4,7 @@ export interface User {
   id: string;
   devicePublicKey: string;
   wallets: Wallet[];
+  masterWallet: Wallet | undefined;
 }
 
 export interface CreateUserRequest {

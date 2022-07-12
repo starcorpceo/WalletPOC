@@ -19,14 +19,10 @@ import {
   View,
 } from "react-native";
 import { RecoilRoot } from "recoil";
+import WalletOverview from "wallet/view/overview";
 import Header from "./shared/header";
-import GettingStarted from "./views/getting-started";
-import TestMpc from "./views/getting-started/test-mpc/test-mpc";
 import Home from "./views/home";
-
-// declare global {
-//   const Buffer: Buffer;
-// }
+import TestMpc from "./views/test-mpc/test-mpc";
 
 const App = () => {
   const isDarkMode = useColorScheme() === "dark";
@@ -46,7 +42,7 @@ const App = () => {
           <View style={styles.view}>
             <Stack.Navigator initialRouteName="Home">
               <Stack.Screen name="Home" component={Home} />
-              <Stack.Screen name="GettingStarted" component={GettingStarted} />
+              <Stack.Screen name="Wallets" component={WalletOverview} />
               <Stack.Screen name="TestMpc" component={TestMpc} />
             </Stack.Navigator>
           </View>

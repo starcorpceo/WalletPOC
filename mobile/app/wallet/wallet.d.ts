@@ -1,4 +1,4 @@
-export interface IWallet {
+export interface CryptoWallet {
   config: WalletConfig;
   transactions: Transaction[];
   balance?: Balance;

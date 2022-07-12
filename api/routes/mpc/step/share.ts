@@ -34,7 +34,7 @@ export const saveShareAsChildOfParentWallet = async (
     );
     connection.socket.close();
   } catch (err) {
-    logger.error({ err }, "Error while saving main key from Ecdas Init");
+    logger.error({ err }, "Error while saving Share as Child");
     connection.socket.close();
   }
 };

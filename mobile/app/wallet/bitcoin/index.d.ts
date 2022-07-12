@@ -1,3 +1,3 @@
-import { IWallet } from "wallet/wallet";
+import { CryptoWallet } from "wallet/wallet";
 
-export interface BitcoinWallet extends IWallet {}
+export interface BitcoinWallet extends CryptoWallet {}

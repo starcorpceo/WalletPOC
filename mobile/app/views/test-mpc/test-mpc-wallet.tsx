@@ -7,7 +7,7 @@ import {
 } from "react-native-blockchain-crypto-mpc";
 import { useSetRecoilState } from "recoil";
 import { AuthState, authState } from "state/atoms";
-import { SecretWallet, ShareWallet, Wallet } from "../../../api-types/wallet";
+import { SecretWallet, ShareWallet, Wallet } from "../../api-types/wallet";
 import { groupStyle } from "./style";
 
 type TestMpcWalletProps = {
@@ -33,7 +33,7 @@ const TestMpcWallet = ({
 
   const deriveCallback = useCallback(
     async (share: ShareWallet | SecretWallet) => {
-      const shareOrSecret = share.mainShare || share.genericSecret;
+      const shareOrSecret = share.share || share.genericSecret;
       const context = await deriveBIP32(
         devicePublicKey,
         userId,
@@ -68,7 +68,7 @@ const TestMpcWallet = ({
         devicePublicKey,
         userId,
         wallet.id,
-        share.mainShare,
+        share.share,
         messageToSign
       );
 
@@ -96,7 +96,7 @@ const TestMpcWallet = ({
           <Text>Parent ID: {wallet.parentWalletId}</Text>
         )}
 
-        <Text>This is your key share: {wallet.mainShare?.slice(0, 23)}</Text>
+        <Text>This is your key share: {wallet.share?.slice(0, 23)}</Text>
         <Text>This is your secret: {wallet.genericSecret?.slice(0, 23)}</Text>
       </View>
 
@@ -120,7 +120,7 @@ const TestMpcWallet = ({
         <Text>Signature: {signature}</Text>
         <Button
           title="Verify!"
-          onPress={() => verifyCallback(wallet.mainShare as string)}
+          onPress={() => verifyCallback(wallet.share as string)}
         />
         <Text>OK: {`${signOK}`}</Text>
       </View>

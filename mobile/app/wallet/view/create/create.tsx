@@ -2,10 +2,10 @@ import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { useRecoilValue } from "recoil";
 import { authState } from "state/atoms";
-import GenerateBitcoinWallet from "./generate-bitcoin-wallet";
-import ImportBitcoinWallet from "./import-bitcoin-wallet";
+import GenerateWallet from "../create/generate-wallet";
+import ImportWallet from "../create/import-wallet";
 
-const CreateBitcoinWallet = () => {
+const CreateAccountWallet = () => {
   const user = useRecoilValue(authState);
 
   return (
@@ -17,11 +17,11 @@ const CreateBitcoinWallet = () => {
         paddingTop: 12,
       }}
     >
-      <Text>You can always add more wallets:</Text>
-      <ImportBitcoinWallet user={user} />
-      <GenerateBitcoinWallet user={user} />
+      <Text>You dont yet have an Account to hold Wallets</Text>
+      <ImportWallet user={user} />
+      <GenerateWallet user={user} />
     </View>
   );
 };
 
-export default CreateBitcoinWallet;
+export default CreateAccountWallet;

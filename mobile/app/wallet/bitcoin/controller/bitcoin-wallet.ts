@@ -1,16 +1,23 @@
 import { fetchFromTatum } from "lib/http";
 import "shim";
 import endpoints from "wallet/endpoints";
-import { Balance, IWallet, Output, Transaction, UTXO } from "wallet/wallet";
+import {
+  Balance,
+  CryptoWallet,
+  Input,
+  Output,
+  Transaction,
+  UTXO,
+} from "wallet/wallet";
 
-export const getBalance = (wallet: IWallet): Promise<Balance> => {
+export const getBalance = (wallet: CryptoWallet): Promise<Balance> => {
   return fetchFromTatum<Balance>(
     endpoints.bitcoin.balance(wallet.config.address)
   );
 };
 
 export const getLatestTransactions = (
-  wallet: IWallet,
+  wallet: CryptoWallet,
   pageSize: number = 10,
   offset: number = 0
 ): Promise<Transaction[]> => {
@@ -25,7 +32,7 @@ export const getLatestTransactions = (
 };
 
 export const getNetValue = (
-  wallet: IWallet,
+  wallet: CryptoWallet,
   transaction: Transaction
 ): number => {
   var fullValueInput = 0;
@@ -47,24 +54,27 @@ export const getNetValue = (
 };
 
 export const getUnspentTransactions = async (
-  wallet: IWallet
+  wallet: CryptoWallet
 ): Promise<UTXO[]> => {
   const unspent = Promise.all(
-    wallet.transactions.flatMap((transaction) =>
-      transaction.outputs.map(
-        async (output: Output, index) =>
+    wallet.transactions.flatMap((transaction: Transaction) =>
+      transaction.outputs.map(async (output: Output, index) => {
+        if (
           !isTransactionSpent(transaction, wallet) &&
-          output.address === wallet.config.address &&
-          fetchFromTatum<UTXO>(endpoints.bitcoin.utxo(transaction.hash, index))
-      )
+          output.address === wallet.config.address
+        )
+          return fetchFromTatum<UTXO>(
+            endpoints.bitcoin.utxo(transaction.hash, index)
+          );
+      })
     )
   );
 
   return (await unspent).filter((out): out is UTXO => !!out);
 };
 
-export const getUnspentTransactionsSync = (wallet: IWallet) => {
-  const unspent = wallet.transactions.flatMap((transaction) =>
+export const getUnspentTransactionsSync = (wallet: CryptoWallet) => {
+  const unspent = wallet.transactions.flatMap((transaction: Transaction) =>
     transaction.outputs.map(
       (output: Output, index) =>
         !isTransactionSpent(transaction, wallet) &&
@@ -80,10 +90,10 @@ export const getUnspentTransactionsSync = (wallet: IWallet) => {
 
 const isTransactionSpent = (
   transaction: Transaction,
-  wallet: IWallet
+  wallet: CryptoWallet
 ): boolean =>
-  wallet.transactions.some((searchTransaction) =>
+  wallet.transactions.some((searchTransaction: Transaction) =>
     searchTransaction.inputs.find(
-      (input) => input.prevout.hash === transaction.hash
+      (input: Input) => input.prevout.hash === transaction.hash
     )
   );

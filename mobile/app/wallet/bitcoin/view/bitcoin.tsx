@@ -2,7 +2,7 @@ import { BitcoinWalletsState, bitcoinWalletsState } from "bitcoin/state/atoms";
 import React from "react";
 import { Text } from "react-native";
 import { useRecoilValue } from "recoil";
-import Wallets from "wallet/wallet-view";
+import Wallets from "wallet/generic-wallet-view";
 import CreateBitcoinWallet from "./create/create";
 import BitcoinWalletListView from "./list/wallet-list";
 

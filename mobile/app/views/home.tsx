@@ -1,5 +1,4 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import Bitcoin from "bitcoin/view/bitcoin";
 import React from "react";
 import {
   Button,
@@ -30,8 +29,10 @@ const Home = ({ navigation }: Props) => {
           onPress={() => navigation.navigate("TestMpc")}
           title="Test MPC Key Handling"
         />
-
-        <Bitcoin />
+        <Button
+          onPress={() => navigation.navigate("Wallets")}
+          title="Go to Wallet View"
+        />
       </ScrollView>
     </View>
   );
