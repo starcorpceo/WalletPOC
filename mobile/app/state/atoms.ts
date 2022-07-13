@@ -11,8 +11,8 @@ export const initialAuthState: AuthState = {
   devicePublicKey: "",
   id: "",
   wallets: [],
-  masterWallet: undefined,
-  bip44Wallet: undefined,
+  bip44MasterWallet: undefined,
+  bip44PurposeWallet: undefined,
 };
 
 export const authState = atom({

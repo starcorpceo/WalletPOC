@@ -11,7 +11,7 @@ import {
 } from "react-native-blockchain-crypto-mpc";
 import "shim";
 import { User } from "../../api-types/user";
-import { ShareWallet } from "../../api-types/wallet";
+import { Wallet } from "../../api-types/wallet";
 import { CryptoWallet } from "../wallet";
 
 export const generateCryptoWalletFromSeed = async <T extends CryptoWallet>(
@@ -38,7 +38,7 @@ export type PubKeyToWalletConfig<T extends CryptoWallet> = (
 export const generateMpcWalletFromSeed = async (
   seed: string,
   user: User
-): Promise<ShareWallet> => {
+): Promise<Wallet> => {
   const share = await importSecret(user.devicePublicKey, user.id, seed);
 
   return await deriveToMpcWallet(share, user, constants.bip44MasterIndex);
@@ -47,7 +47,7 @@ export const generateMpcWalletFromSeed = async (
 export const generateMpcWallet = async (
   user: User,
   path: string
-): Promise<ShareWallet> => {
+): Promise<Wallet> => {
   const share = await createGenericSecret(user.devicePublicKey, user.id);
 
   return deriveToMpcWallet(share, user, path);
@@ -73,7 +73,7 @@ const deriveToMpcWallet = async (
   share: Share,
   user: User,
   path: string
-): Promise<ShareWallet> => {
+): Promise<Wallet> => {
   const context = await deriveBIP32NoLocalAuth(
     user.devicePublicKey,
     user.id,
@@ -84,10 +84,9 @@ const deriveToMpcWallet = async (
   const derivedShare = await getResultDeriveBIP32(context.clientContext);
 
   return {
-    share: derivedShare,
+    keyShare: derivedShare,
     id: context.serverShareId,
     path,
     parentWalletId: null,
-    genericSecret: null,
   };
 };
