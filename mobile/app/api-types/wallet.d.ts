@@ -1,5 +1,6 @@
 export interface Wallet {
   id: string;
+  path: string | null;
   share: string | null;
   genericSecret: string | null;
   parentWalletId: string | null;

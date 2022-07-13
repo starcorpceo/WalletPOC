@@ -1,8 +1,12 @@
+import constants from "config/constants";
 import React, { useState } from "react";
 import { Button, TextInput, View } from "react-native";
 import { useSetRecoilState } from "recoil";
 import { AuthState, authState } from "state/atoms";
-import { generateAccountWalletFromSeed } from "wallet/controller/generator";
+import {
+  generateMpcWallet,
+  generateMpcWalletFromSeed,
+} from "wallet/controller/generator";
 import { User } from "../../../api-types/user";
 
 type ImportWalletProps = {
@@ -18,12 +22,18 @@ const ImportWallet = ({ user }: ImportWalletProps) => {
   const setAuth = useSetRecoilState(authState);
 
   const importWallet = async () => {
-    const wallet = await generateAccountWalletFromSeed(seed, user);
+    const masterWallet = await generateMpcWalletFromSeed(seed, user);
+
+    const bip44Wallet = await generateMpcWallet(
+      user,
+      constants.bip44PurposeIndex
+    );
 
     setAuth((auth: AuthState) => {
       return {
         ...auth,
-        masterWallet: wallet,
+        masterWallet,
+        bip44Wallet,
       };
     });
   };

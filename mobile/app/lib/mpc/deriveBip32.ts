@@ -16,6 +16,7 @@ import {
   isValidStart,
   MPCError,
 } from ".";
+import { DeriveConfig } from "../../api-types/bip";
 
 export const deriveBIP32 = authenticatedShareActionMpc<Context>(
   "/mpc/ecdsa/derive",
@@ -40,19 +41,21 @@ function deriveHandler(
   serverShareId: string,
   secret: string,
   index = "0",
-  hardened = "0"
+  hardened = "0",
+  parentPath?: string
 ) {
   let clientContext: string;
   let deriveStatus: ActionStatus = "Init";
 
+  const derive: DeriveConfig = {
+    serverShareId,
+    index,
+    hardened,
+    parentPath,
+  };
+
   websocket.onopen = () => {
-    websocket.send(
-      JSON.stringify({
-        serverShareId,
-        index,
-        hardened,
-      })
-    );
+    websocket.send(JSON.stringify(derive));
   };
 
   websocket.onmessage = (message: WebSocketMessageEvent) => {

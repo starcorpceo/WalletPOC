@@ -2,6 +2,7 @@
 // derive not only from bitcoin
 // derive several wallets
 
+import constants from "config/constants";
 import { createGenericSecret, importSecret, Share } from "lib/mpc";
 import { deriveBIP32NoLocalAuth } from "lib/mpc/deriveBip32";
 import {
@@ -34,21 +35,22 @@ export type PubKeyToWalletConfig<T extends CryptoWallet> = (
   publicKey: string
 ) => T;
 
-export const generateAccountWalletFromSeed = async (
+export const generateMpcWalletFromSeed = async (
   seed: string,
   user: User
 ): Promise<ShareWallet> => {
   const share = await importSecret(user.devicePublicKey, user.id, seed);
 
-  return await deriveToAccountWallet(share, user);
+  return await deriveToMpcWallet(share, user, constants.bip44MasterIndex);
 };
 
-export const generateAccountWallet = async (
-  user: User
+export const generateMpcWallet = async (
+  user: User,
+  path: string
 ): Promise<ShareWallet> => {
   const share = await createGenericSecret(user.devicePublicKey, user.id);
 
-  return deriveToAccountWallet(share, user);
+  return deriveToMpcWallet(share, user, path);
 };
 
 const deriveToCryptoWallet = async <T extends CryptoWallet>(
@@ -67,9 +69,10 @@ const deriveToCryptoWallet = async <T extends CryptoWallet>(
   return pubKeyToWalletConfig(await getPublicKey(derivedShare));
 };
 
-const deriveToAccountWallet = async (
+const deriveToMpcWallet = async (
   share: Share,
-  user: User
+  user: User,
+  path: string
 ): Promise<ShareWallet> => {
   const context = await deriveBIP32NoLocalAuth(
     user.devicePublicKey,
@@ -83,6 +86,7 @@ const deriveToAccountWallet = async (
   return {
     share: derivedShare,
     id: context.serverShareId,
+    path,
     parentWalletId: null,
     genericSecret: null,
   };

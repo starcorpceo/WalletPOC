@@ -2,7 +2,7 @@ import { SocketStream } from "@fastify/websocket";
 import logger from "@lib/logger";
 import Context from "../../../crypto-mpc-js/lib/context";
 import { User } from "../../user/user";
-import { finishBySavingGenericSecret } from "../step/secret";
+import { processGenericSecret } from "../step/secret";
 import { step } from "../step/step";
 
 export const generateGenericSecret = (connection: SocketStream, user: User) => {
@@ -14,7 +14,7 @@ export const generateGenericSecret = (connection: SocketStream, user: User) => {
     const stepOutput = step(message.toString(), context);
 
     if (stepOutput === true) {
-      finishBySavingGenericSecret(user, context, connection);
+      processGenericSecret(user, context, connection);
       return;
     }
 

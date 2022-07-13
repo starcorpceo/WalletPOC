@@ -12,6 +12,7 @@ export const initialAuthState: AuthState = {
   id: "",
   wallets: [],
   masterWallet: undefined,
+  bip44Wallet: undefined,
 };
 
 export const authState = atom({

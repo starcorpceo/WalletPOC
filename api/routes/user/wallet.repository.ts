@@ -1,21 +1,32 @@
+import constants from "@lib/constants";
 import { notFound, other } from "@lib/error";
 import { client } from "../../server";
 import { User } from "./user";
-import { SecretWallet, ShareWallet, Wallet } from "./wallet";
+import { Wallet } from "./wallet";
 
-export const createWalletByShareOfParent = (
+export const deleteWallet = (wallet: Wallet) => {
+  return client.wallet.delete({
+    where: {
+      id: wallet.id,
+    },
+  });
+};
+
+export const createDerivedWallet = (
   user: User,
   share: string,
-  parent: Wallet
+  parent: Wallet,
+  path: string
 ): Promise<Wallet> => {
   return client.wallet.create({
     data: {
-      mainShare: share,
+      keyShare: share,
       parentWallet: {
         connect: {
           id: parent.id,
         },
       },
+      path,
       user: {
         connect: {
           id_devicePublicKey: {
@@ -28,32 +39,15 @@ export const createWalletByShareOfParent = (
   });
 };
 
-export const createWalletByShare = (
+export const createWallet = (
   user: User,
-  share: string
+  share: string,
+  path: string
 ): Promise<Wallet> => {
   return client.wallet.create({
     data: {
-      mainShare: share,
-      user: {
-        connect: {
-          id_devicePublicKey: {
-            id: user.id,
-            devicePublicKey: user.devicePublicKey,
-          },
-        },
-      },
-    },
-  });
-};
-
-export const createWalletBySecret = (
-  user: User,
-  secret: string
-): Promise<Wallet> => {
-  return client.wallet.create({
-    data: {
-      genericSecret: secret,
+      keyShare: share,
+      path,
       user: {
         connect: {
           id_devicePublicKey: {
@@ -78,36 +72,86 @@ export const getWallet = async (id: string): Promise<Wallet> => {
   return wallet;
 };
 
-export const getSecretWallet = async (id: string): Promise<SecretWallet> => {
-  const wallet = await client.wallet.findUnique({
-    where: {
-      id,
+export const createBip44PurposeWallet = async (
+  user: User,
+  parent: Wallet,
+  share: string
+) => {
+  const wallet = await client.wallet.create({
+    data: {
+      keyShare: share,
+      path: constants.bip44MasterIndex,
+      user: {
+        connect: {
+          id_devicePublicKey: {
+            id: user.id,
+            devicePublicKey: user.devicePublicKey,
+          },
+        },
+      },
+      parentWallet: {
+        connect: {
+          id: parent.id,
+        },
+      },
+      bip44PurposeWallet: {
+        create: {
+          user: {
+            connect: {
+              id_devicePublicKey: {
+                id: user.id,
+                devicePublicKey: user.id,
+              },
+            },
+          },
+        },
+      },
     },
   });
 
-  if (!wallet) throw notFound("No Wallet Found");
+  if (!wallet) throw other("Error while creating BIP44 Purpose Wallet");
 
-  if (wallet.genericSecret === null)
-    throw other(
-      "Wallet was fetched for working with genericSecret but Wallet does not have generic secret"
-    );
-
-  return wallet as SecretWallet;
+  return wallet;
 };
 
-export const getShareWallet = async (id: string): Promise<ShareWallet> => {
-  const wallet = await client.wallet.findUnique({
-    where: {
-      id,
-    },
-  });
+export const createBip44MasterWallet = (
+  user: User,
+  parent: Wallet,
+  share: string
+) => {
+  const result = client.$transaction([
+    client.wallet.delete({
+      where: {
+        id: parent.id,
+      },
+    }),
+    client.wallet.create({
+      data: {
+        keyShare: share,
+        path: constants.bip44MasterIndex,
+        user: {
+          connect: {
+            id_devicePublicKey: {
+              id: user.id,
+              devicePublicKey: user.devicePublicKey,
+            },
+          },
+        },
+        bip44MasterWallet: {
+          create: {
+            user: {
+              connect: {
+                id_devicePublicKey: {
+                  id: user.id,
+                  devicePublicKey: user.id,
+                },
+              },
+            },
+          },
+        },
+      },
+    }),
+  ]);
 
-  if (!wallet) throw notFound("No Wallet Found");
-
-  if (wallet.mainShare === null)
-    throw other(
-      "Wallet was fetched for working with mainShare but Wallet does not have share"
-    );
-
-  return wallet as ShareWallet;
+  return result[1];
 };

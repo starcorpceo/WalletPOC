@@ -1,9 +1,13 @@
 interface IConstants {
   deviceKeyName: string;
+  bip44MasterIndex: string;
+  bip44PurposeIndex: string;
 }
 
 const constants: IConstants = {
   deviceKeyName: "WalletPOCDeviceKey",
+  bip44MasterIndex: "m",
+  bip44PurposeIndex: "44",
 };
 
 export default constants;
