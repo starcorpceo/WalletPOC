@@ -7,9 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc -p tsconfig.json && tsc-alias",
     "start": "node ./build/server.js",
-    "dev": "concurrently \"tsc -w\" \"tsc-alias -w\" \"nodemon build/server.js\"",
-    "migrate:dev": "prisma migrate dev && npm run useenv && prisma migrate dev --to-url $BACKUP_DB_URL",
-    "useenv": "export $(cat .env | xargs)"
+    "dev": "concurrently \"tsc -w\" \"tsc-alias -w\" \"nodemon build/server.js\""
   },
   "keywords": [],
   "author": "",

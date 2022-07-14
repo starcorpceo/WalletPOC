@@ -8,8 +8,7 @@
     "build": "tsc -p tsconfig.json && tsc-alias",
     "start": "node ./build/server.js",
     "dev": "concurrently \"tsc -w\" \"tsc-alias -w\" \"nodemon build/server.js | pino-pretty\"",
-    "migrate:dev": "prisma migrate dev && npm run useenv && prisma migrate dev --to-url $BACKUP_DB_URL",
-    "useenv": "export $(cat .env | xargs)"
+    "db:reset": "prisma db push --force-reset"
   },
   "keywords": [],
   "author": "",

@@ -21,7 +21,7 @@ class Context {
   finished;
   changed;
   publicKey;
-  newShare;
+  newShare: Buffer | undefined;
   xpub;
   signature;
   backup;
@@ -117,7 +117,11 @@ class Context {
   }
 
   getNewShare(): Buffer {
-    return this.newShare;
+    if (this.newShare) {
+      return this.newShare;
+    }
+
+    throw new Error("No new share exists");
   }
 
   getXpub() {

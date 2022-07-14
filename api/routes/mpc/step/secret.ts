@@ -2,23 +2,24 @@ import { SocketStream } from "@fastify/websocket";
 import logger from "@lib/logger";
 import Context from "../../../crypto-mpc-js/lib/context";
 import { User } from "../../user/user";
-import { createWalletBySecret } from "../../user/wallet.repository";
+import { createWallet } from "../../user/wallet.repository";
 
-export const finishBySavingGenericSecret = async (
+export const processGenericSecret = async (
   user: User,
   context: Context,
   connection: SocketStream
 ) => {
   try {
-    const wallet = await createWalletBySecret(
+    const wallet = await createWallet(
       user,
-      context.getNewShare().toString("base64")
+      context.getNewShare().toString("base64"),
+      "secret"
     );
 
     logger.info(
       {
         ...wallet,
-        genericSecret: wallet.genericSecret?.slice(0, 23),
+        genericSecret: wallet.keyShare?.slice(0, 23),
       },
       "Generic Secret Created"
     );

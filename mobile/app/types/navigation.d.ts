@@ -1,5 +1,5 @@
 type NavigationRoutes = {
   Home: undefined;
-  GettingStarted: undefined;
+  Wallets: undefined;
   TestMpc: undefined;
 };

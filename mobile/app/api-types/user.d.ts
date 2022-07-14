@@ -4,6 +4,8 @@ export interface User {
   id: string;
   devicePublicKey: string;
   wallets: Wallet[];
+  bip44MasterWallet: Wallet | undefined;
+  bip44PurposeWallet: Wallet | undefined;
 }
 
 export interface CreateUserRequest {

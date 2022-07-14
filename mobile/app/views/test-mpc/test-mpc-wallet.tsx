@@ -7,7 +7,7 @@ import {
 } from "react-native-blockchain-crypto-mpc";
 import { useSetRecoilState } from "recoil";
 import { AuthState, authState } from "state/atoms";
-import { SecretWallet, ShareWallet, Wallet } from "../../../api-types/wallet";
+import { Wallet } from "../../api-types/wallet";
 import { groupStyle } from "./style";
 
 type TestMpcWalletProps = {
@@ -32,13 +32,12 @@ const TestMpcWallet = ({
   const [signOK, setSignOK] = useState<boolean>();
 
   const deriveCallback = useCallback(
-    async (share: ShareWallet | SecretWallet) => {
-      const shareOrSecret = share.mainShare || share.genericSecret;
+    async (share: Wallet) => {
       const context = await deriveBIP32(
         devicePublicKey,
         userId,
         wallet.id,
-        shareOrSecret as string,
+        share.keyShare,
         index,
         hardened
       );
@@ -63,12 +62,12 @@ const TestMpcWallet = ({
   );
 
   const signCallback = useCallback(
-    async (share: ShareWallet) => {
+    async (share: Wallet) => {
       const signature = await signEcdsa(
         devicePublicKey,
         userId,
         wallet.id,
-        share.mainShare,
+        share.keyShare,
         messageToSign
       );
 
@@ -96,8 +95,7 @@ const TestMpcWallet = ({
           <Text>Parent ID: {wallet.parentWalletId}</Text>
         )}
 
-        <Text>This is your key share: {wallet.mainShare?.slice(0, 23)}</Text>
-        <Text>This is your secret: {wallet.genericSecret?.slice(0, 23)}</Text>
+        <Text>This is your key share: {wallet.keyShare.slice(0, 23)}</Text>
       </View>
 
       <View style={groupStyle}>
@@ -107,20 +105,17 @@ const TestMpcWallet = ({
         <TextInput value={hardened} onChangeText={setHardened} />
         <Button
           title="Derive from generic Secret or share"
-          onPress={() => deriveCallback(wallet as ShareWallet | SecretWallet)}
+          onPress={() => deriveCallback(wallet)}
         />
       </View>
 
       <View style={groupStyle}>
         <Text>Sign "{messageToSign}" with current Key Share</Text>
-        <Button
-          title="Sign!"
-          onPress={() => signCallback(wallet as ShareWallet)}
-        />
+        <Button title="Sign!" onPress={() => signCallback(wallet)} />
         <Text>Signature: {signature}</Text>
         <Button
           title="Verify!"
-          onPress={() => verifyCallback(wallet.mainShare as string)}
+          onPress={() => verifyCallback(wallet.keyShare)}
         />
         <Text>OK: {`${signOK}`}</Text>
       </View>

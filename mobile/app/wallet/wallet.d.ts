@@ -1,4 +1,4 @@
-export interface IWallet {
+export interface CryptoWallet {
   config: WalletConfig;
   transactions: Transaction[];
   balance?: Balance;
@@ -64,4 +64,15 @@ export interface WalletConfig {
   address: string;
   publicKey: null | Buffer;
   isTestnet: boolean;
+}
+
+export interface UTXO {
+  version: number;
+  height: number;
+  value: number;
+  script: string;
+  address: string;
+  coinbase: boolean;
+  hash: string;
+  index: number;
 }

@@ -3,7 +3,7 @@ import React, { useCallback, useState } from "react";
 import { Button, ScrollView, Text, TextInput, View } from "react-native";
 import { useRecoilState } from "recoil";
 import { AuthState, authState } from "state/atoms";
-import { Wallet } from "../../../api-types/wallet";
+import { Wallet } from "../../api-types/wallet";
 import { groupStyle } from "./style";
 import TestMpcWallet from "./test-mpc-wallet";
 
@@ -26,7 +26,7 @@ const TestMpc = () => {
           ...current.wallets,
           {
             id: newMainKeyShare.serverShareId,
-            mainShare: newMainKeyShare.clientShare,
+            share: newMainKeyShare.clientShare,
             genericSecret: null,
             parentWalletId: null,
           },
@@ -61,7 +61,7 @@ const TestMpc = () => {
           {
             id: importedSecret.serverShareId,
             genericSecret: importedSecret.clientShare,
-            mainShare: null,
+            share: null,
             parentWalletId: null,
           },
         ],

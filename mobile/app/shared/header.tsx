@@ -1,33 +1,54 @@
 import { signWithDeviceKey } from "lib/auth";
 import { fetchFromApi, HttpMethod } from "lib/http";
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import { Button, Text, View } from "react-native";
 import {
   deleteKeyPair,
   generateKeyPair,
   getKey,
 } from "react-native-secure-encryption-module";
-import { SetterOrUpdater, useRecoilState } from "recoil";
+import { useRecoilState } from "recoil";
 import { AuthState, authState, initialAuthState } from "state/atoms";
-import { CreateUserResponse } from "../api-types/user";
+import { useResetWalletState } from "state/utils";
+import { CreateUserResponse, User } from "../api-types/user";
 import constants from "../config/constants";
 
 const Header = () => {
   const [auth, setAuth] = useRecoilState<AuthState>(authState);
+  const resetWallets = useResetWalletState();
+
+  console.log("Auth updated", auth);
+
+  const onStart = useCallback(async () => {
+    getKey(constants.deviceKeyName)
+      .then((devicePublicKey) => {
+        console.log(
+          "Key already exists it is assumed this phone already has a user in store"
+        );
+
+        if (auth.id === "") createProfile(devicePublicKey);
+      })
+      .catch(async () => {
+        const newDevicePublicKey = await generateKeyPair(
+          constants.deviceKeyName
+        );
+
+        createProfile(newDevicePublicKey);
+      });
+  }, [setAuth]);
+
+  const createProfile = useCallback(
+    async (devicePublicKey: string) => {
+      const user = await createNewProfile(devicePublicKey);
+
+      setAuth((_) => user);
+    },
+    [setAuth]
+  );
 
   useEffect(() => {
-    const onStartup = async () => {
-      getKey(constants.deviceKeyName)
-        .then((_) => {
-          console.log(
-            "Key already exists it is assumed this phone already has a user in store"
-          );
-        })
-        .catch(() => createProfile(setAuth));
-    };
-
-    onStartup();
-  }, [setAuth]);
+    onStart();
+  }, []);
 
   return (
     <View>
@@ -36,8 +57,13 @@ const Header = () => {
 
       <Button
         onPress={() => {
-          setAuth((_: AuthState) => initialAuthState);
-          deleteKeyPair(constants.deviceKeyName);
+          try {
+            setAuth((_: AuthState) => ({ ...initialAuthState }));
+            resetWallets();
+            deleteKeyPair(constants.deviceKeyName);
+          } catch (err) {
+            console.error("Error while resetting", err);
+          }
         }}
         title="Reset Local State"
       />
@@ -45,14 +71,12 @@ const Header = () => {
   );
 };
 
-const createProfile = async (setAuth: SetterOrUpdater<AuthState>) => {
-  const newDevicePublicKey = await generateKeyPair(constants.deviceKeyName);
-
+const createNewProfile = async (devicePublicKey: string): Promise<User> => {
   const { nonce, userId } = await fetchFromApi<CreateUserResponse>(
     "/user/create",
     {
       body: {
-        devicePublicKey: newDevicePublicKey,
+        devicePublicKey,
       },
     }
   );
@@ -63,20 +87,19 @@ const createProfile = async (setAuth: SetterOrUpdater<AuthState>) => {
     body: {
       signature,
       userId,
-      devicePublicKey: newDevicePublicKey,
+      devicePublicKey,
     },
     method: HttpMethod.POST,
     args: { credentials: "include" },
   });
 
-  success &&
-    setAuth((oldState) => {
-      return {
-        ...oldState,
-        id: userId,
-        devicePublicKey: newDevicePublicKey,
-      };
-    });
+  return {
+    id: userId,
+    devicePublicKey,
+    wallets: [],
+    bip44MasterWallet: undefined,
+    bip44PurposeWallet: undefined,
+  };
 };
 
 export default Header;

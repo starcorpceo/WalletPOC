@@ -2,6 +2,7 @@
  * Deriving a wallet based on previous seed
  */
 
+import constants from "config/constants";
 import {
   getPublicKey,
   getResultDeriveBIP32,
@@ -11,22 +12,22 @@ import {
 import {
   ActionStatus,
   authenticatedShareActionMpc,
-  Context,
-  getServerShareId,
   isValidStart,
   MPCError,
 } from ".";
+import { DeriveConfig } from "../../api-types/bip";
 
-export const deriveBIP32 = authenticatedShareActionMpc<Context>(
+export const deriveBIP32 = authenticatedShareActionMpc<DeriveContext>(
   "/mpc/ecdsa/derive",
   deriveHandler
 );
 
-export const deriveBIP32NoLocalAuth = authenticatedShareActionMpc<Context>(
-  "/mpc/ecdsa/derive",
-  deriveHandler,
-  false
-);
+export const deriveBIP32NoLocalAuth =
+  authenticatedShareActionMpc<DeriveContext>(
+    "/mpc/ecdsa/derive",
+    deriveHandler,
+    false
+  );
 
 /**
  * What works:
@@ -34,25 +35,28 @@ export const deriveBIP32NoLocalAuth = authenticatedShareActionMpc<Context>(
  * Derive Hardened from Share with index != 0
  */
 function deriveHandler(
-  resolve: (value: Context) => void,
+  resolve: (value: DeriveContext) => void,
   reject: (error: MPCError) => void,
   websocket: WebSocket,
   serverShareId: string,
-  secret: string,
-  index: string,
-  hardened: string
+  parentShare: string,
+  index = "0",
+  hardened = "0",
+  parentPath: string
 ) {
   let clientContext: string;
   let deriveStatus: ActionStatus = "Init";
+  const derive: DeriveConfig = {
+    serverShareId,
+    index,
+    hardened,
+    parentPath,
+  };
+
+  console.log(derive);
 
   websocket.onopen = () => {
-    websocket.send(
-      JSON.stringify({
-        serverShareId,
-        index,
-        hardened,
-      })
-    );
+    websocket.send(JSON.stringify(derive));
   };
 
   websocket.onmessage = (message: WebSocketMessageEvent) => {
@@ -69,38 +73,36 @@ function deriveHandler(
         }
 
         deriveStatus = "Stepping";
-        initDeriveBIP32(secret, Number(index), Number(hardened) === 1).then(
-          (success) => {
-            console.log("starting steps for derive");
-            success &&
-              step(null).then((stepMsg) => {
-                if (stepMsg.finished && stepMsg.context) {
-                  getResultDeriveBIP32(stepMsg.context).then((res) => {
-                    getPublicKey(res).then((res2) =>
-                      console.log("resulting public key", res2)
-                    );
+        initDeriveBIP32(
+          parentShare,
+          indexToNumber(index),
+          Number(hardened) === 1
+        ).then((success) => {
+          success &&
+            step(null).then((stepMsg) => {
+              if (stepMsg.finished && stepMsg.context) {
+                getResultDeriveBIP32(stepMsg.context).then((res) => {
+                  getPublicKey(res).then((res2) =>
+                    console.log("resulting public key", res2)
+                  );
+                });
 
-                    console.log("resultingshare", res);
-                  });
+                clientContext = stepMsg.context;
+                return;
+              }
 
-                  clientContext = stepMsg.context;
-                  // resolve({serverShareId: undefined, clientContext: stepMsg.context});
-                  return;
-                }
-
-                console.log(stepMsg);
-                websocket.send(stepMsg.message);
-              });
-          }
-        );
+              websocket.send(stepMsg.message);
+            });
+        });
 
         break;
 
       case "Stepping":
-        const serverShareId = getServerShareId(message);
+        const deriveResult = getDeriveResult(message);
 
-        if (serverShareId && clientContext) {
-          resolve({ clientContext, serverShareId });
+        if (deriveResult && clientContext) {
+          console.log("resolving", deriveResult);
+          resolve({ clientContext, deriveResult });
           return;
         }
 
@@ -135,3 +137,31 @@ function deriveFromShareNonHardened(share: string, index: string) {
     });
   });
 }
+
+type DeriveResult = {
+  serverShareId: string;
+  path: string;
+};
+
+type DeriveContext = {
+  clientContext: string;
+  deriveResult: DeriveResult;
+};
+
+const getDeriveResult = (
+  message: WebSocketMessageEvent
+): DeriveResult | undefined => {
+  try {
+    const msg = JSON.parse(message.data);
+
+    return { serverShareId: msg.serverShareId, path: msg.path };
+  } catch (err) {
+    return;
+  }
+};
+
+const indexToNumber = (index: string): number => {
+  if (index === constants.bip44MasterIndex) return 0;
+
+  return Number(index);
+};

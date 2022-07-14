@@ -1,13 +1,14 @@
-import { BitcoinWalletsState, bitcoinWalletsState } from "bitcoin/state/atoms";
 import React from "react";
-import { Text, View } from "react-native";
-import { useRecoilValue } from "recoil";
-import { IWallet } from "wallet/wallet";
+import { View } from "react-native";
+import { BitcoinWallet } from "wallet/bitcoin";
+import { CryptoWallet } from "wallet/wallet";
 import BitcoinWalletView from "./wallet";
 
-const BitcoinWalletListView = () => {
-  const bitcoinState = useRecoilValue(bitcoinWalletsState);
+type BitcoinWalletListViewProps = {
+  wallets: BitcoinWallet[];
+};
 
+const BitcoinWalletListView = ({ wallets }: BitcoinWalletListViewProps) => {
   return (
     <View
       style={{
@@ -15,15 +16,7 @@ const BitcoinWalletListView = () => {
         padding: 8,
       }}
     >
-      {!walletExists(bitcoinState) && (
-        <Text>Looks like you dont have any Bitcoin Wallets yet</Text>
-      )}
-
-      {/*
-        If time try shorthand:
-        {bitcoinState.map(BitcoinWallet)}
-      */}
-      {bitcoinState.map((wallet: IWallet, index: number) => (
+      {wallets.map((wallet: CryptoWallet, index: number) => (
         <BitcoinWalletView
           key={"Wallet-" + index}
           wallet={wallet}
@@ -33,8 +26,5 @@ const BitcoinWalletListView = () => {
     </View>
   );
 };
-
-const walletExists = (bitcoinState: BitcoinWalletsState): boolean =>
-  bitcoinState && bitcoinState.length > 0;
 
 export default BitcoinWalletListView;
