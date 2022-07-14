@@ -3,7 +3,7 @@ import React, { useCallback, useState } from "react";
 import { Button, ScrollView, Text, TextInput, View } from "react-native";
 import { useRecoilState } from "recoil";
 import { AuthState, authState } from "state/atoms";
-import { Wallet } from "../../api-types/wallet";
+import { MPCWallet } from "../../api-types/wallet";
 import { groupStyle } from "./style";
 import TestMpcWallet from "./test-mpc-wallet";
 
@@ -88,7 +88,7 @@ const TestMpc = () => {
         style={{ marginHorizontal: 20 }}
         contentContainerStyle={{ paddingBottom: wallets?.length * 130 }}
       >
-        {wallets?.map((wallet: Wallet) => {
+        {wallets?.map((wallet: MPCWallet) => {
           return (
             <TestMpcWallet
               key={wallet.id}

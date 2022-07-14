@@ -1,10 +1,10 @@
 import { notFound, other } from "@lib/error";
 import { client } from "../../server";
 import { User } from "./user";
-import { Wallet } from "./wallet";
+import { MPCWallet } from "./wallet";
 
-export const deleteWallet = (wallet: Wallet) => {
-  return client.wallet.delete({
+export const deleteWallet = (wallet: MPCWallet) => {
+  return client.mpcWallet.delete({
     where: {
       id: wallet.id,
     },
@@ -14,10 +14,10 @@ export const deleteWallet = (wallet: Wallet) => {
 export const createDerivedWallet = (
   user: User,
   share: string,
-  parent: Wallet,
+  parent: MPCWallet,
   path: string
-): Promise<Wallet> => {
-  return client.wallet.create({
+): Promise<MPCWallet> => {
+  return client.mpcWallet.create({
     data: {
       keyShare: share,
       parentWallet: {
@@ -42,8 +42,8 @@ export const createWallet = (
   user: User,
   share: string,
   path: string
-): Promise<Wallet> => {
-  return client.wallet.create({
+): Promise<MPCWallet> => {
+  return client.mpcWallet.create({
     data: {
       keyShare: share,
       path,
@@ -59,13 +59,12 @@ export const createWallet = (
   });
 };
 
-export const getWallet = async (id: string): Promise<Wallet> => {
-  const wallet = await client.wallet.findUnique({
+export const getWallet = async (id: string): Promise<MPCWallet> => {
+  const wallet = await client.mpcWallet.findUnique({
     where: {
       id,
     },
   });
-
   if (!wallet) throw notFound("No Wallet Found");
 
   return wallet;
@@ -73,11 +72,11 @@ export const getWallet = async (id: string): Promise<Wallet> => {
 
 export const createBip44PurposeWallet = async (
   user: User,
-  parent: Wallet,
+  parent: MPCWallet,
   share: string,
   path: string
-): Promise<Wallet> => {
-  const wallet = await client.wallet.create({
+): Promise<MPCWallet> => {
+  const wallet = await client.mpcWallet.create({
     data: {
       keyShare: share,
       path,
@@ -116,18 +115,18 @@ export const createBip44PurposeWallet = async (
 
 export const createBip44MasterWallet = async (
   user: User,
-  parent: Wallet,
+  parent: MPCWallet,
   share: string,
   path: string
-): Promise<Wallet> => {
+): Promise<MPCWallet> => {
   try {
     const result = await client.$transaction([
-      client.wallet.delete({
+      client.mpcWallet.delete({
         where: {
           id: parent.id,
         },
       }),
-      client.wallet.create({
+      client.mpcWallet.create({
         data: {
           keyShare: share,
           path,
@@ -161,7 +160,7 @@ export const createBip44MasterWallet = async (
 
     return master;
   } catch (err) {
-    await client.wallet.delete({
+    await client.mpcWallet.delete({
       where: {
         id: parent.id,
       },

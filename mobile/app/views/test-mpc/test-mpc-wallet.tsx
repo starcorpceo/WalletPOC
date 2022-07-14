@@ -7,11 +7,11 @@ import {
 } from "react-native-blockchain-crypto-mpc";
 import { useSetRecoilState } from "recoil";
 import { AuthState, authState } from "state/atoms";
-import { Wallet } from "../../api-types/wallet";
+import { MPCWallet } from "../../api-types/wallet";
 import { groupStyle } from "./style";
 
 type TestMpcWalletProps = {
-  wallet: Wallet;
+  wallet: MPCWallet;
   userId: string;
   devicePublicKey: string;
 };
@@ -32,7 +32,7 @@ const TestMpcWallet = ({
   const [signOK, setSignOK] = useState<boolean>();
 
   const deriveCallback = useCallback(
-    async (share: Wallet) => {
+    async (share: MPCWallet) => {
       const context = await deriveBIP32(
         devicePublicKey,
         userId,
@@ -62,7 +62,7 @@ const TestMpcWallet = ({
   );
 
   const signCallback = useCallback(
-    async (share: Wallet) => {
+    async (share: MPCWallet) => {
       const signature = await signEcdsa(
         devicePublicKey,
         userId,

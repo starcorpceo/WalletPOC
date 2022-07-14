@@ -2,7 +2,7 @@ import {
   Bip44MasterWallet,
   Bip44PurposeWallet,
   User as PrismaUser,
-  Wallet as PrismaWallet,
+  MpcWallet as PrismaWallet,
 } from ".prisma/client";
 import { notFound, other } from "@lib/error";
 import { client } from "./../../server";

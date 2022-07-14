@@ -10,7 +10,7 @@ generator client {
 model User {
     id              String   @default(uuid())
     devicePublicKey String
-    wallets         Wallet[] @relation("WalletForUser")
+    wallets         MpcWallet[] @relation("WalletForUser")
 
     bip44MasterWallet  Bip44MasterWallet?
     bip44PurposeWallet Bip44PurposeWallet?
@@ -18,7 +18,7 @@ model User {
     @@unique([id, devicePublicKey])
 }
 
-model Wallet {
+model MpcWallet {
     id       String @id @default(uuid())
     path     String
     keyShare String
@@ -27,8 +27,8 @@ model Wallet {
     userId              String
     userDevicePublicKey String
 
-    wallets        Wallet[] @relation("DerivedWallets")
-    parentWallet   Wallet?  @relation("DerivedWallets", fields: [parentWalletId], references: [id])
+    wallets        MpcWallet[] @relation("DerivedWallets")
+    parentWallet   MpcWallet?  @relation("DerivedWallets", fields: [parentWalletId], references: [id])
     parentWalletId String?
 
 
@@ -41,7 +41,7 @@ model Bip44MasterWallet {
     userId              String
     userDevicePublicKey String
 
-    wallet   Wallet @relation(fields: [walletId], references: [id])
+    wallet   MpcWallet @relation(fields: [walletId], references: [id])
     walletId String @unique
 
     @@unique([userId, userDevicePublicKey])
@@ -52,7 +52,7 @@ model Bip44PurposeWallet {
     userId              String
     userDevicePublicKey String
 
-    wallet   Wallet @relation(fields: [walletId], references: [id])
+    wallet   MpcWallet @relation(fields: [walletId], references: [id])
     walletId String @unique
 
     @@unique([userId, userDevicePublicKey])

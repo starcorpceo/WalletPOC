@@ -2,7 +2,7 @@ import { atom } from "recoil";
 import { recoilPersist } from "recoil-persist";
 import { CustomStorage } from "state/storage";
 import { BitcoinWallet } from "..";
-import { Wallet } from "../../../api-types/wallet";
+import { MPCWallet } from "../../../api-types/wallet";
 
 const { persistAtom } = recoilPersist({
   storage: CustomStorage,
@@ -10,7 +10,7 @@ const { persistAtom } = recoilPersist({
 });
 
 export type BitcoinWalletsState = {
-  coinTypeWallet: Wallet | undefined;
+  coinTypeWallet: MPCWallet | undefined;
   accounts: BitcoinWallet[];
 };
 

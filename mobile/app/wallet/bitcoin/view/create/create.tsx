@@ -1,15 +1,12 @@
-import { pubKeyTransformer } from "bitcoin/controller/bitcoinjs";
+import { mpcWalletToBitcoinWallet } from "bitcoin/controller/bitcoinjs";
 import { BitcoinWalletsState, bitcoinWalletsState } from "bitcoin/state/atoms";
 import constants from "config/constants";
 import React, { useCallback } from "react";
 import { Button, StyleSheet, Text, View } from "react-native";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { AuthState, authState } from "state/atoms";
-import {
-  deriveToMpcWallet,
-  generateCryptoWallet,
-} from "wallet/controller/generator";
-import { Wallet } from "../../../../api-types/wallet";
+import { deriveToMpcWallet } from "wallet/controller/generator";
+import { MPCWallet } from "../../../../api-types/wallet";
 
 type CreateBitcoinWalletProps = {
   state: BitcoinWalletsState;
@@ -24,7 +21,7 @@ const CreateBitcoinWallet = ({ state }: CreateBitcoinWalletProps) => {
     const bitcoinAccountWallet =
       state.coinTypeWallet ||
       (await deriveToMpcWallet(
-        user.bip44PurposeWallet as Wallet,
+        user.bip44PurposeWallet as MPCWallet,
         user,
         constants.bip44BitcoinCoinType,
         true
@@ -32,17 +29,18 @@ const CreateBitcoinWallet = ({ state }: CreateBitcoinWalletProps) => {
 
     const newIndex = state.accounts.length;
 
-    const accountWallet = await generateCryptoWallet(
+    const accountMpcWallet = await deriveToMpcWallet(
       bitcoinAccountWallet,
       user,
       newIndex.toString(),
-      true,
-      pubKeyTransformer
+      true
     );
+
+    const bitcoinWallet = await mpcWalletToBitcoinWallet(accountMpcWallet);
 
     setBitcoin((current) => ({
       coinTypeWallet: bitcoinAccountWallet,
-      accounts: [...current.accounts, accountWallet],
+      accounts: [...current.accounts, bitcoinWallet],
     }));
   }, [user, setBitcoin, state]);
 

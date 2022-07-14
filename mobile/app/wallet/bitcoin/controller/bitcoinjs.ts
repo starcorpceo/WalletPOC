@@ -3,12 +3,16 @@ import "shim";
 import * as bitcoin from "bitcoinjs-lib";
 import { config } from "config/config";
 import ec from "lib/elliptic";
-import { PubKeyToWalletConfig } from "wallet/controller/generator";
+import { MPCWalletToWalletConfig } from "wallet/controller/generator";
 import { BitcoinWallet } from "..";
+import { MPCWallet } from "../../../api-types/wallet";
+import { getPublicKey } from "react-native-blockchain-crypto-mpc";
 
-export const pubKeyTransformer: PubKeyToWalletConfig<BitcoinWallet> = (
-  publicKey: string
-) => {
+export const mpcWalletToBitcoinWallet: MPCWalletToWalletConfig<
+  BitcoinWallet
+> = async (mpcWallet: MPCWallet) => {
+  const publicKey = await getPublicKey(mpcWallet.keyShare);
+
   const ecPair = ec.keyFromPublic(
     [...Buffer.from(publicKey, "base64")].slice(23)
   );
@@ -38,5 +42,6 @@ export const pubKeyTransformer: PubKeyToWalletConfig<BitcoinWallet> = (
       isTestnet: true,
     },
     transactions: [],
+    mpcWallet,
   };
 };

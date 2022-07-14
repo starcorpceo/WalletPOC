@@ -14,7 +14,7 @@ import {
 import * as bitcoin from "bitcoinjs-lib";
 import { signEcdsa } from "lib/mpc";
 import { BitcoinWallet } from "..";
-import { ShareWallet, Wallet } from "../../../api-types/wallet";
+import { MPCWallet } from "../../../api-types/wallet";
 import { User } from "../../../api-types/user";
 import { config } from "config/config";
 
@@ -119,6 +119,17 @@ const getChangeFromUTXO = (
   return change;
 };
 
+const getChangeValueFromUTXOs = (
+  transactions: Transaction[],
+  wallet: CryptoWallet
+): number => {
+  var value = 0;
+  transactions.map((transaction) => {
+    value += getChangeFromUTXO(transaction, wallet)!.value;
+  });
+  return value;
+};
+
 const estimateFeeFromUTXO = (
   from: Transaction[],
   to: Transaction[]
@@ -132,12 +143,13 @@ const estimateFeeFromUTXO = (
 
 export const prepareTransaction = (
   wallet: BitcoinWallet,
-  mpcWallet: ShareWallet,
   user: User,
   toAddress: string,
   value: number
 ): bitcoin.Psbt => {
-  const from = getUTXOByValue(wallet, value);
+  console.log("prepare Transaction for value: ", value);
+  const fee = 500; //satoshis fee, should be loaded from api
+  const from = getUTXOByValue(wallet, value); //working
 
   const psbt = new bitcoin.Psbt({ network: config.BCNetwork });
 
@@ -150,43 +162,53 @@ export const prepareTransaction = (
     });
   });
 
-  // const psbt = new bitcoin.Psbt({ network: config.BCNetwork })
-  //   .addInput({
-  //     hash: transactions[0].hash,
-  //     index: 1, //transactions[0].index,
-  //     nonWitnessUtxo: Buffer.from(transactions[0].hex, "hex"),
-  //   })
-  //   .addOutput({
-  //     address: "mxuQMQAsnbYTRqWhenF1Hj4qf5CvcE8L8c",
-  //     value: 0.0001 * 100000000,
-  //   })
-  //   .addOutput({
-  //     address: address,
-  //     value:
-  //       transactions[0].outputs[1].value -
-  //       0.0001 * 100000000 -
-  //       0.00005 * 100000000,
-  //   });
+  //output reciever address
+  psbt.addOutput({
+    address: toAddress,
+    value: value,
+  });
+
+  //change
+  //TODO derive change address
+  psbt.addOutput({
+    address: wallet.config.address,
+    value: getChangeValueFromUTXOs(from, wallet) - value - fee,
+  });
+
+  return psbt;
 };
 
-const prepareSigner = (
+export const signTransaction = async (
+  transaction: bitcoin.Psbt,
+  signer: bitcoin.SignerAsync
+): Promise<bitcoin.Psbt> => {
+  await transaction.signAllInputsAsync(signer);
+  transaction.validateSignaturesOfAllInputs();
+  transaction.finalizeAllInputs();
+
+  return transaction;
+};
+
+export const prepareSigner = (
   wallet: BitcoinWallet,
-  mpcWallet: ShareWallet,
   user: User
 ): bitcoin.SignerAsync => {
   const ec: bitcoin.SignerAsync = {
     publicKey: wallet.config.publicKey as Buffer,
     sign: async (hash) => {
-      const sig = Buffer.from(
-        await signEcdsa(
-          user.devicePublicKey,
-          user.id,
-          mpcWallet.id,
-          mpcWallet.mainShare,
-          hash.toString()
+      const sig = Buffer.from([
+        ...Buffer.from(
+          await signEcdsa(
+            user.devicePublicKey,
+            user.id,
+            wallet.mpcWallet.id,
+            wallet.mpcWallet.keyShare,
+            hash.toString("base64")
+          ),
+          "base64"
         ),
-        "base64"
-      );
+        0x01,
+      ]);
       return sig;
     },
   };
@@ -195,15 +217,18 @@ const prepareSigner = (
 
 const getUTXOByValue = (
   wallet: BitcoinWallet,
-  value: number
+  value: number //in satoshis
 ): Transaction[] => {
   const allUTXOs = getUnspentTransactionsSync(wallet);
   var acc = 0;
-  const utxos = allUTXOs.filter((transaction) => {
-    //TODO calc fees into minimal value of utxos, so used utxos together have enough value for transaction and fees
+  var utxos = [] as Transaction[];
+
+  allUTXOs.map((transaction) => {
     const utxoValue = getChangeFromUTXO(transaction, wallet)!.value;
-    if (utxoValue + acc > value) return true;
-    acc += utxoValue;
+    if (acc <= value) {
+      utxos.push(transaction);
+      acc += utxoValue;
+    }
   });
   return utxos;
 };

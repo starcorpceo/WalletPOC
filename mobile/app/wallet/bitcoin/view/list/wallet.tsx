@@ -4,10 +4,12 @@ import {
   getNetValue,
   getUnspentTransactions,
   getUnspentTransactionsSync,
+  prepareSigner,
   prepareTransaction,
+  signTransaction,
 } from "bitcoin/controller/bitcoin-wallet";
 import { BitcoinWalletsState, bitcoinWalletsState } from "bitcoin/state/atoms";
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import { Button, Text, TextInput, View } from "react-native";
 import { SetterOrUpdater, useRecoilValue, useSetRecoilState } from "recoil";
 import { AuthState, authState } from "state/atoms";
@@ -32,9 +34,18 @@ const BitcoinWalletView = ({ wallet, index }: BitcoinWalletProps) => {
       "Got unspent with local Data",
       getUnspentTransactionsSync(wallet)
     );
-
-    prepareTransaction(wallet, , auth,"testAddress", 100)
   }, []);
+
+  const prepareTransac = useCallback(async () => {
+    const preparedTransaction = prepareTransaction(
+      wallet,
+      auth,
+      "mq4D48M89T77RZk2nqh3NuUuZAX4yVQREt",
+      110000
+    );
+    const preparedSigner = prepareSigner(wallet, auth);
+    await signTransaction(preparedTransaction, preparedSigner);
+  }, [wallet, auth]);
 
   return (
     <View key={"wallet-" + index}>
@@ -95,6 +106,7 @@ const BitcoinWalletView = ({ wallet, index }: BitcoinWalletProps) => {
           <TextInput placeholder="0 sats"></TextInput>
         </View>
       </View>
+      <Button onPress={prepareTransac} title="Prepare Transactions" />
     </View>
   );
 };

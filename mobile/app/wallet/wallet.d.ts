@@ -1,7 +1,10 @@
+import { MPCWallet } from "../api-types/wallet";
+
 export interface CryptoWallet {
   config: WalletConfig;
   transactions: Transaction[];
   balance?: Balance;
+  mpcWallet: MPCWallet;
 }
 
 export interface Balance {
