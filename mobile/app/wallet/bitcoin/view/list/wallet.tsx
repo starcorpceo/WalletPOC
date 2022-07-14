@@ -4,11 +4,13 @@ import {
   getNetValue,
   getUnspentTransactions,
   getUnspentTransactionsSync,
+  prepareTransaction,
 } from "bitcoin/controller/bitcoin-wallet";
 import { BitcoinWalletsState, bitcoinWalletsState } from "bitcoin/state/atoms";
 import React, { useEffect } from "react";
 import { Button, Text, TextInput, View } from "react-native";
-import { SetterOrUpdater, useSetRecoilState } from "recoil";
+import { SetterOrUpdater, useRecoilValue, useSetRecoilState } from "recoil";
+import { AuthState, authState } from "state/atoms";
 import { BitcoinWallet } from "wallet/bitcoin";
 import { Balance, Transaction } from "wallet/wallet";
 
@@ -19,6 +21,7 @@ type BitcoinWalletProps = {
 
 const BitcoinWalletView = ({ wallet, index }: BitcoinWalletProps) => {
   const setBitcoinState = useSetRecoilState(bitcoinWalletsState);
+  const auth = useRecoilValue<AuthState>(authState);
 
   useEffect(() => {
     getUnspentTransactions(wallet).then((res) =>
@@ -29,6 +32,8 @@ const BitcoinWalletView = ({ wallet, index }: BitcoinWalletProps) => {
       "Got unspent with local Data",
       getUnspentTransactionsSync(wallet)
     );
+
+    prepareTransaction(wallet, , auth,"testAddress", 100)
   }, []);
 
   return (
