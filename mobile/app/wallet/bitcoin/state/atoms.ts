@@ -2,15 +2,22 @@ import { atom } from "recoil";
 import { recoilPersist } from "recoil-persist";
 import { CustomStorage } from "state/storage";
 import { BitcoinWallet } from "..";
+import { Wallet } from "../../../api-types/wallet";
 
 const { persistAtom } = recoilPersist({
   storage: CustomStorage,
   key: "BitcoinWalletsStatePersist",
 });
 
-export type BitcoinWalletsState = BitcoinWallet[];
+export type BitcoinWalletsState = {
+  coinTypeWallet: Wallet | undefined;
+  accounts: BitcoinWallet[];
+};
 
-export const initialBitcoinState: BitcoinWalletsState = [];
+export const initialBitcoinState: BitcoinWalletsState = {
+  accounts: [],
+  coinTypeWallet: undefined,
+};
 
 export const bitcoinWalletsState = atom({
   key: "bitcoinWallets",

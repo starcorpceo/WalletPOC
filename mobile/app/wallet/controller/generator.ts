@@ -10,21 +10,20 @@ import { User } from "../../api-types/user";
 import { Wallet } from "../../api-types/wallet";
 import { CryptoWallet } from "../wallet";
 
-export const generateCryptoWalletFromSeed = async <T extends CryptoWallet>(
-  seed: string,
-  user: User,
-  pubKeyTransformer: PubKeyToWalletConfig<T>
-): Promise<T> => {
-  const share = await importSecret(user.devicePublicKey, user.id, seed);
-  return await deriveToCryptoWallet(share, user, pubKeyTransformer);
-};
-
 export const generateCryptoWallet = async <T extends CryptoWallet>(
+  parent: Wallet,
   user: User,
+  index: string,
+  hardened: boolean,
   pubKeyTransformer: PubKeyToWalletConfig<T>
 ): Promise<T> => {
-  const share = await createGenericSecret(user.devicePublicKey, user.id);
-  return await deriveToCryptoWallet<T>(share, user, pubKeyTransformer);
+  return await deriveToCryptoWallet<T>(
+    parent,
+    user,
+    index,
+    hardened,
+    pubKeyTransformer
+  );
 };
 
 export type PubKeyToWalletConfig<T extends CryptoWallet> = (
@@ -57,17 +56,20 @@ export const generateMpcWallet = async (user: User): Promise<Wallet> => {
 };
 
 const deriveToCryptoWallet = async <T extends CryptoWallet>(
-  share: Share,
+  parent: Wallet,
   user: User,
+  index: string,
+  hardened: boolean,
   pubKeyToWalletConfig: PubKeyToWalletConfig<T>
 ): Promise<T> => {
   const context = await deriveBIP32NoLocalAuth(
     user.devicePublicKey,
     user.id,
-    share.serverShareId,
-    share.clientShare,
-    "0",
-    "0"
+    parent.id,
+    parent.keyShare,
+    index,
+    hardened ? "1" : "0",
+    parent.path
   );
 
   const derivedShare = await getResultDeriveBIP32(context.clientContext);
@@ -78,7 +80,7 @@ export const deriveToMpcWallet = async (
   parent: Wallet,
   user: User,
   index: string,
-  hardend: boolean
+  hardened: boolean
 ): Promise<Wallet> => {
   const context = await deriveBIP32NoLocalAuth(
     user.devicePublicKey,
@@ -86,7 +88,7 @@ export const deriveToMpcWallet = async (
     parent.id,
     parent.keyShare,
     index,
-    hardend ? "1" : "0",
+    hardened ? "1" : "0",
     parent.path
   );
 

@@ -21,16 +21,30 @@ const Header = () => {
 
   const onStart = useCallback(async () => {
     getKey(constants.deviceKeyName)
-      .then((_) => {
+      .then((devicePublicKey) => {
         console.log(
           "Key already exists it is assumed this phone already has a user in store"
         );
+
+        if (auth.id === "") createProfile(devicePublicKey);
       })
       .catch(async () => {
-        const user = await createProfile();
-        setAuth((_) => user);
+        const newDevicePublicKey = await generateKeyPair(
+          constants.deviceKeyName
+        );
+
+        createProfile(newDevicePublicKey);
       });
   }, [setAuth]);
+
+  const createProfile = useCallback(
+    async (devicePublicKey: string) => {
+      const user = await createNewProfile(devicePublicKey);
+
+      setAuth((_) => user);
+    },
+    [setAuth]
+  );
 
   useEffect(() => {
     onStart();
@@ -57,14 +71,12 @@ const Header = () => {
   );
 };
 
-const createProfile = async (): Promise<User> => {
-  const newDevicePublicKey = await generateKeyPair(constants.deviceKeyName);
-
+const createNewProfile = async (devicePublicKey: string): Promise<User> => {
   const { nonce, userId } = await fetchFromApi<CreateUserResponse>(
     "/user/create",
     {
       body: {
-        devicePublicKey: newDevicePublicKey,
+        devicePublicKey,
       },
     }
   );
@@ -75,7 +87,7 @@ const createProfile = async (): Promise<User> => {
     body: {
       signature,
       userId,
-      devicePublicKey: newDevicePublicKey,
+      devicePublicKey,
     },
     method: HttpMethod.POST,
     args: { credentials: "include" },
@@ -83,7 +95,7 @@ const createProfile = async (): Promise<User> => {
 
   return {
     id: userId,
-    devicePublicKey: newDevicePublicKey,
+    devicePublicKey,
     wallets: [],
     bip44MasterWallet: undefined,
     bip44PurposeWallet: undefined,

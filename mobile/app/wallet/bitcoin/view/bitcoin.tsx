@@ -7,23 +7,27 @@ import CreateBitcoinWallet from "./create/create";
 import BitcoinWalletListView from "./list/wallet-list";
 
 const Bitcoin = () => {
-  const bitcoinState = useRecoilValue(bitcoinWalletsState);
+  const bitcoinState = useRecoilValue<BitcoinWalletsState>(bitcoinWalletsState);
+
+  console.log("Bitcoin State updated", bitcoinState);
 
   return (
     <Wallets name="Bitcoin">
-      <BitcoinWalletListView wallets={bitcoinState} />
-
-      {!walletExists(bitcoinState) && (
+      {walletExists(bitcoinState) ? (
         <>
-          <Text>Looks like you dont have any Bitcoin Wallets yet</Text>
-          <CreateBitcoinWallet />
+          <BitcoinWalletListView wallets={bitcoinState.accounts} />
         </>
+      ) : (
+        <Text>Looks like you dont have any Bitcoin Wallets yet</Text>
       )}
+      <CreateBitcoinWallet state={bitcoinState} />
     </Wallets>
   );
 };
 
 const walletExists = (bitcoinState: BitcoinWalletsState): boolean =>
-  bitcoinState && bitcoinState.length > 0;
+  bitcoinState &&
+  !!bitcoinState?.coinTypeWallet &&
+  bitcoinState.accounts.length > 0;
 
 export default Bitcoin;

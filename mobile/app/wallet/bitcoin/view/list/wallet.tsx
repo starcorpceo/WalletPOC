@@ -99,11 +99,14 @@ const updateBalance = (
   index: number,
   setState: SetterOrUpdater<BitcoinWalletsState>
 ): void => {
-  setState((currentState: BitcoinWalletsState) => [
-    ...currentState.slice(0, index),
-    { ...currentState[index], balance },
-    ...currentState.slice(index + 1),
-  ]);
+  setState((currentState: BitcoinWalletsState) => ({
+    ...currentState,
+    accounts: [
+      ...currentState.accounts.slice(0, index),
+      { ...currentState.accounts[index], balance },
+      ...currentState.accounts.slice(index + 1),
+    ],
+  }));
 };
 
 const updateTransactions = (
@@ -111,11 +114,14 @@ const updateTransactions = (
   index: number,
   setState: SetterOrUpdater<BitcoinWalletsState>
 ): void => {
-  setState((currentState: BitcoinWalletsState) => [
-    ...currentState.slice(0, index),
-    { ...currentState[index], transactions },
-    ...currentState.slice(index + 1),
-  ]);
+  setState((currentState: BitcoinWalletsState) => ({
+    ...currentState,
+    accounts: [
+      ...currentState.accounts.slice(0, index),
+      { ...currentState.accounts[index], transactions },
+      ...currentState.accounts.slice(index + 1),
+    ],
+  }));
 };
 
 export default BitcoinWalletView;
