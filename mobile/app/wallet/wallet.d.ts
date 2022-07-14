@@ -76,3 +76,9 @@ export interface UTXO {
   hash: string;
   index: number;
 }
+
+export interface Fees {
+  fast: number;
+  medium: number;
+  slow: number;
+}
