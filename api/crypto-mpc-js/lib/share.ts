@@ -47,7 +47,7 @@ class Share {
     return buffer;
   }
 
-  toBuffer() {
+  toBuffer(): Buffer {
     const sizePtr = ref.alloc(native.IntPtr);
     native.checkAndThrowError(
       native.MPCCrypto_shareToBuf(this.sharePtr, null, sizePtr)

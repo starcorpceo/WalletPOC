@@ -3,6 +3,7 @@ import { SocketStream } from "@fastify/websocket";
 import logger from "@lib/logger";
 import { RawData } from "ws";
 import { User } from "../../user/user";
+import { Wallet } from "../../user/wallet";
 import { getWallet } from "../../user/wallet.repository";
 import { ActionStatus } from "../mpc-routes";
 import { processDerivedShare } from "../step/share";
@@ -10,18 +11,18 @@ import { step } from "../step/step";
 
 export const deriveBIP32 = async (connection: SocketStream, user: User) => {
   let status: ActionStatus = "Init";
+  let deriveContext: DeriveContext;
 
   connection.socket.on("message", async (message: RawData) => {
-    let deriveContext;
     switch (status) {
       case "Init":
         deriveContext = await initDerive(message, connection);
         status = "Stepping";
-
-        break;
+        return;
       case "Stepping":
         deriveStep(message, deriveContext, user, connection);
-        break;
+
+        return;
     }
   });
 
@@ -30,7 +31,10 @@ export const deriveBIP32 = async (connection: SocketStream, user: User) => {
   });
 };
 
-const initDerive = async (message: RawData, connection: SocketStream) => {
+const initDerive = async (
+  message: RawData,
+  connection: SocketStream
+): Promise<DeriveContext> => {
   try {
     const deriveConfig = JSON.parse(message.toString()) as DeriveConfig;
 
@@ -49,13 +53,13 @@ const initDerive = async (message: RawData, connection: SocketStream) => {
   } catch (err) {
     logger.error({ err }, "Error while initiating Derive Bip32");
     connection.socket.close();
-    return;
+    throw err;
   }
 };
 
 const deriveStep = async (
   message: RawData,
-  deriveContext,
+  deriveContext: DeriveContext,
   user: User,
   connection: SocketStream
 ) => {
@@ -65,9 +69,11 @@ const deriveStep = async (
     const stepOutput = step(message.toString(), context);
 
     if (stepOutput === true) {
+      const share = context.getNewShare().toString("base64");
+
       processDerivedShare(
         user,
-        context.getNewShare().toString("base64"),
+        share,
         parent,
         connection,
         buildPath(deriveConfig)
@@ -90,10 +96,16 @@ type DeriveConfig = {
   parentPath: string;
 };
 
+type DeriveContext = {
+  deriveConfig: DeriveConfig;
+  parent: Wallet;
+  context: Context;
+};
+
 const buildPath = (deriveConfig: DeriveConfig) => {
   const { parentPath, index, hardened } = deriveConfig;
 
   if (!parentPath && index === "m") return "m";
 
-  return `${parentPath}/${index}${hardened && "'"}`;
+  return `${parentPath}/${index}${hardened === "1" && "'"}`;
 };

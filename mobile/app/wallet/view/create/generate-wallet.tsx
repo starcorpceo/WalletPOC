@@ -1,9 +1,12 @@
 import constants from "config/constants";
-import React from "react";
+import React, { useCallback } from "react";
 import { Button } from "react-native";
 import { useSetRecoilState } from "recoil";
 import { AuthState, authState } from "state/atoms";
-import { generateMpcWallet } from "wallet/controller/generator";
+import {
+  deriveToMpcWallet,
+  generateMpcWallet,
+} from "wallet/controller/generator";
 import { User } from "../../../api-types/user";
 
 type GenerateWalletProps = {
@@ -13,21 +16,20 @@ type GenerateWalletProps = {
 const GenerateWallet = ({ user }: GenerateWalletProps) => {
   const setAuth = useSetRecoilState(authState);
 
-  const startGenerate = async () => {
-    const bip44MasterWallet = await generateMpcWallet(
-      user,
-      constants.bip44MasterIndex
-    );
+  const startGenerate = useCallback(async () => {
+    const bip44MasterWallet = await generateMpcWallet(user);
 
-    const bip44PurposeWallet = await generateMpcWallet(
+    const bip44PurposeWallet = await deriveToMpcWallet(
+      bip44MasterWallet,
       user,
-      constants.bip44PurposeIndex
+      constants.bip44PurposeIndex,
+      true
     );
 
     setAuth((auth: AuthState) => {
       return { ...auth, bip44MasterWallet, bip44PurposeWallet };
     });
-  };
+  }, [setAuth, user]);
 
   return <Button onPress={startGenerate} title="Generate Wallet" />;
 };

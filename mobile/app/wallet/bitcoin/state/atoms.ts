@@ -3,7 +3,10 @@ import { recoilPersist } from "recoil-persist";
 import { CustomStorage } from "state/storage";
 import { BitcoinWallet } from "..";
 
-const { persistAtom } = recoilPersist({ storage: CustomStorage });
+const { persistAtom } = recoilPersist({
+  storage: CustomStorage,
+  key: "BitcoinWalletsStatePersist",
+});
 
 export type BitcoinWalletsState = BitcoinWallet[];
 

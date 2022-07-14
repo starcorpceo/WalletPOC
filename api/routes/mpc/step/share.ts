@@ -19,8 +19,9 @@ export const processDerivedShare = async (
   path: string
 ) => {
   try {
-    const serverShareId = saveDerivedShare(user, share, parent, path);
-    connection.socket.send(JSON.stringify({ done: true, serverShareId }));
+    const serverShareId = await saveDerivedShare(user, share, parent, path);
+
+    connection.socket.send(JSON.stringify({ done: true, serverShareId, path }));
     connection.socket.close();
   } catch (err) {
     logger.error({ err }, "Error while saving Derived Share");
@@ -56,8 +57,8 @@ const saveShareBasedOnPath = (
   switch (path) {
     case constants.bip44MasterIndex:
       return createBip44MasterWallet(user, parent, share);
-    case constants.bip44PurposeIndex:
-      return createBip44PurposeWallet(user, parent, share);
+    case "m/1'":
+      return createBip44PurposeWallet(user, parent, share, path);
     default:
       return createDerivedWallet(user, share, parent, path);
   }

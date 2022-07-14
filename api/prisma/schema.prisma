@@ -32,8 +32,8 @@ model Wallet {
     parentWalletId String?
 
 
-    bip44PurposeWallet Bip44MasterWallet?
-    bip44MasterWallet  Bip44PurposeWallet?
+    bip44PurposeWallet Bip44PurposeWallet?
+    bip44MasterWallet  Bip44MasterWallet?
 }
 
 model Bip44MasterWallet {

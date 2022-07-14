@@ -75,12 +75,13 @@ export const getWallet = async (id: string): Promise<Wallet> => {
 export const createBip44PurposeWallet = async (
   user: User,
   parent: Wallet,
-  share: string
-) => {
+  share: string,
+  path: string
+): Promise<Wallet> => {
   const wallet = await client.wallet.create({
     data: {
       keyShare: share,
-      path: constants.bip44MasterIndex,
+      path,
       user: {
         connect: {
           id_devicePublicKey: {
@@ -100,7 +101,7 @@ export const createBip44PurposeWallet = async (
             connect: {
               id_devicePublicKey: {
                 id: user.id,
-                devicePublicKey: user.id,
+                devicePublicKey: user.devicePublicKey,
               },
             },
           },
@@ -114,44 +115,57 @@ export const createBip44PurposeWallet = async (
   return wallet;
 };
 
-export const createBip44MasterWallet = (
+export const createBip44MasterWallet = async (
   user: User,
   parent: Wallet,
   share: string
-) => {
-  const result = client.$transaction([
-    client.wallet.delete({
-      where: {
-        id: parent.id,
-      },
-    }),
-    client.wallet.create({
-      data: {
-        keyShare: share,
-        path: constants.bip44MasterIndex,
-        user: {
-          connect: {
-            id_devicePublicKey: {
-              id: user.id,
-              devicePublicKey: user.devicePublicKey,
+): Promise<Wallet> => {
+  try {
+    const result = await client.$transaction([
+      client.wallet.delete({
+        where: {
+          id: parent.id,
+        },
+      }),
+      client.wallet.create({
+        data: {
+          keyShare: share,
+          path: constants.bip44MasterIndex,
+          user: {
+            connect: {
+              id_devicePublicKey: {
+                id: user.id,
+                devicePublicKey: user.devicePublicKey,
+              },
             },
           },
-        },
-        bip44MasterWallet: {
-          create: {
-            user: {
-              connect: {
-                id_devicePublicKey: {
-                  id: user.id,
-                  devicePublicKey: user.id,
+          bip44MasterWallet: {
+            create: {
+              user: {
+                connect: {
+                  id_devicePublicKey: {
+                    id: user.id,
+                    devicePublicKey: user.devicePublicKey,
+                  },
                 },
               },
             },
           },
         },
-      },
-    }),
-  ]);
+      }),
+    ]);
 
-  return result[1];
+    const master = result[1];
+
+    if (!master) throw other("Error while creating BIP44 Master Wallet");
+
+    return master;
+  } catch (err) {
+    await client.wallet.delete({
+      where: {
+        id: parent.id,
+      },
+    });
+    throw err;
+  }
 };

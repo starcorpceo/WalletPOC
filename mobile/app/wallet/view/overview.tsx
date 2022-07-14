@@ -11,10 +11,10 @@ const WalletOverview = () => {
 
   return (
     <View>
-      {!user.masterWallet ? (
+      {!user.bip44MasterWallet ? (
         <>
           <Text>
-            You dont have an Account with Coresponding Wallets yet. Import or
+            You dont have an Account with Corresponding Wallets yet. Import or
             derive a Master Key (BIP44 root)
           </Text>
           <GenerateWallet user={user} />

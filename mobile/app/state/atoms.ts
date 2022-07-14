@@ -3,7 +3,10 @@ import { recoilPersist } from "recoil-persist";
 import { User } from "../api-types/user";
 import { CustomStorage } from "./storage";
 
-const { persistAtom } = recoilPersist({ storage: CustomStorage });
+const { persistAtom } = recoilPersist({
+  storage: CustomStorage,
+  key: "AuthStatePersist",
+});
 
 export type AuthState = User;
 
