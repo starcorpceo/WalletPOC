@@ -27,6 +27,8 @@ export default function App() {
   const [verifyServer, setVerifyServer] = useState<any>();
   const [importedShare, setImportedShare] = useState('');
   const [derivedShare, setDerivedShare] = useState('');
+  const [derivedFromShare, setDerivedFromShare] = useState('');
+
   // const [generatedSecretShare, setGeneratedSecretShare] = useState('');
 
   useEffect(() => {
@@ -73,7 +75,13 @@ export default function App() {
       // --- Start deriving a keypair from the imported wallet
       const deriveContext = await deriveBIP32(shareFromSecret, 0, false);
 
-      setDerivedShare(await getResultDeriveBIP32(deriveContext));
+      const derived = await getResultDeriveBIP32(deriveContext);
+
+      setDerivedShare(derived);
+
+      const deriveContext2 = await deriveBIP32(derived, 44, true);
+
+      setDerivedFromShare(await getResultDeriveBIP32(deriveContext2));
     };
 
     onStartUp();
@@ -110,6 +118,7 @@ export default function App() {
 
         <View style={groupStyle}>
           <Text>Derived Share: {derivedShare.slice(0, 23)}</Text>
+          <Text>Derived From Share: {derivedFromShare.slice(0, 23)}</Text>
         </View>
       </View>
     </ScrollView>

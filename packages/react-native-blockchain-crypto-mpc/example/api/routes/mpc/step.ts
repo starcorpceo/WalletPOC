@@ -1,24 +1,26 @@
-import { Context } from "@crypto-mpc";
+import { Context } from '@crypto-mpc';
+import logger from '@lib/logger';
+import { Buffer } from 'buffer';
 
 export const step = (message: string, context: Context): string | boolean => {
-  const inBuff = Buffer.from(message, "base64");
+  const inBuff = Buffer.from(message, 'base64');
 
   try {
     const outBuff = context.step(inBuff);
 
     if (context.isFinished()) {
-      console.log("Steps for current actions are completed");
+      logger.info('Steps for current actions are completed');
       return true;
     }
 
     if (!outBuff) {
-      console.log("out buff is not there, error must have occured");
+      logger.info('out buff is not there, error must have occured');
       return false;
     }
 
-    return outBuff.toString("base64");
+    return outBuff.toString('base64');
   } catch (err) {
-    console.log("Error while performing step", err);
+    logger.error({ err }, 'Error while performing step');
   }
 
   return false;

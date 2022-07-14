@@ -1,3 +1,4 @@
+import logger from '@lib/logger';
 import { Buffer } from 'buffer';
 import ref from 'ref-napi';
 import native from './native';
@@ -78,10 +79,10 @@ function run(c1, c2) {
   while (!c1.isFinished() || !c2.isFinished()) {
     count++;
     if (!c1.isFinished()) {
-      console.log('Step ' + count + ' client input', m?.length);
+      logger.info('Step ' + count + ' client input ' + m?.length);
 
       m = c1.step(m);
-      console.log('Step ' + count + ' Client output', m?.length);
+      logger.info('Step ' + count + ' Client output ' + m?.length);
     }
     if (!m) {
       break;

@@ -1,6 +1,7 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { ResultAsync } from 'neverthrow';
 import { mapRouteError, RouteError } from './error';
+import logger from './logger';
 
 /**
  * Custom subset of the JSON spec that omits the 'password' field from JSON objects.
@@ -36,7 +37,7 @@ const wrapHandler = <T>(
 ): void => {
   handlerResult
     .map((data) => {
-      console.log('Successfully sending data', data);
+      logger.info({ data }, 'Successfully sending data');
       res.status(200).send(data);
     })
     .mapErr((error) => {

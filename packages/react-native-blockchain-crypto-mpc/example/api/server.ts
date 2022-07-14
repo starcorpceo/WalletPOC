@@ -22,7 +22,7 @@ server.listen({ port: 8080 }, (err, address) => {
     console.error(err);
     process.exit(1);
   }
-  console.log(`Server listening at ${address}`);
+  logger.info(`Server listening at ${address}`);
 });
 
 process.on('uncaughtException', (err) => {
@@ -33,19 +33,6 @@ process.on('uncaughtException', (err) => {
 });
 
 process.on('unhandledRejection', (reason, promise) => {
-  const errorMsg = [`Unhandled Promise Rejection`, `Reason: ${reason}`].join(
-    ',\n'
-  );
-
-  console.log({
-    error: errorMsg,
-  });
-
-  // need to log the promise without stringifying it to properly
-  // display all rejection info
-  console.log(promise);
-
-  // TODO: stream errors to sentry
-
+  logger.error({ err: reason, promise }, 'Unhandled Promise Rejection');
   process.exit(1);
 });

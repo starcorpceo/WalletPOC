@@ -1,6 +1,7 @@
 import { Context } from '@crypto-mpc';
 import { SocketStream } from '@fastify/websocket';
 import { db } from '@lib/dev-db';
+import logger from '@lib/logger';
 import { ActionStatus } from '../mpc-routes';
 import { step } from '../step';
 
@@ -24,15 +25,13 @@ export const initGenerateGenericSecret = (connection: SocketStream) => {
   });
 
   connection.socket.on('error', (err) => {
-    console.log('error', err);
+    logger.error({ err }, 'error on init secret socket');
   });
 };
 
 export const importGenericSecret = (connection: SocketStream) => {
   let context: Context;
   let status: ActionStatus = 'Init';
-
-  console.log('open import');
 
   connection.socket.on('message', (message) => {
     switch (status) {
@@ -49,7 +48,7 @@ export const importGenericSecret = (connection: SocketStream) => {
   });
 
   connection.socket.on('error', (err) => {
-    console.log('error', err);
+    logger.error({ err }, 'error on import secret socket');
   });
 };
 
@@ -57,10 +56,9 @@ const stepWithMessage = (connection, message, context): void => {
   const stepOutput = step(message.toString(), context);
 
   if (stepOutput === true) {
-    console.log('importt done');
     // TODO: Remove this in favor of real database
-    db.shareBuf = context.getNewShare();
-
+    db.secretBuf = context.getNewShare();
+    logger.info('Derive done');
     connection.socket.close();
     return;
   }
