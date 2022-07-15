@@ -10,16 +10,22 @@ import {
   createDerivedWallet,
   createWallet,
 } from "../../user/wallet.repository";
+import { DeriveConfig } from "../ecdsa/deriveBIP32";
 
 export const processDerivedShare = async (
   user: User,
   share: string,
   parent: Wallet,
   connection: SocketStream,
-  path: string
+  deriveConfig: DeriveConfig
 ) => {
   try {
-    const serverShareId = await saveDerivedShare(user, share, parent, path);
+    const { path, id: serverShareId } = await saveDerivedShare(
+      user,
+      share,
+      parent,
+      deriveConfig
+    );
 
     connection.socket.send(JSON.stringify({ done: true, serverShareId, path }));
     connection.socket.close();
@@ -33,9 +39,9 @@ const saveDerivedShare = async (
   user: User,
   share: string,
   parent: Wallet,
-  path: string
-): Promise<string> => {
-  const wallet = await saveShareBasedOnPath(user, share, parent, path);
+  deriveConfig: DeriveConfig
+): Promise<Wallet> => {
+  const wallet = await saveShareBasedOnPath(user, share, parent, deriveConfig);
 
   logger.info(
     {
@@ -45,23 +51,33 @@ const saveDerivedShare = async (
     "Wallet main key derived"
   );
 
-  return wallet.id;
+  return wallet;
 };
 
 const saveShareBasedOnPath = (
   user: User,
   share: string,
   parent: Wallet,
-  path: string
+  deriveConfig: DeriveConfig
 ): Promise<Wallet> => {
-  switch (path) {
+  const path = buildPath(deriveConfig);
+
+  switch (deriveConfig.index) {
     case constants.bip44MasterIndex:
-      return createBip44MasterWallet(user, parent, share);
-    case "m/1'":
+      return createBip44MasterWallet(user, parent, share, path);
+    case constants.bip44PurposeIndex:
       return createBip44PurposeWallet(user, parent, share, path);
     default:
       return createDerivedWallet(user, share, parent, path);
   }
+};
+
+const buildPath = (deriveConfig: DeriveConfig) => {
+  const { parentPath, index, hardened } = deriveConfig;
+
+  if (!parentPath && index === "m") return "m";
+
+  return `${parentPath}/${index}${hardened === "1" && "'"}`;
 };
 
 export const saveShare = async (

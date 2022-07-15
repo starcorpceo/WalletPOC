@@ -4,7 +4,7 @@ import constants from "config/constants";
 import React, { useCallback } from "react";
 import { Button, StyleSheet, Text, View } from "react-native";
 import { useRecoilValue, useSetRecoilState } from "recoil";
-import { authState } from "state/atoms";
+import { AuthState, authState } from "state/atoms";
 import {
   deriveToMpcWallet,
   generateCryptoWallet,
@@ -16,7 +16,7 @@ type CreateBitcoinWalletProps = {
 };
 
 const CreateBitcoinWallet = ({ state }: CreateBitcoinWalletProps) => {
-  const user = useRecoilValue(authState);
+  const user = useRecoilValue<AuthState>(authState);
   const setBitcoin =
     useSetRecoilState<BitcoinWalletsState>(bitcoinWalletsState);
 
@@ -30,14 +30,12 @@ const CreateBitcoinWallet = ({ state }: CreateBitcoinWalletProps) => {
         true
       ));
 
-    const existingBitcoinAccounts = state.accounts.length + 1;
-
-    console.log(state, existingBitcoinAccounts);
+    const newIndex = state.accounts.length;
 
     const accountWallet = await generateCryptoWallet(
       bitcoinAccountWallet,
       user,
-      existingBitcoinAccounts.toString(),
+      newIndex.toString(),
       true,
       pubKeyTransformer
     );

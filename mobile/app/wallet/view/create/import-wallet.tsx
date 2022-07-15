@@ -12,12 +12,14 @@ import { User } from "../../../api-types/user";
 type ImportWalletProps = {
   user: User;
 };
-
-const importSeed: string =
+// Two import Seeds for testing purposes
+const importSeed1: string =
   "982a490f7e3fe73233a54d4f2cd9030457bdf735c68d453a0d14d6679e5b33f4";
+const importSeed2: string =
+  "102a490f7e3fe73233a54d4f2cd9030457bdf735c68d453a0d14d6679e5b33f4";
 
 const ImportWallet = ({ user }: ImportWalletProps) => {
-  const [seed, setSeed] = useState<string>(importSeed);
+  const [seed, setSeed] = useState<string>(importSeed1);
 
   const setAuth = useSetRecoilState(authState);
 

@@ -246,7 +246,12 @@ class Context {
     return new Context(contextPtrPtr.deref(), Types.GENERATE_GENERIC_SECRET);
   }
 
-  static createDeriveBIP32Context(peer, shareBuf, hardened, index) {
+  static createDeriveBIP32Context(
+    peer: number,
+    shareBuf: Buffer,
+    hardened: boolean,
+    index: number
+  ) {
     const share = Share.fromBuffer(shareBuf);
     const contextPtrPtr = ref.alloc(native.VoidPtrPtr);
     native.checkAndThrowError(
@@ -262,7 +267,7 @@ class Context {
     return new Context(contextPtrPtr.deref(), Types.DERIVE_BIP32);
   }
 
-  static createEcdsaSignContext(peer, shareBuf, data, refresh) {
+  static createEcdsaSignContext(peer, shareBuf: Buffer, data: Buffer, refresh) {
     const share = Share.fromBuffer(shareBuf);
     const contextPtrPtr = ref.alloc(native.VoidPtrPtr);
     native.checkAndThrowError(

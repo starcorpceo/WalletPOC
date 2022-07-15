@@ -43,8 +43,8 @@ const initDerive = async (
     const context = Context.createDeriveBIP32Context(
       2,
       Buffer.from(parent.keyShare as string, "base64"),
-      Number(deriveConfig.index),
-      Number(deriveConfig.hardened) === 1
+      Number(deriveConfig.hardened) === 1,
+      Number(deriveConfig.index)
     );
 
     connection.socket.send(JSON.stringify({ value: "Start" }));
@@ -71,13 +71,7 @@ const deriveStep = async (
     if (stepOutput === true) {
       const share = context.getNewShare().toString("base64");
 
-      processDerivedShare(
-        user,
-        share,
-        parent,
-        connection,
-        buildPath(deriveConfig)
-      );
+      processDerivedShare(user, share, parent, connection, deriveConfig);
       return;
     }
 
@@ -89,7 +83,7 @@ const deriveStep = async (
   }
 };
 
-type DeriveConfig = {
+export type DeriveConfig = {
   serverShareId: string;
   index: string;
   hardened: string;
@@ -100,12 +94,4 @@ type DeriveContext = {
   deriveConfig: DeriveConfig;
   parent: Wallet;
   context: Context;
-};
-
-const buildPath = (deriveConfig: DeriveConfig) => {
-  const { parentPath, index, hardened } = deriveConfig;
-
-  if (!parentPath && index === "m") return "m";
-
-  return `${parentPath}/${index}${hardened === "1" && "'"}`;
 };

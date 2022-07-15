@@ -1,4 +1,3 @@
-import constants from "@lib/constants";
 import { notFound, other } from "@lib/error";
 import { client } from "../../server";
 import { User } from "./user";
@@ -118,7 +117,8 @@ export const createBip44PurposeWallet = async (
 export const createBip44MasterWallet = async (
   user: User,
   parent: Wallet,
-  share: string
+  share: string,
+  path: string
 ): Promise<Wallet> => {
   try {
     const result = await client.$transaction([
@@ -130,7 +130,7 @@ export const createBip44MasterWallet = async (
       client.wallet.create({
         data: {
           keyShare: share,
-          path: constants.bip44MasterIndex,
+          path,
           user: {
             connect: {
               id_devicePublicKey: {
