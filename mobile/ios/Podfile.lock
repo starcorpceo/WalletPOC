@@ -301,7 +301,7 @@ PODS:
   - React-jsinspector (0.68.1)
   - React-logger (0.68.1):
     - glog
-  - react-native-blockchain-crypto-mpc (0.1.2):
+  - react-native-blockchain-crypto-mpc (0.1.3):
     - React-Core
   - react-native-randombytes (3.6.1):
     - React-Core
@@ -613,7 +613,7 @@ SPEC CHECKSUMS:
   React-jsiexecutor: 4a4bae5671b064a2248a690cf75957669489d08c
   React-jsinspector: 218a2503198ff28a085f8e16622a8d8f507c8019
   React-logger: f79dd3cc0f9b44f5611c6c7862badd891a862cf8
-  react-native-blockchain-crypto-mpc: 834f118726091693e8529bca490861c9b39df370
+  react-native-blockchain-crypto-mpc: af0c63d605d23b03cd92b4625329439e00f4edab
   react-native-randombytes: 421f1c7d48c0af8dbcd471b0324393ebf8fe7846
   react-native-safe-area-context: ebf8c413eb8b5f7c392a036a315eb7b46b96845f
   react-native-secure-encryption-module: c7955a8f48573982613b3617f1365e3e324f1131
