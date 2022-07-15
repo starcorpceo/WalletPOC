@@ -82,7 +82,7 @@ export const getUnspentTransactions = async (
 export const getUnspentTransactionsSync = (wallet: CryptoWallet) => {
   const unspent = wallet.transactions.flatMap((transaction: Transaction) =>
     transaction.outputs.map(
-      (output: Output, index) =>
+      (output: Output) =>
         !isTransactionSpent(transaction, wallet) &&
         output.address === wallet.config.address &&
         transaction
@@ -107,25 +107,21 @@ const isTransactionSpent = (
 const getChangeFromUTXO = (
   transaction: Transaction,
   wallet: CryptoWallet
-): Output | null => {
-  var change: Output | null = null;
-  transaction.outputs.map((output: Output, index) => {
-    if (output.address === wallet.config.address) {
-      change = output;
-    }
-  });
-  return change;
+): number => {
+  const change = transaction.outputs.find(
+    (output: Output) => output.address === wallet.config.address
+  );
+
+  return change?.value || 0;
 };
 
 const getChangeValueFromUTXOs = (
   transactions: Transaction[],
   wallet: CryptoWallet
 ): number => {
-  var value = 0;
-  transactions.map((transaction) => {
-    value += getChangeFromUTXO(transaction, wallet)!.value;
-  });
-  return value;
+  return transactions.reduce((prev, curr) => {
+    return prev + getChangeFromUTXO(curr, wallet);
+  }, 0);
 };
 
 const estimateFeeFromUTXO = (
@@ -219,26 +215,33 @@ const getUTXOByValue = (
   value: number //in satoshis
 ): Transaction[] => {
   const allUTXOs = getUnspentTransactionsSync(wallet);
-  var acc = 0;
-  var utxos = [] as Transaction[];
 
-  allUTXOs.map((transaction) => {
-    const utxoValue = getChangeFromUTXO(transaction, wallet)!.value;
-    if (acc <= value) {
-      utxos.push(transaction);
-      acc += utxoValue;
-    }
-  });
-  return utxos;
+  const { transactions } = allUTXOs.reduce(
+    (acc, curr, _index, all) => {
+      const { transactions, accumulatedValue } = acc;
+
+      const utxoValue = getChangeFromUTXO(curr, wallet);
+
+      if (accumulatedValue >= value) {
+        return acc;
+      }
+
+      return {
+        transactions: [...transactions, curr],
+        accumulatedValue: accumulatedValue + utxoValue,
+      };
+    },
+    { transactions: [] as Transaction[], accumulatedValue: 0 }
+  );
+
+  return transactions;
 };
 
 const getChangeIndexFromTransaction = (
   wallet: BitcoinWallet,
   transaction: Transaction
 ): number => {
-  var index = 0;
-  transaction.outputs.map((output, i) => {
-    if (output.address === wallet.config.address) index = i;
-  });
-  return index;
+  return transaction.outputs.findIndex(
+    (output) => output.address === wallet.config.address
+  );
 };
