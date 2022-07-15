@@ -10,6 +10,7 @@ const endpoints = {
       "/" +
       index,
     fees: () => "https://api-eu1.tatum.io/v3/blockchain/estimate",
+    broadcastTransaction: () => "https://api-eu1.tatum.io/v3/bitcoin/broadcast",
   },
 };
 

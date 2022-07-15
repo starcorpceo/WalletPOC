@@ -22,6 +22,14 @@ export const getBalance = (wallet: CryptoWallet): Promise<Balance> => {
   );
 };
 
+export const broadcastTransaction = (hex: string): Promise<any> => {
+  console.log("3: ", hex.length);
+  return fetchFromTatum<any>(endpoints.bitcoin.broadcastTransaction(), {
+    method: HttpMethod.POST,
+    body: { txData: hex },
+  });
+};
+
 export const getLatestTransactions = (
   wallet: CryptoWallet,
   pageSize: number = 10,
@@ -141,8 +149,7 @@ export const prepareTransaction = (
   toAddress: string,
   value: number
 ): bitcoin.Psbt => {
-  console.log("prepare Transaction for value: ", value);
-  const fee = 500; //satoshis fee, should be loaded from api
+  const fee = 500; //TODO satoshis fee, should be loaded from api
   const from = getUTXOByValue(wallet, value); //working
 
   const psbt = new bitcoin.Psbt({ network: config.BCNetwork });
@@ -178,7 +185,6 @@ export const signTransaction = async (
 ): Promise<bitcoin.Psbt> => {
   await transaction.signAllInputsAsync(signer);
   const validated = transaction.validateSignaturesOfAllInputs();
-
   console.log("Input signatures look ok: ", validated);
   transaction.finalizeAllInputs();
 
@@ -215,6 +221,8 @@ const getUTXOByValue = (
   value: number //in satoshis
 ): Transaction[] => {
   const allUTXOs = getUnspentTransactionsSync(wallet);
+
+  allUTXOs.sort((a, b) => a.time - b.time);
 
   const { transactions } = allUTXOs.reduce(
     (acc, curr, _index, all) => {
