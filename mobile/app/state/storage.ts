@@ -25,7 +25,6 @@ const mergeItem = AsyncStorage.mergeItem
   ? AsyncStorage.mergeItem
   : async (key: string, value: string): Promise<void> => {
       const oldValue = await AsyncStorage.getItem(key);
-      console.log("old value", oldValue, value);
       if (oldValue) {
         const oldObject = JSON.parse(oldValue);
         const newObject = JSON.parse(value);

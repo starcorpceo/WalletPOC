@@ -1,7 +1,10 @@
+import { MPCWallet } from "../api-types/wallet";
+
 export interface CryptoWallet {
   config: WalletConfig;
   transactions: Transaction[];
   balance?: Balance;
+  mpcWallet: MPCWallet;
 }
 
 export interface Balance {
@@ -75,4 +78,10 @@ export interface UTXO {
   coinbase: boolean;
   hash: string;
   index: number;
+}
+
+export interface Fees {
+  fast: number;
+  medium: number;
+  slow: number;
 }

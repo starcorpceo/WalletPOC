@@ -1,7 +1,7 @@
 import { Context } from "@crypto-mpc";
 import { SocketStream } from "@fastify/websocket";
 import logger from "@lib/logger";
-import { Wallet } from "../../user/wallet";
+import { MPCWallet } from "../../user/wallet";
 import { getWallet } from "../../user/wallet.repository";
 import { step } from "../step/step";
 
@@ -11,7 +11,7 @@ export const signWithEcdsaShare = (connection: SocketStream) => {
   let context: Context;
   let status: SignStatus = "InitShare";
 
-  let share: Wallet;
+  let share: MPCWallet;
 
   connection.socket.on("message", async (message) => {
     switch (status) {
@@ -29,12 +29,14 @@ export const signWithEcdsaShare = (connection: SocketStream) => {
 
       case "InitMessage":
         try {
+          const { messageToSign, encoding } = JSON.parse(message.toString());
+
           context =
             context ||
             Context.createEcdsaSignContext(
               2,
               Buffer.from(share.keyShare, "base64"),
-              message,
+              Buffer.from(messageToSign, encoding),
               true
             );
 
@@ -47,7 +49,7 @@ export const signWithEcdsaShare = (connection: SocketStream) => {
         }
         break;
       case "Stepping":
-        {
+        try {
           const stepOutput = step(message.toString(), context);
 
           if (stepOutput === true) {
@@ -57,6 +59,8 @@ export const signWithEcdsaShare = (connection: SocketStream) => {
           }
 
           connection.socket.send(stepOutput);
+        } catch (err) {
+          logger.error({ err }, "Error while stepping in sign");
         }
         break;
     }

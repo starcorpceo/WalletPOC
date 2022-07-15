@@ -3,7 +3,7 @@ import {
   BitcoinWalletsState,
   initialBitcoinState,
 } from "bitcoin/state/atoms";
-import { selector, useRecoilCallback } from "recoil";
+import { selector, useSetRecoilState } from "recoil";
 import { AuthState, authState } from "./atoms";
 
 type AllWallets = {
@@ -11,12 +11,14 @@ type AllWallets = {
   bitcoin: BitcoinWalletsState;
 };
 
-export const useResetWalletState = () =>
-  useRecoilCallback(({ set }) => () => {
-    set(bitcoinWalletsState, (_current: BitcoinWalletsState) => ({
-      ...initialBitcoinState,
-    }));
-  });
+export const useResetWalletState = () => {
+  const setBitcoinState =
+    useSetRecoilState<BitcoinWalletsState>(bitcoinWalletsState);
+
+  return function WithAllCoinStates() {
+    setBitcoinState((_) => ({ ...initialBitcoinState }));
+  };
+};
 
 export const getAllWallets = selector({
   key: "GetAllWalletsSelector",

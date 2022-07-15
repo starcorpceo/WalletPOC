@@ -3,7 +3,7 @@ import constants from "@lib/constants";
 import logger from "@lib/logger";
 import Context from "../../../crypto-mpc-js/lib/context";
 import { User } from "../../user/user";
-import { Wallet } from "../../user/wallet";
+import { MPCWallet } from "../../user/wallet";
 import {
   createBip44MasterWallet,
   createBip44PurposeWallet,
@@ -15,7 +15,7 @@ import { DeriveConfig } from "../ecdsa/deriveBIP32";
 export const processDerivedShare = async (
   user: User,
   share: string,
-  parent: Wallet,
+  parent: MPCWallet,
   connection: SocketStream,
   deriveConfig: DeriveConfig
 ) => {
@@ -38,9 +38,9 @@ export const processDerivedShare = async (
 const saveDerivedShare = async (
   user: User,
   share: string,
-  parent: Wallet,
+  parent: MPCWallet,
   deriveConfig: DeriveConfig
-): Promise<Wallet> => {
+): Promise<MPCWallet> => {
   const wallet = await saveShareBasedOnPath(user, share, parent, deriveConfig);
 
   logger.info(
@@ -57,9 +57,9 @@ const saveDerivedShare = async (
 const saveShareBasedOnPath = (
   user: User,
   share: string,
-  parent: Wallet,
+  parent: MPCWallet,
   deriveConfig: DeriveConfig
-): Promise<Wallet> => {
+): Promise<MPCWallet> => {
   const path = buildPath(deriveConfig);
 
   switch (deriveConfig.index) {

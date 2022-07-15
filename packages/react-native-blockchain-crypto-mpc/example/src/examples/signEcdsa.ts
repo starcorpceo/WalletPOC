@@ -8,7 +8,7 @@ export const signEcdsa = (message: string, share: string): Promise<string> => {
     let signStatus: ActionStatus = 'Init';
 
     ws.onopen = () => {
-      ws.send(Buffer.from(message));
+      ws.send(message);
     };
 
     ws.onmessage = (wsMessage: WebSocketMessageEvent) => {
@@ -21,8 +21,10 @@ export const signEcdsa = (message: string, share: string): Promise<string> => {
           }
 
           signStatus = 'Stepping';
-
-          initSignEcdsa(message, share).then((success) => {
+          initSignEcdsa(
+            new Uint8Array(Buffer.from(message, 'base64')),
+            share
+          ).then((success) => {
             success && step(null).then((stepMsg) => ws.send(stepMsg.message));
           });
 

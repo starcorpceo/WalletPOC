@@ -3,8 +3,8 @@ import React from "react";
 import { Text } from "react-native";
 import { useRecoilValue } from "recoil";
 import Wallets from "wallet/generic-wallet-view";
-import CreateBitcoinWallet from "./create/create";
-import BitcoinWalletListView from "./list/wallet-list";
+import CreateBitcoinWallet from "./create/create-bitcoin-account";
+import BitcoinWalletListView from "./list/bitcoin-wallet-list";
 
 const Bitcoin = () => {
   const bitcoinState = useRecoilValue<BitcoinWalletsState>(bitcoinWalletsState);

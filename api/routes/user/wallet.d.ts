@@ -1,4 +1,4 @@
-export interface Wallet {
+export interface MPCWallet {
   id: string;
   path: string;
   keyShare: string;

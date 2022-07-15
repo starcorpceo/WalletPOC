@@ -7,17 +7,20 @@ import {
   generateKeyPair,
   getKey,
 } from "react-native-secure-encryption-module";
-import { useRecoilState } from "recoil";
+import { useRecoilValue, useSetRecoilState } from "recoil";
 import { AuthState, authState, initialAuthState } from "state/atoms";
-import { useResetWalletState } from "state/utils";
+import { getAllWallets, useResetWalletState } from "state/utils";
 import { CreateUserResponse, User } from "../api-types/user";
 import constants from "../config/constants";
 
 const Header = () => {
-  const [auth, setAuth] = useRecoilState<AuthState>(authState);
+  const setAuth = useSetRecoilState<AuthState>(authState);
+  const { bitcoin, account: auth } = useRecoilValue(getAllWallets);
+
   const resetWallets = useResetWalletState();
 
   console.log("Auth updated", auth);
+  console.log("Bitcoin updated", bitcoin);
 
   const onStart = useCallback(async () => {
     getKey(constants.deviceKeyName)

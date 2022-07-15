@@ -3,7 +3,7 @@ import { SocketStream } from "@fastify/websocket";
 import logger from "@lib/logger";
 import { RawData } from "ws";
 import { User } from "../../user/user";
-import { Wallet } from "../../user/wallet";
+import { MPCWallet } from "../../user/wallet";
 import { getWallet } from "../../user/wallet.repository";
 import { ActionStatus } from "../mpc-routes";
 import { processDerivedShare } from "../step/share";
@@ -92,6 +92,6 @@ export type DeriveConfig = {
 
 type DeriveContext = {
   deriveConfig: DeriveConfig;
-  parent: Wallet;
+  parent: MPCWallet;
   context: Context;
 };

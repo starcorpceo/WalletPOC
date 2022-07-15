@@ -2,7 +2,7 @@ import React from "react";
 import { View } from "react-native";
 import { BitcoinWallet } from "wallet/bitcoin";
 import { CryptoWallet } from "wallet/wallet";
-import BitcoinWalletView from "./wallet";
+import BitcoinWalletView from "./item/bitcoin-wallet";
 
 type BitcoinWalletListViewProps = {
   wallets: BitcoinWallet[];

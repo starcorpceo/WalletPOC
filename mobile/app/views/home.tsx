@@ -25,10 +25,7 @@ const Home = ({ navigation }: Props) => {
     <View>
       <ScrollView contentContainerStyle={{ paddingBottom: "100%" }}>
         <Text style={textStyle}>Welcome to Secure Wallet</Text>
-        <Button
-          onPress={() => navigation.navigate("TestMpc")}
-          title="Test MPC Key Handling"
-        />
+
         <Button
           onPress={() => navigation.navigate("Wallets")}
           title="Go to Wallet View"

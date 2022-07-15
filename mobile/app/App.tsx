@@ -22,7 +22,6 @@ import { RecoilRoot } from "recoil";
 import WalletOverview from "wallet/view/overview";
 import Header from "./shared/header";
 import Home from "./views/home";
-import TestMpc from "./views/test-mpc/test-mpc";
 
 const App = () => {
   const isDarkMode = useColorScheme() === "dark";
@@ -43,7 +42,6 @@ const App = () => {
             <Stack.Navigator initialRouteName="Home">
               <Stack.Screen name="Home" component={Home} />
               <Stack.Screen name="Wallets" component={WalletOverview} />
-              <Stack.Screen name="TestMpc" component={TestMpc} />
             </Stack.Navigator>
           </View>
         </RecoilRoot>

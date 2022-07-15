@@ -1,11 +1,11 @@
-import { Wallet } from "./wallet";
+import { MPCWallet } from "./wallet";
 
 export interface User {
   id: string;
   devicePublicKey: string;
-  wallets: Wallet[];
-  bip44MasterWallet: Wallet | undefined;
-  bip44PurposeWallet: Wallet | undefined;
+  wallets: MPCWallet[];
+  bip44MasterWallet: MPCWallet | undefined;
+  bip44PurposeWallet: MPCWallet | undefined;
 }
 
 export interface CreateUserRequest {
