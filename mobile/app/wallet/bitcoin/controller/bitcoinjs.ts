@@ -1,12 +1,12 @@
 import "shim";
 
-import * as bitcoin from "bitcoinjs-lib";
 import { config } from "config/config";
+import * as bitcoin from "der-bitcoinjs-lib";
 import ec from "lib/elliptic";
+import { getPublicKey } from "react-native-blockchain-crypto-mpc";
 import { MPCWalletToWalletConfig } from "wallet/controller/generator";
 import { BitcoinWallet } from "..";
 import { MPCWallet } from "../../../api-types/wallet";
-import { getPublicKey } from "react-native-blockchain-crypto-mpc";
 
 export const mpcWalletToBitcoinWallet: MPCWalletToWalletConfig<
   BitcoinWallet

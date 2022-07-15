@@ -1,5 +1,5 @@
-import * as bitcoin from "bitcoinjs-lib";
 import { config } from "config/config";
+import * as bitcoin from "der-bitcoinjs-lib";
 import { fetchFromTatum, HttpMethod } from "lib/http";
 import { signEcdsa } from "lib/mpc";
 import "shim";
