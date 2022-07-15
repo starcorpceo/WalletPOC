@@ -22,7 +22,13 @@ const SendBitcoin = ({ user, wallet }: SendBitcoinProps) => {
       110000
     );
     const preparedSigner = prepareSigner(wallet, user);
-    await signTransaction(preparedTransaction, preparedSigner);
+
+    const finalizedTransaction = await signTransaction(
+      preparedTransaction,
+      preparedSigner
+    );
+
+    console.log("Extracted", finalizedTransaction.extractTransaction());
   }, [wallet, user]);
 
   return (

@@ -181,7 +181,9 @@ export const signTransaction = async (
   signer: bitcoin.SignerAsync
 ): Promise<bitcoin.Psbt> => {
   await transaction.signAllInputsAsync(signer);
-  transaction.validateSignaturesOfAllInputs();
+  const validated = transaction.validateSignaturesOfAllInputs();
+
+  console.log("Input signatures look ok: ", validated);
   transaction.finalizeAllInputs();
 
   return transaction;
@@ -193,27 +195,21 @@ export const prepareSigner = (
 ): bitcoin.SignerAsync => {
   const ec: bitcoin.SignerAsync = {
     publicKey: wallet.config.publicKey as Buffer,
-    sign: async (hash: Buffer) => {
-      console.log("asci", hash.toString("ascii"));
-      console.log("utf8", hash.toString("utf8"));
-      console.log("hase64", hash.toString("base64"));
-      console.log("hex", hash.toString("hex"));
-
-      const sig = Buffer.from([
+    sign: async (hash: Buffer) =>
+      Buffer.from([
         ...Buffer.from(
           await signEcdsa(
             user.devicePublicKey,
             user.id,
             wallet.mpcWallet.id,
             wallet.mpcWallet.keyShare,
-            hash.toString("base64")
+            hash.toString("base64"),
+            "base64"
           ),
           "base64"
         ),
         0x01,
-      ]);
-      return sig;
-    },
+      ]),
   };
   return ec;
 };

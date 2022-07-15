@@ -29,12 +29,14 @@ export const signWithEcdsaShare = (connection: SocketStream) => {
 
       case "InitMessage":
         try {
+          const { messageToSign, encoding } = JSON.parse(message.toString());
+
           context =
             context ||
             Context.createEcdsaSignContext(
               2,
               Buffer.from(share.keyShare, "base64"),
-              message,
+              Buffer.from(messageToSign, encoding),
               true
             );
 
@@ -47,7 +49,7 @@ export const signWithEcdsaShare = (connection: SocketStream) => {
         }
         break;
       case "Stepping":
-        {
+        try {
           const stepOutput = step(message.toString(), context);
 
           if (stepOutput === true) {
@@ -57,6 +59,8 @@ export const signWithEcdsaShare = (connection: SocketStream) => {
           }
 
           connection.socket.send(stepOutput);
+        } catch (err) {
+          logger.error({ err }, "Error while stepping in sign");
         }
         break;
     }

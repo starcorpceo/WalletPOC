@@ -10,7 +10,15 @@ type SignStatus = "InitShare" | "InitMessage" | "Stepping";
 
 export const signEcdsa = authenticatedShareActionMpc<string>(
   "/mpc/ecdsa/sign",
-  (resolve, reject, websocket, serverShareId, clientShare, messageToSign) => {
+  (
+    resolve,
+    reject,
+    websocket,
+    serverShareId,
+    clientShare,
+    messageToSign,
+    encoding
+  ) => {
     let signStatus: SignStatus = "InitShare";
 
     websocket.onopen = () => {
@@ -22,7 +30,7 @@ export const signEcdsa = authenticatedShareActionMpc<string>(
     websocket.onmessage = (message: WebSocketMessageEvent) => {
       switch (signStatus) {
         case "InitMessage":
-          websocket.send(Buffer.from(messageToSign));
+          websocket.send(JSON.stringify({ messageToSign, encoding }));
 
           signStatus = "Stepping";
 
@@ -30,7 +38,12 @@ export const signEcdsa = authenticatedShareActionMpc<string>(
 
         case "Stepping":
           if (isValidStart(message)) {
-            initSignEcdsa(messageToSign, clientShare).then((success) => {
+            initSignEcdsa(
+              new Uint8Array(
+                Buffer.from(messageToSign, encoding as BufferEncoding)
+              ),
+              clientShare
+            ).then((success) => {
               success &&
                 step(null).then((stepMsg) => websocket.send(stepMsg.message));
             });

@@ -1,11 +1,17 @@
 import { mpcWalletToBitcoinWallet } from "bitcoin/controller/bitcoinjs";
-import { BitcoinWalletsState, bitcoinWalletsState } from "bitcoin/state/atoms";
+import {
+  BitcoinWalletsState,
+  bitcoinWalletsState,
+  initialBitcoinState,
+} from "bitcoin/state/atoms";
 import constants from "config/constants";
+import { deepCompare } from "lib/string";
 import React, { useCallback } from "react";
 import { Button, StyleSheet, Text, View } from "react-native";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { AuthState, authState } from "state/atoms";
 import { deriveToMpcWallet } from "wallet/controller/generator";
+import { User } from "../../../../api-types/user";
 import { MPCWallet } from "../../../../api-types/wallet";
 
 type CreateBitcoinWalletProps = {
@@ -18,14 +24,7 @@ const CreateBitcoinWallet = ({ state }: CreateBitcoinWalletProps) => {
     useSetRecoilState<BitcoinWalletsState>(bitcoinWalletsState);
 
   const startGenerate = useCallback(async () => {
-    const bitcoinAccountWallet =
-      state.coinTypeWallet ||
-      (await deriveToMpcWallet(
-        user.bip44PurposeWallet as MPCWallet,
-        user,
-        constants.bip44BitcoinCoinType,
-        true
-      ));
+    const bitcoinAccountWallet = await getBitcoinTypeWallet(state, user);
 
     const newIndex = state.accounts.length;
 
@@ -57,6 +56,21 @@ const CreateBitcoinWallet = ({ state }: CreateBitcoinWalletProps) => {
       <Button onPress={startGenerate} title="Create new Wallet Wallet" />
     </View>
   );
+};
+
+const getBitcoinTypeWallet = async (
+  state: BitcoinWalletsState,
+  user: User
+): Promise<MPCWallet> => {
+  if (deepCompare(state.coinTypeWallet, initialBitcoinState.coinTypeWallet))
+    return await deriveToMpcWallet(
+      user.bip44PurposeWallet as MPCWallet,
+      user,
+      constants.bip44BitcoinCoinType,
+      true
+    );
+
+  return state.coinTypeWallet;
 };
 
 export default CreateBitcoinWallet;

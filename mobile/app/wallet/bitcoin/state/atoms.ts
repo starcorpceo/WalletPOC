@@ -10,13 +10,18 @@ const { persistAtom } = recoilPersist({
 });
 
 export type BitcoinWalletsState = {
-  coinTypeWallet: MPCWallet | undefined;
+  coinTypeWallet: MPCWallet;
   accounts: BitcoinWallet[];
 };
 
 export const initialBitcoinState: BitcoinWalletsState = {
   accounts: [],
-  coinTypeWallet: undefined,
+  coinTypeWallet: {
+    path: "",
+    id: "",
+    keyShare: "",
+    parentWalletId: "",
+  },
 };
 
 export const bitcoinWalletsState = atom({
