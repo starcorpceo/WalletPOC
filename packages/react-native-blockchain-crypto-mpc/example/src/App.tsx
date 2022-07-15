@@ -1,3 +1,4 @@
+import { Buffer } from 'buffer';
 import React, { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import {
@@ -16,7 +17,7 @@ import {
 import { getApi } from './examples/shared';
 
 export default function App() {
-  const messageToSign = 'Sign me please';
+  const messageToSign = 'sL1nVFODesKwbLVLu3UkR0Yfd06/+bE2fSXbe9tHWUQ=';
   const secret =
     '153649e88ae8337f53451d8d0f4e6fd7e1860620923fc04192c8abc2370b68dc';
 
@@ -46,7 +47,11 @@ export default function App() {
 
       // --- Start validating a signature
       setVerifyLocal(
-        await verifySignature(messageToSign, signatureResult, generatedShare)
+        await verifySignature(
+          new Uint8Array(Buffer.from(messageToSign, 'base64')),
+          new Uint8Array(Buffer.from(signatureResult, 'base64')),
+          generatedShare
+        )
       );
 
       const response = await fetch(getApi('http') + '/verify', {

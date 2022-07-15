@@ -2,6 +2,7 @@ import { Context } from '@crypto-mpc';
 import { SocketStream } from '@fastify/websocket';
 import { db } from '@lib/dev-db';
 import logger from '@lib/logger';
+import { Buffer } from 'buffer';
 import { ActionStatus } from '../mpc-routes';
 import { step } from '../step';
 
@@ -15,7 +16,12 @@ export const signWithEcdsaShare = (connection: SocketStream) => {
   connection.socket.on('message', (message) => {
     switch (status) {
       case 'Init':
-        context = Context.createEcdsaSignContext(2, share, message, true);
+        context = Context.createEcdsaSignContext(
+          2,
+          share,
+          Buffer.from(message.toString(), 'base64'),
+          true
+        );
         status = 'Stepping';
         connection.socket.send(JSON.stringify({ value: 'Start' }));
         break;

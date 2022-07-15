@@ -26,7 +26,7 @@ export const verifyEcdsaSignature = route<boolean>((req: FastifyRequest) => {
     new Promise((resolve) =>
       resolve(
         key.verify(
-          Buffer.from(message),
+          Buffer.from(message, 'base64'),
           new Uint8Array(Buffer.from(signature, 'base64'))
         )
       )

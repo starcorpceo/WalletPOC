@@ -49,14 +49,14 @@ export function initGenerateEcdsaKey(): Promise<boolean> {
 }
 
 export function initSignEcdsa(
-  message: string,
+  message: Uint8Array,
   share: string
 ): Promise<boolean> {
   return new Promise(async (res) => {
     await useShare(share);
-    const success = await BlockchainCryptoMpc.initSignEcdsa([
-      ...Buffer.from(message),
-    ]);
+    const success = await BlockchainCryptoMpc.initSignEcdsa(
+      Array.from(message)
+    );
     res(success);
   });
 }
@@ -86,15 +86,15 @@ export function getSignature(context: string): Promise<string> {
 }
 
 export function verifySignature(
-  message: string,
-  signature: string,
+  message: Uint8Array,
+  signature: Uint8Array,
   share: string
 ): Promise<boolean> {
   return new Promise(async (res) => {
     await useShare(share);
     const ok = await BlockchainCryptoMpc.verifySignature(
-      [...Buffer.from(message)],
-      [...Buffer.from(signature, 'base64')]
+      Array.from(message),
+      Array.from(signature)
     );
     res(ok);
 
