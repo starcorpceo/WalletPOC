@@ -1,4 +1,4 @@
-import { atom } from "recoil";
+import { atom, useRecoilState } from "recoil";
 import { recoilPersist } from "recoil-persist";
 import { CustomStorage } from "state/storage";
 import { BitcoinWallet } from "..";
@@ -20,7 +20,31 @@ export const initialBitcoinState: BitcoinWalletsState = {
 };
 
 export const bitcoinWalletsState = atom({
-  key: "bitcoinWallets",
+  key: "BitcoinWallets",
   default: initialBitcoinState,
   effects_UNSTABLE: [persistAtom],
 });
+
+export const useUpdateBitcoinAccountWallet = (
+  updater: () => Promise<BitcoinWallet>
+) => {
+  const [bitcoinState, setBitcoinState] =
+    useRecoilState<BitcoinWalletsState>(bitcoinWalletsState);
+
+  return async function WithBitcoinState() {
+    const updatedWallet = await updater();
+
+    const index = bitcoinState.accounts.findIndex(
+      (findWallet) => findWallet.mpcWallet.id === updatedWallet.mpcWallet.id
+    );
+
+    setBitcoinState((currentState) => ({
+      ...currentState,
+      accounts: [
+        ...currentState.accounts.slice(0, index),
+        updatedWallet,
+        ...currentState.accounts.slice(index + 1),
+      ],
+    }));
+  };
+};

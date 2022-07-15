@@ -1,22 +1,20 @@
-import { BitcoinWalletsState } from "bitcoin/state/atoms";
+import * as bitcoin from "bitcoinjs-lib";
+import { config } from "config/config";
 import { fetchFromTatum, HttpMethod } from "lib/http";
+import { signEcdsa } from "lib/mpc";
 import "shim";
 import endpoints from "wallet/endpoints";
 import {
   Balance,
   CryptoWallet,
-  Input,
   Fees,
+  Input,
   Output,
   Transaction,
   UTXO,
 } from "wallet/wallet";
-import * as bitcoin from "bitcoinjs-lib";
-import { signEcdsa } from "lib/mpc";
 import { BitcoinWallet } from "..";
-import { MPCWallet } from "../../../api-types/wallet";
 import { User } from "../../../api-types/user";
-import { config } from "config/config";
 
 export const getBalance = (wallet: CryptoWallet): Promise<Balance> => {
   return fetchFromTatum<Balance>(
@@ -40,20 +38,20 @@ export const getLatestTransactions = (
 };
 
 export const getNetValue = (
-  wallet: CryptoWallet,
+  address: string,
   transaction: Transaction
 ): number => {
   var fullValueInput = 0;
   var fullValueReturn = 0;
 
   transaction.inputs.forEach((input) => {
-    if (input.coin.address == wallet.config.address) {
+    if (input.coin.address == address) {
       fullValueInput += input.coin.value;
     }
   });
 
   transaction.outputs.forEach((output) => {
-    if (output.address == wallet.config.address) {
+    if (output.address == address) {
       fullValueReturn += output.value;
     }
   });
@@ -195,7 +193,12 @@ export const prepareSigner = (
 ): bitcoin.SignerAsync => {
   const ec: bitcoin.SignerAsync = {
     publicKey: wallet.config.publicKey as Buffer,
-    sign: async (hash) => {
+    sign: async (hash: Buffer) => {
+      console.log("asci", hash.toString("ascii"));
+      console.log("utf8", hash.toString("utf8"));
+      console.log("hase64", hash.toString("base64"));
+      console.log("hex", hash.toString("hex"));
+
       const sig = Buffer.from([
         ...Buffer.from(
           await signEcdsa(

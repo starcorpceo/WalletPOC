@@ -14,6 +14,9 @@ import { authenticatedCreateShareMpc, getServerShareId, Share } from ".";
 export const importSecret = authenticatedCreateShareMpc<Share>(
   "/mpc/ecdsa/import",
   (resolve, reject, websocket, secret) => {
+    if (!secret || secret === "")
+      throw new Error("Trying to import secret with empty string");
+
     let clientShare: string;
 
     websocket.onopen = () => {
