@@ -1,14 +1,19 @@
 import { Context } from '@crypto-mpc';
 import { SocketStream } from '@fastify/websocket';
 import { db } from '@lib/dev-db';
+import logger from '@lib/logger';
 import { step } from '../step';
 
 export const initDeriveBIP32 = (connection: SocketStream) => {
   let context: Context;
-  const share = db.shareBuf;
+
+  const index = db.shareBuf ? 44 : 0;
+  const hardened = db.shareBuf ? 1 : 0;
+  const share = db.shareBuf || db.secretBuf;
 
   connection.socket.on('message', (message) => {
-    if (!context) context = Context.createDeriveBIP32Context(2, share, 0, 0);
+    if (!context)
+      context = Context.createDeriveBIP32Context(2, share, hardened, index);
 
     const stepOutput = step(message.toString(), context);
 
@@ -26,6 +31,6 @@ export const initDeriveBIP32 = (connection: SocketStream) => {
   });
 
   connection.socket.on('error', (err) => {
-    console.log('error', err);
+    logger.error({ err }, 'error on derive socket');
   });
 };

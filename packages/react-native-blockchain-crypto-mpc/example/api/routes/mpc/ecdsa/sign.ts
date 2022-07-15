@@ -1,6 +1,7 @@
 import { Context } from '@crypto-mpc';
 import { SocketStream } from '@fastify/websocket';
 import { db } from '@lib/dev-db';
+import logger from '@lib/logger';
 import { ActionStatus } from '../mpc-routes';
 import { step } from '../step';
 
@@ -25,7 +26,7 @@ export const signWithEcdsaShare = (connection: SocketStream) => {
   });
 
   connection.socket.on('error', (err) => {
-    console.log('error', err);
+    logger.error({ err }, 'error on sign ecdsa socket');
   });
 };
 

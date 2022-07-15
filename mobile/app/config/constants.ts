@@ -9,7 +9,7 @@ interface IConstants {
 const constants: IConstants = {
   deviceKeyName: "WalletPOCDeviceKey",
   bip44MasterIndex: "m",
-  bip44PurposeIndex: "1",
+  bip44PurposeIndex: "44",
   bip44BitcoinCoinType: "1",
 };
 

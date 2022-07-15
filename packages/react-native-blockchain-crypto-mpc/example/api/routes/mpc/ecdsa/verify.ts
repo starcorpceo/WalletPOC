@@ -16,6 +16,7 @@ export const verifyEcdsaSignature = route<boolean>((req: FastifyRequest) => {
 
   // TODO: remove this in favor of real db. Will be async in nature and therefore need a ResultAsync
   const share = Share.fromBuffer(db.shareBuf);
+  db.shareBuf = undefined;
 
   const publicKey = share.getEcdsaPublic().slice(23);
 
