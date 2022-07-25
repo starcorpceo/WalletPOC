@@ -28,6 +28,7 @@ export const initialAuthState: AuthState = {
     parentWalletId: null,
     xPub: undefined,
   },
+  xPub: undefined,
 };
 
 export const authState = atom({

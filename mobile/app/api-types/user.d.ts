@@ -6,6 +6,7 @@ export interface User {
   wallets: MPCWallet[];
   bip44MasterWallet: MPCWallet | undefined;
   bip44PurposeWallet: MPCWallet | undefined;
+  xPub: string | undefined;
 }
 
 export interface CreateUserRequest {

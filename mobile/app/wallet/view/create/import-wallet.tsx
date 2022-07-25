@@ -1,6 +1,7 @@
 import constants from "config/constants";
 import React, { useCallback, useState } from "react";
 import { Button, TextInput, View } from "react-native";
+import { getXPubKey } from "react-native-blockchain-crypto-mpc";
 import { useSetRecoilState } from "recoil";
 import { AuthState, authState } from "state/atoms";
 import {
@@ -31,11 +32,14 @@ const ImportWallet = ({ user }: ImportWalletProps) => {
       true
     );
 
+    const xPub = await getXPubKey(bip44PurposeWallet.keyShare);
+
     setAuth((auth: AuthState) => {
       return {
         ...auth,
         bip44PurposeWallet,
         bip44MasterWallet,
+        xPub,
       };
     });
   }, [setAuth, seed, user]);

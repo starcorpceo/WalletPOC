@@ -13,6 +13,7 @@ import { BitcoinWallet } from "wallet/bitcoin";
 import { BitcoinBalance } from "./bitcoin-wallet-balance";
 import SendBitcoin from "./bitcoin-wallet-send";
 import BitcoinTransactions from "./bitcoin-wallet-transactions";
+import { BitcoinVirtualAccount } from "./bitcoin-wallet-virtual-account";
 
 type BitcoinWalletProps = {
   wallet: BitcoinWallet;
@@ -69,6 +70,7 @@ const BitcoinWalletView = ({ wallet, index }: BitcoinWalletProps) => {
         wallet={wallet}
       />
       <SendBitcoin user={auth} wallet={wallet} />
+      <BitcoinVirtualAccount wallet={wallet} />
     </View>
   );
 };
