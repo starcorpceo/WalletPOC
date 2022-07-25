@@ -75,6 +75,16 @@ export function getPublicKey(share: string): Promise<string> {
   });
 }
 
+export function getXPubKey(share: string): Promise<string> {
+  return new Promise(async (res) => {
+    await useShare(share);
+    const key = await BlockchainCryptoMpc.getXPubKey();
+    res(key);
+
+    reset();
+  });
+}
+
 export function getSignature(context: string): Promise<string> {
   return new Promise(async (res) => {
     await useContext(context);

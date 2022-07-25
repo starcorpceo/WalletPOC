@@ -268,6 +268,29 @@ RCT_EXPORT_METHOD(getPublicKey:(RCTPromiseResolveBlock)resolve
     
 }
 
+RCT_EXPORT_METHOD(getXPubKey:(RCTPromiseResolveBlock)resolve
+                  withRejecter:(RCTPromiseRejectBlock)reject)
+{
+    int rv = 0;
+
+    int ser_size = 0;
+
+    if ((rv = MPCCrypto_serializePubBIP32(share, nullptr, &ser_size)))
+         resolve(@(&"Failure " [ rv ]));
+    char *s = new char[ser_size + 1];
+    if ((rv = MPCCrypto_serializePubBIP32(share, s, &ser_size)))
+         resolve(@(&"Failure " [ rv ]));
+
+    NSString * xPub;
+
+    char_array_to_react_string(s, &xPub);
+ 
+    delete[] s;
+    
+    resolve(xPub);
+    
+}
+
 RCT_EXPORT_METHOD(useShare:(nonnull NSString*)shareBuf
                   withResolver:(RCTPromiseResolveBlock)resolve
                   withRejecter:(RCTPromiseRejectBlock)reject)
@@ -316,6 +339,12 @@ static void char_vector_to_react_string(std::vector<uint8_t> vector, NSString **
     NSData *outData = [NSData dataWithBytes:vector.data() length:vector.size()];
     
     *reactString = [outData base64EncodedStringWithOptions:0];
+}
+
+static void char_array_to_react_string(char charArray[], NSString ** reactString){
+
+    *reactString = [NSString stringWithCString:charArray encoding:NSUTF8StringEncoding];
+    
 }
 
 static void react_string_to_char_vector(NSString * reactString, std::vector<uint8_t> &vector){
