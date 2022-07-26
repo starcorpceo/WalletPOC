@@ -70,49 +70,6 @@ export const getWallet = async (id: string): Promise<MPCWallet> => {
   return wallet;
 };
 
-export const createBip44PurposeWallet = async (
-  user: User,
-  parent: MPCWallet,
-  share: string,
-  path: string
-): Promise<MPCWallet> => {
-  const wallet = await client.mpcWallet.create({
-    data: {
-      keyShare: share,
-      path,
-      user: {
-        connect: {
-          id_devicePublicKey: {
-            id: user.id,
-            devicePublicKey: user.devicePublicKey,
-          },
-        },
-      },
-      parentWallet: {
-        connect: {
-          id: parent.id,
-        },
-      },
-      bip44PurposeWallet: {
-        create: {
-          user: {
-            connect: {
-              id_devicePublicKey: {
-                id: user.id,
-                devicePublicKey: user.devicePublicKey,
-              },
-            },
-          },
-        },
-      },
-    },
-  });
-
-  if (!wallet) throw other("Error while creating BIP44 Purpose Wallet");
-
-  return wallet;
-};
-
 export const createBip44MasterWallet = async (
   user: User,
   parent: MPCWallet,

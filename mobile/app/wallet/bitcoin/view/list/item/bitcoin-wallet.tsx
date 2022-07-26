@@ -6,7 +6,7 @@ import {
 } from "bitcoin/controller/bitcoin-wallet";
 import { useUpdateBitcoinAccountWallet } from "bitcoin/state/atoms";
 import React, { useCallback, useEffect } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { useRecoilValue } from "recoil";
 import { AuthState, authState } from "state/atoms";
 import { BitcoinWallet } from "wallet/bitcoin";
@@ -62,8 +62,6 @@ const BitcoinWalletView = ({ wallet, index }: BitcoinWalletProps) => {
         margin: 10,
       }}
     >
-      <Text>Address: {wallet?.config.address}</Text>
-
       <BitcoinBalance updateBalance={updateBalance} wallet={wallet} />
       <BitcoinTransactions
         updateTransactions={updateTransactions}

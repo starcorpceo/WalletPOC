@@ -6,7 +6,6 @@ import { User } from "../../user/user";
 import { MPCWallet } from "../../user/wallet";
 import {
   createBip44MasterWallet,
-  createBip44PurposeWallet,
   createDerivedWallet,
   createWallet,
 } from "../../user/wallet.repository";
@@ -62,14 +61,10 @@ const saveShareBasedOnPath = (
 ): Promise<MPCWallet> => {
   const path = buildPath(deriveConfig);
 
-  switch (deriveConfig.index) {
-    case constants.bip44MasterIndex:
-      return createBip44MasterWallet(user, parent, share, path);
-    case constants.bip44PurposeIndex:
-      return createBip44PurposeWallet(user, parent, share, path);
-    default:
-      return createDerivedWallet(user, share, parent, path);
+  if (deriveConfig.index === constants.bip44MasterIndex) {
+    return createBip44MasterWallet(user, parent, share, path);
   }
+  return createDerivedWallet(user, share, parent, path);
 };
 
 const buildPath = (deriveConfig: DeriveConfig) => {

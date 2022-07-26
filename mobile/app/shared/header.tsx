@@ -98,7 +98,6 @@ const createNewProfile = async (devicePublicKey: string): Promise<User> => {
     devicePublicKey,
     wallets: [],
     bip44MasterWallet: undefined,
-    bip44PurposeWallet: undefined,
   };
 };
 

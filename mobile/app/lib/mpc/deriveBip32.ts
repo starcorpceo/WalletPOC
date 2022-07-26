@@ -125,13 +125,16 @@ function deriveHandler(
  *
  * Special method for non hardend derive from existing share, because it only needs 1 step on the client side
  */
-function deriveFromShareNonHardened(share: string, index: string) {
+export function deriveNonHardenedShare(
+  share: string,
+  index: string
+): Promise<string> {
   return new Promise((resolve) => {
     initDeriveBIP32(share, Number(index), false).then((success) => {
       success &&
         step(null).then((stepMsg) => {
           if (stepMsg.finished && stepMsg.context) {
-            resolve(stepMsg.context);
+            getResultDeriveBIP32(stepMsg.context).then((res) => resolve(res));
           }
         });
     });

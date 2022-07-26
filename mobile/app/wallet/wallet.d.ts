@@ -1,10 +1,22 @@
 import { MPCWallet } from "../api-types/wallet";
 
 export interface CryptoWallet {
-  config: WalletConfig;
   transactions: Transaction[];
   balance?: Balance;
   mpcWallet: MPCWallet;
+  internal: ChangeWallet;
+  external: ChangeWallet;
+}
+
+interface ChangeWallet {
+  share: string;
+  addresses: AddressWallet[];
+}
+
+interface AddressWallet {
+  share: string;
+  publicKey: string;
+  address: string;
 }
 
 export interface Balance {
@@ -60,12 +72,15 @@ export interface Output {
   address: string;
 }
 
+export interface CoinTypeWallet {
+  mpcWallet: MPCWallet;
+  config: WalletConfig;
+}
+
 export interface WalletConfig {
   symbol: string;
   name: null | string;
   chain: string;
-  address: string;
-  publicKey: null | Buffer;
   isTestnet: boolean;
 }
 

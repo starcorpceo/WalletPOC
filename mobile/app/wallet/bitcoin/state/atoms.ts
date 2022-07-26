@@ -1,8 +1,9 @@
+import { config } from "config/config";
 import { atom, useRecoilState } from "recoil";
 import { recoilPersist } from "recoil-persist";
 import { CustomStorage } from "state/storage";
+import { CoinTypeWallet } from "wallet/wallet";
 import { BitcoinWallet } from "..";
-import { MPCWallet } from "../../../api-types/wallet";
 
 const { persistAtom } = recoilPersist({
   storage: CustomStorage,
@@ -10,17 +11,26 @@ const { persistAtom } = recoilPersist({
 });
 
 export type BitcoinWalletsState = {
-  coinTypeWallet: MPCWallet;
+  coinTypeWallet: CoinTypeWallet;
   accounts: BitcoinWallet[];
 };
 
 export const initialBitcoinState: BitcoinWalletsState = {
   accounts: [],
   coinTypeWallet: {
-    path: "",
-    id: "",
-    keyShare: "",
-    parentWalletId: "",
+    mpcWallet: {
+      path: "",
+      id: "",
+      keyShare: "",
+      parentWalletId: "",
+      xPub: "",
+    },
+    config: {
+      symbol: "BTC",
+      name: "Bitcoin",
+      chain: "Bitcoin",
+      isTestnet: config.IsTestNet,
+    },
   },
 };
 

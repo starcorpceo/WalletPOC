@@ -3,7 +3,7 @@ import "shim";
 import { config } from "config/config";
 import * as bitcoin from "der-bitcoinjs-lib";
 import ec from "lib/elliptic";
-import { getPublicKey } from "react-native-blockchain-crypto-mpc";
+import { deriveNonHardenedShare } from "lib/mpc/deriveBip32";
 import { MPCWalletToWalletConfig } from "wallet/controller/generator";
 import { BitcoinWallet } from "..";
 import { MPCWallet } from "../../../api-types/wallet";
@@ -11,8 +11,24 @@ import { MPCWallet } from "../../../api-types/wallet";
 export const mpcWalletToBitcoinWallet: MPCWalletToWalletConfig<
   BitcoinWallet
 > = async (mpcWallet: MPCWallet) => {
-  const publicKey = await getPublicKey(mpcWallet.keyShare);
+  const internalShare = await deriveNonHardenedShare(mpcWallet.keyShare, "1");
+  const externalShare = await deriveNonHardenedShare(mpcWallet.keyShare, "0");
 
+  return {
+    transactions: [],
+    mpcWallet,
+    internal: {
+      share: internalShare,
+      addresses: [],
+    },
+    external: {
+      share: externalShare,
+      addresses: [],
+    },
+  };
+};
+
+const mpcPublicKeyToBitcoinAddress = (publicKey: string): string => {
   const ecPair = ec.keyFromPublic(
     [...Buffer.from(publicKey, "base64")].slice(23)
   );
@@ -32,16 +48,5 @@ export const mpcWalletToBitcoinWallet: MPCWalletToWalletConfig<
     );
   }
 
-  return {
-    config: {
-      symbol: "BTC",
-      name: "Bitcoin",
-      chain: "Bitcoin",
-      address: address || "",
-      publicKey: pubkeyECPair.publicKey,
-      isTestnet: true,
-    },
-    transactions: [],
-    mpcWallet,
-  };
+  return address || "";
 };
