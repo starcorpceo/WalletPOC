@@ -53,8 +53,6 @@ function deriveHandler(
     parentPath,
   };
 
-  console.log(derive);
-
   websocket.onopen = () => {
     websocket.send(JSON.stringify(derive));
   };
@@ -127,10 +125,10 @@ function deriveHandler(
  */
 export function deriveNonHardenedShare(
   share: string,
-  index: string
+  index: number
 ): Promise<string> {
   return new Promise((resolve) => {
-    initDeriveBIP32(share, Number(index), false).then((success) => {
+    initDeriveBIP32(share, index, false).then((success) => {
       success &&
         step(null).then((stepMsg) => {
           if (stepMsg.finished && stepMsg.context) {

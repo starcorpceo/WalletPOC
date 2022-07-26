@@ -1,19 +1,7 @@
-import {
-  getBalance,
-  getLatestTransactions,
-  getUnspentTransactions,
-  getUnspentTransactionsSync,
-} from "bitcoin/controller/bitcoin-wallet";
-import { useUpdateBitcoinAccountWallet } from "bitcoin/state/atoms";
-import React, { useCallback, useEffect } from "react";
-import { StyleSheet, View } from "react-native";
-import { useRecoilValue } from "recoil";
-import { AuthState, authState } from "state/atoms";
-import { BitcoinWallet } from "wallet/bitcoin";
-import { BitcoinBalance } from "./bitcoin-wallet-balance";
-import SendBitcoin from "./bitcoin-wallet-send";
-import BitcoinTransactions from "./bitcoin-wallet-transactions";
-import { BitcoinVirtualAccount } from "./bitcoin-wallet-virtual-account";
+import { BitcoinWallet } from "bitcoin/.";
+import React from "react";
+import { StyleSheet, Text, View } from "react-native";
+import { getXPubKey } from "react-native-blockchain-crypto-mpc";
 
 type BitcoinWalletProps = {
   wallet: BitcoinWallet;
@@ -21,38 +9,6 @@ type BitcoinWalletProps = {
 };
 
 const BitcoinWalletView = ({ wallet, index }: BitcoinWalletProps) => {
-  const auth = useRecoilValue<AuthState>(authState);
-  const updateBalance = useUpdateBitcoinAccountWallet(
-    useCallback(
-      async () => ({
-        ...wallet,
-        balance: await getBalance(wallet),
-      }),
-      [wallet]
-    )
-  );
-
-  const updateTransactions = useUpdateBitcoinAccountWallet(
-    useCallback(
-      async () => ({
-        ...wallet,
-        transactions: await getLatestTransactions(wallet, 10, 0),
-      }),
-      [wallet]
-    )
-  );
-
-  useEffect(() => {
-    getUnspentTransactions(wallet).then((res) =>
-      console.log("Got Unspent with Tatum:", res)
-    );
-
-    console.log(
-      "Got unspent with local Data",
-      getUnspentTransactionsSync(wallet)
-    );
-  }, []);
-
   return (
     <View
       key={"wallet-" + index}
@@ -62,13 +18,26 @@ const BitcoinWalletView = ({ wallet, index }: BitcoinWalletProps) => {
         margin: 10,
       }}
     >
-      <BitcoinBalance updateBalance={updateBalance} wallet={wallet} />
-      <BitcoinTransactions
-        updateTransactions={updateTransactions}
-        wallet={wallet}
-      />
-      <SendBitcoin user={auth} wallet={wallet} />
-      <BitcoinVirtualAccount wallet={wallet} />
+      <View>
+        {wallet.external.addresses.map((addr) => (
+          <>
+            <Text key={addr.publicKey}>Address {addr.address}</Text>
+            <Text key={"asdf" + addr.publicKey}>
+              XPUB:{" "}
+              {getXPubKey(addr.share, "main").then((x) =>
+                console.log("oaschloch", x)
+              ) + "adf"}
+            </Text>
+          </>
+        ))}
+      </View>
+      {/* <BitcoinBalance updateBalance={updateBalance} wallet={wallet} /> */}
+      {/*  <BitcoinTransactions
+    //     updateTransactions={updateTransactions}
+    //     wallet={wallet}
+    //   />
+    //   <SendBitcoin user={auth} wallet={wallet} />
+    //   <BitcoinVirtualAccount wallet={wallet} /> */}
     </View>
   );
 };

@@ -17,7 +17,7 @@ export const useResetWalletState = () => {
     useSetRecoilState<BitcoinWalletsState>(bitcoinWalletsState);
 
   return function WithAllCoinStates() {
-    setBitcoinState((_) => ({ ...initialBitcoinState }));
+    setBitcoinState((_) => ({ ...initialBitcoinState, accounts: [] }));
   };
 };
 
@@ -51,7 +51,7 @@ export const getPurposeWallet = selectorFamily({
           wallet.path === "m/" + purposeIndex + "'"
       );
 
-      if (!purposeWallet) throw new Error("MasterWallet does not exist!");
+      if (!purposeWallet) throw new Error("Purpose Wallet does not exist!");
 
       return purposeWallet;
     },
