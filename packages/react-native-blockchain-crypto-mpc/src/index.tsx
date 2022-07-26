@@ -75,10 +75,13 @@ export function getPublicKey(share: string): Promise<string> {
   });
 }
 
-export function getXPubKey(share: string): Promise<string> {
+export function getXPubKey(
+  share: string,
+  network: 'main' | 'test'
+): Promise<string> {
   return new Promise(async (res) => {
     await useShare(share);
-    const key = await BlockchainCryptoMpc.getXPubKey();
+    const key = await BlockchainCryptoMpc.getXPubKey(network === 'main');
     res(key);
 
     reset();

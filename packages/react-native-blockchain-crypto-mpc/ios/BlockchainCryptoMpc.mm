@@ -268,17 +268,20 @@ RCT_EXPORT_METHOD(getPublicKey:(RCTPromiseResolveBlock)resolve
     
 }
 
-RCT_EXPORT_METHOD(getXPubKey:(RCTPromiseResolveBlock)resolve
+RCT_EXPORT_METHOD(getXPubKey:(nonnull NSNumber*)main
+                  withResolver:(RCTPromiseResolveBlock)resolve
                   withRejecter:(RCTPromiseRejectBlock)reject)
 {
     int rv = 0;
 
     int ser_size = 0;
+    
+     bool isMain = (bool) [main intValue];
 
-    if ((rv = MPCCrypto_serializePubBIP32(share, nullptr, &ser_size)))
+    if ((rv = MPCCrypto_serializePubBIP32(share, nullptr, &ser_size, isMain)))
          resolve(@(&"Failure " [ rv ]));
     char *s = new char[ser_size + 1];
-    if ((rv = MPCCrypto_serializePubBIP32(share, s, &ser_size)))
+    if ((rv = MPCCrypto_serializePubBIP32(share, s, &ser_size, isMain)))
          resolve(@(&"Failure " [ rv ]));
 
     NSString * xPub;
