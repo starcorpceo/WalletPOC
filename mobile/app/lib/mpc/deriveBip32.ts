@@ -4,7 +4,6 @@
 
 import constants from "config/constants";
 import {
-  getPublicKey,
   getResultDeriveBIP32,
   initDeriveBIP32,
   step,
@@ -75,15 +74,11 @@ function deriveHandler(
           parentShare,
           indexToNumber(index),
           Number(hardened) === 1
-        ).then((success) => {
+        ).then(async (success) => {
           success &&
             step(null).then((stepMsg) => {
               if (stepMsg.finished && stepMsg.context) {
-                getResultDeriveBIP32(stepMsg.context).then((res) => {
-                  getPublicKey(res).then((res2) =>
-                    console.log("resulting public key", res2)
-                  );
-                });
+                websocket.send("nonhardened");
 
                 clientContext = stepMsg.context;
                 return;

@@ -20,8 +20,28 @@ export const deriveBIP32 = async (connection: SocketStream, user: User) => {
         status = "Stepping";
         return;
       case "Stepping":
-        deriveStep(message, deriveContext, user, connection);
+        {
+          const input = message.toString();
 
+          if (input === "nonhardened") {
+            const share = deriveContext.context
+              .getResultDeriveBIP32()
+              .toBuffer()
+              .toString("base64");
+
+            processDerivedShare(
+              user,
+              share,
+              deriveContext.parent,
+              connection,
+              deriveContext.deriveConfig
+            );
+
+            return;
+          }
+
+          deriveStep(message, deriveContext, user, connection);
+        }
         return;
     }
   });
@@ -66,7 +86,9 @@ const deriveStep = async (
   try {
     const { context, parent, deriveConfig } = deriveContext;
 
-    const stepOutput = step(message.toString(), context);
+    const stepInput = message.toString() || null;
+
+    const stepOutput = step(stepInput, context);
 
     if (stepOutput === true) {
       const share = context.getNewShare().toString("base64");

@@ -72,7 +72,7 @@ const buildPath = (deriveConfig: DeriveConfig) => {
 
   if (!parentPath && index === "m") return "m";
 
-  return `${parentPath}/${index}${hardened === "1" && "'"}`;
+  return `${parentPath}/${index}${hardened === "1" ? "'" : ""}`;
 };
 
 export const saveShare = async (
