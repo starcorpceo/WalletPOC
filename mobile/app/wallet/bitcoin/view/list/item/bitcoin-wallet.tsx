@@ -22,12 +22,6 @@ const BitcoinWalletView = ({ wallet, index }: BitcoinWalletProps) => {
         {wallet.external.addresses.map((addr) => (
           <>
             <Text key={addr.publicKey}>Address {addr.address}</Text>
-            <Text key={"asdf" + addr.publicKey}>
-              XPUB:{" "}
-              {getXPubKey(addr.share, "main").then((x) =>
-                console.log("oaschloch", x)
-              ) + "adf"}
-            </Text>
           </>
         ))}
       </View>

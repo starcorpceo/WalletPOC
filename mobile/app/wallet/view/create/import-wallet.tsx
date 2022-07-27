@@ -32,13 +32,13 @@ const ImportWallet = ({ user }: ImportWalletProps) => {
       true
     );
 
-    const xPub = await getXPubKey(purposeWallet.keyShare, "main");
+    //const xPub = await getXPubKey(purposeWallet.keyShare, "main");
 
     setAuth((auth: AuthState) => {
       return {
         ...auth,
         bip44MasterWallet,
-        xPub,
+        //xPub,
         wallets: [...auth.wallets, purposeWallet],
       };
     });

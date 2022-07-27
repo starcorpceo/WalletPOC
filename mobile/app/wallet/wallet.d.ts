@@ -1,7 +1,8 @@
 import { MPCWallet } from "../api-types/wallet";
+import { VirtualAccount } from "./virtual-wallet";
 
 export interface CryptoWallet {
-  transactions: Transaction[];
+  transactions?: Transaction[];
   balance?: Balance;
   mpcWallet: MPCWallet;
   internal: ChangeWallet;
@@ -75,6 +76,7 @@ export interface Output {
 export interface CoinTypeWallet {
   mpcWallet: MPCWallet;
   config: WalletConfig;
+  virtualAccount: VirtualAccount | null;
 }
 
 export interface WalletConfig {

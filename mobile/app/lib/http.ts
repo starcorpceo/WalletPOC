@@ -36,9 +36,9 @@ const fetchFrom = async <T>(url: string, params?: HttpParams): Promise<T> => {
     method: determineMethod(body, method),
     body: JSON.stringify(body),
     headers: {
+      ...args?.headers,
       "Content-Type": "application/json",
     },
-    ...args,
   });
 
   const content: T = await response.json();

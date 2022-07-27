@@ -1,3 +1,4 @@
+import { assignNewDepositAddress } from "bitcoin/controller/bitcoin-virtual-wallet";
 import { mpcPublicKeyToBitcoinAddress } from "bitcoin/controller/bitcoinjs";
 import { BitcoinWalletsState, bitcoinWalletsState } from "bitcoin/state/atoms";
 import { deriveNonHardenedShare } from "lib/mpc/deriveBip32";
@@ -6,13 +7,18 @@ import { Button, StyleSheet, Text, View } from "react-native";
 import { getPublicKey } from "react-native-blockchain-crypto-mpc";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { AuthState, authState } from "state/atoms";
+import { VirtualAccount, VirtualAddress } from "wallet/virtual-wallet";
 import { ChangeWallet } from "wallet/wallet";
 
 type CreateBitcoinWalletProps = {
   external: ChangeWallet;
+  virtualAccount: VirtualAccount | null;
 };
 
-const CreateBitcoinAdress = ({ external }: CreateBitcoinWalletProps) => {
+const CreateBitcoinAdress = ({
+  external,
+  virtualAccount,
+}: CreateBitcoinWalletProps) => {
   const user = useRecoilValue<AuthState>(authState);
   const setBitcoin =
     useSetRecoilState<BitcoinWalletsState>(bitcoinWalletsState);
@@ -27,18 +33,16 @@ const CreateBitcoinAdress = ({ external }: CreateBitcoinWalletProps) => {
 
     const accountAddress = await mpcPublicKeyToBitcoinAddress(accountPublicKey);
 
-    // const success = await initSignEcdsa(
-    //   new Uint8Array(Buffer.from("hi")),
-    //   external.share
-    // );
+    //adding address to virtual account
 
-    // console.log("succ", success);
+    if (!virtualAccount) return;
 
-    // step(null).then((somth) => {
-    //   step(somth.message).then((step2) => {
-    //     console.log("step2", somth);
-    //   });
-    // });
+    const address: VirtualAddress = await assignNewDepositAddress(
+      virtualAccount,
+      accountAddress
+    );
+
+    console.log("is address same: ", address.address == accountAddress);
 
     setBitcoin((current) => {
       return {

@@ -31,6 +31,7 @@ export const initialBitcoinState: BitcoinWalletsState = {
       chain: "Bitcoin",
       isTestnet: config.IsTestNet,
     },
+    virtualAccount: null,
   },
 };
 
