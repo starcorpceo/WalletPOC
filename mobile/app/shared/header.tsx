@@ -19,8 +19,8 @@ const Header = () => {
 
   const resetWallets = useResetWalletState();
 
-  console.log("Auth updated", auth);
-  console.log("Bitcoin updated", bitcoin);
+  console.log("Auth updated", { auth });
+  console.log("Bitcoin updated", { bitcoin });
 
   const onStart = useCallback(async () => {
     getKey(constants.deviceKeyName)
@@ -28,8 +28,6 @@ const Header = () => {
         console.log(
           "Key already exists it is assumed this phone already has a user in store"
         );
-
-        if (auth.id === "") createProfile(devicePublicKey);
       })
       .catch(async () => {
         const newDevicePublicKey = await generateKeyPair(
@@ -38,12 +36,11 @@ const Header = () => {
 
         createProfile(newDevicePublicKey);
       });
-  }, [setAuth]);
+  }, []);
 
   const createProfile = useCallback(
     async (devicePublicKey: string) => {
       const user = await createNewProfile(devicePublicKey);
-
       setAuth((_) => user);
     },
     [setAuth]
