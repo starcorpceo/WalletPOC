@@ -34,6 +34,7 @@ export function initDeriveBIP32(
   index: number,
   hardened: boolean
 ): Promise<boolean> {
+  reset();
   return new Promise(async (res) => {
     await useShare(share);
     const success = await BlockchainCryptoMpc.initDeriveBIP32(
@@ -45,6 +46,8 @@ export function initDeriveBIP32(
 }
 
 export function initGenerateEcdsaKey(): Promise<boolean> {
+  reset();
+
   return BlockchainCryptoMpc.initGenerateEcdsaKey();
 }
 
@@ -52,6 +55,8 @@ export function initSignEcdsa(
   message: Uint8Array,
   share: string
 ): Promise<boolean> {
+  reset();
+
   return new Promise(async (res) => {
     await useShare(share);
     const success = await BlockchainCryptoMpc.initSignEcdsa(

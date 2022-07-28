@@ -33,10 +33,6 @@ RCT_EXPORT_METHOD(initGenerateGenericSecret:(RCTPromiseResolveBlock)resolve
 RCT_EXPORT_METHOD(initDeriveBIP32:(nonnull NSNumber*)index withHardened:(nonnull NSNumber*) hardened withResolver:(RCTPromiseResolveBlock)resolve
                   withRejecter:(RCTPromiseRejectBlock)reject)
 {
-    
-    MPCCrypto_freeContext(context);
-    context = nullptr;
-    
     int hardenedInt = [hardened intValue];
     int indexInt = [index intValue];
     
@@ -44,6 +40,7 @@ RCT_EXPORT_METHOD(initDeriveBIP32:(nonnull NSNumber*)index withHardened:(nonnull
         resolve(@false);
         return;
     }
+    
     
     resolve(@true);
 }
@@ -76,7 +73,7 @@ RCT_EXPORT_METHOD(initSignEcdsa:(NSArray*)message withResolver:(RCTPromiseResolv
         resolve(@false);
         return;
     }
-    
+        
     resolve(@true);
 }
 
@@ -93,6 +90,7 @@ RCT_EXPORT_METHOD(importGenericSecret:(NSArray*)secret
         resolve(@false);
         return;
     }
+    
     
     resolve(@true);
 }
@@ -125,6 +123,8 @@ RCT_EXPORT_METHOD(verifySignature:(nonnull NSArray*)message withSignature:(nonnu
         return;
     }
     
+    pub_ec_key.clear();
+    
     resolve(@true);
 }
 
@@ -138,8 +138,7 @@ RCT_EXPORT_METHOD(step:(NSString*)messageIn
     
     if(messageIn != nil)
         react_string_to_char_vector(messageIn, message_buf);
-    
-    
+        
     if((rv = nativeStep(message_buf, finished))){
         resolve(@(&"Failure " [ rv ]));
         return;
@@ -170,13 +169,16 @@ RCT_EXPORT_METHOD(step:(NSString*)messageIn
             @"context": contextString,
         });
         
+        reset();
+        
         message_buf.clear();
         share_buf.clear();
-        reset();
+        context_buf.clear();
         
         return;
     }
     
+    message_buf.clear();
     
     resolve(@{
         @"finished": @(finished),
@@ -229,6 +231,9 @@ RCT_EXPORT_METHOD(getResultDeriveBIP32:(RCTPromiseResolveBlock)resolve
     char_vector_to_react_string(share_buf, &shareBufString);
     
     resolve(shareBufString);
+    
+    share_buf.clear();
+    
 }
 
 
@@ -247,6 +252,8 @@ RCT_EXPORT_METHOD(getShare:(RCTPromiseResolveBlock)resolve
     char_vector_to_react_string(share_buf, &shareBufString);
     
     resolve(shareBufString);
+    
+    share_buf.clear();
 }
 
 RCT_EXPORT_METHOD(getPublicKey:(RCTPromiseResolveBlock)resolve
@@ -269,6 +276,7 @@ RCT_EXPORT_METHOD(getPublicKey:(RCTPromiseResolveBlock)resolve
     
     resolve(pubKey);
     
+    pub_ec_key.clear();
 }
 
 RCT_EXPORT_METHOD(getXPubKey:(nonnull NSNumber*)main
@@ -279,7 +287,7 @@ RCT_EXPORT_METHOD(getXPubKey:(nonnull NSNumber*)main
 
     int ser_size = 0;
     
-     bool isMain = (bool) [main intValue];
+    bool isMain = (bool) [main intValue];
 
     if ((rv = MPCCrypto_serializePubBIP32(share, nullptr, &ser_size, isMain)))
          resolve(@(&"Failure " [ rv ]));
@@ -294,7 +302,6 @@ RCT_EXPORT_METHOD(getXPubKey:(nonnull NSNumber*)main
     delete[] s;
     
     resolve(xPub);
-    
 }
 
 RCT_EXPORT_METHOD(useShare:(nonnull NSString*)shareBuf
@@ -307,10 +314,11 @@ RCT_EXPORT_METHOD(useShare:(nonnull NSString*)shareBuf
     std::vector<uint8_t> share_buf;
     
     react_string_to_char_vector(shareBuf, share_buf);
-    
     share_from_buf(share_buf, share);
     
     resolve(@true);
+    
+    share_buf.clear();
 }
 
 RCT_EXPORT_METHOD(useContext:(nonnull NSString*)contextBuf
@@ -318,16 +326,16 @@ RCT_EXPORT_METHOD(useContext:(nonnull NSString*)contextBuf
                   withRejecter:(RCTPromiseRejectBlock)reject)
 {
     MPCCrypto_freeShare(share);
-    
     share = nullptr;
 
     std::vector<uint8_t> context_buf;
     
     react_string_to_char_vector(contextBuf, context_buf);
-    
     context_from_buf(context_buf, context);
-    
+            
     resolve(@true);
+    
+    context_buf.clear();
 }
 
 
@@ -502,7 +510,7 @@ static int context_to_buf(MPCCryptoContext *context, std::vector<uint8_t> &buf)
 
 static int context_from_buf(const std::vector<uint8_t> &mem, MPCCryptoContext *&context)
 {
-    return MPCCrypto_contextFromBuf(mem.data(), (int)mem.size(), &context);
+   return MPCCrypto_contextFromBuf(mem.data(), (int)mem.size(), &context);
 }
 
 static void reset() {
