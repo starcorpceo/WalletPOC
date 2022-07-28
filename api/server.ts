@@ -1,4 +1,8 @@
 import fastifyCookie from "@fastify/cookie";
+import underPressure, {
+  TYPE_HEAP_USED_BYTES,
+  TYPE_RSS_BYTES,
+} from "@fastify/under-pressure";
 import websocketPlugin from "@fastify/websocket";
 import config from "@lib/config";
 import { PrismaClient } from "@prisma/client";
@@ -15,6 +19,21 @@ const server: FastifyInstance = fastify({ logger });
 server.register(websocketPlugin);
 server.register(fastifyCookie, {
   secret: config.cookieSecret,
+});
+
+server.register(underPressure, {
+  maxHeapUsedBytes: 500 * 1000000,
+  // maxRssBytes: 500 * 1000000,
+  retryAfter: 10000,
+  pressureHandler: (req, rep, type, value) => {
+    if (type === TYPE_HEAP_USED_BYTES) {
+      logger.warn({ bytes: value }, "too many heap bytes used");
+    } else if (type === TYPE_RSS_BYTES) {
+      logger.warn({ bytes: value }, "too many rss bytes used");
+    }
+
+    rep.status(500).send("Server out of memory try again later!");
+  },
 });
 
 export const client: PrismaClient = new PrismaClient({

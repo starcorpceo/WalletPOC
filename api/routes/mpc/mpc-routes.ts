@@ -1,4 +1,5 @@
 import { SocketStream } from "@fastify/websocket";
+import logger from "@lib/logger";
 import { FastifyInstance, FastifyRequest } from "fastify";
 import { User } from "../user/user";
 import { authenticate } from "./authentication";
@@ -54,6 +55,15 @@ const registerPrivateMpcRoutes = (server: FastifyInstance) => {
       route + "/derive",
       { websocket: true },
       (connection: SocketStream, req: FastifyRequest) => {
+        const usage = server.memoryUsage();
+        logger.info(
+          {
+            ...usage,
+            heapUsed: usage.heapUsed / 1000000 + " MB",
+            rssBytes: usage.rssBytes / 1000000 + " MB",
+          },
+          "Staring Bip Derive - Monitoring Memory usage"
+        );
         const user: User = req["user"];
         deriveBIP32(connection, user);
       }
