@@ -210,6 +210,9 @@ RCT_EXPORT_METHOD(getSignature:(RCTPromiseResolveBlock)resolve
 RCT_EXPORT_METHOD(getResultDeriveBIP32:(RCTPromiseResolveBlock)resolve
                   withRejecter:(RCTPromiseRejectBlock)reject)
 {
+    MPCCrypto_freeShare(share);
+    share = nullptr;
+
     int rv = 0;
     
     if (MPCCrypto_getResultDeriveBIP32(context, &share)){
@@ -298,6 +301,9 @@ RCT_EXPORT_METHOD(useShare:(nonnull NSString*)shareBuf
                   withResolver:(RCTPromiseResolveBlock)resolve
                   withRejecter:(RCTPromiseRejectBlock)reject)
 {
+    MPCCrypto_freeShare(share);
+    share = nullptr;
+
     std::vector<uint8_t> share_buf;
     
     react_string_to_char_vector(shareBuf, share_buf);
@@ -311,6 +317,10 @@ RCT_EXPORT_METHOD(useContext:(nonnull NSString*)contextBuf
                   withResolver:(RCTPromiseResolveBlock)resolve
                   withRejecter:(RCTPromiseRejectBlock)reject)
 {
+    MPCCrypto_freeShare(share);
+    
+    share = nullptr;
+
     std::vector<uint8_t> context_buf;
     
     react_string_to_char_vector(contextBuf, context_buf);
