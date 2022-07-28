@@ -27,9 +27,12 @@ export const processGenericSecret = async (
     connection.socket.send(
       JSON.stringify({ done: true, serverShareId: wallet.id })
     );
-    connection.socket.close();
+    connection.socket.close(undefined, "Done creating Secret Shares");
   } catch (err) {
     logger.error({ err }, "Error while saving generic Secret from generate");
-    connection.socket.close();
+    connection.socket.close(
+      undefined,
+      "Error while saving generic Secret from generate"
+    );
   }
 };

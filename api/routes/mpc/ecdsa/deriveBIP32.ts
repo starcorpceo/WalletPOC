@@ -48,6 +48,15 @@ export const deriveBIP32 = async (connection: SocketStream, user: User) => {
 
   connection.socket.on("error", (err) => {
     logger.error({ err }, "Error on derive BIP32");
+    deriveContext?.context?.free();
+  });
+
+  connection.socket.on("close", (code, reason) => {
+    logger.info(
+      { code, reason: reason?.toString() },
+      "Closed Derive BIP32 Connection"
+    );
+    deriveContext?.context?.free();
   });
 };
 
@@ -72,7 +81,7 @@ const initDerive = async (
     return { deriveConfig, parent, context };
   } catch (err) {
     logger.error({ err }, "Error while initiating Derive Bip32");
-    connection.socket.close();
+    connection.socket.close(undefined, "Error while initiating Derive Bip32");
     throw err;
   }
 };
@@ -86,14 +95,20 @@ const deriveStep = async (
   try {
     const { context, parent, deriveConfig } = deriveContext;
 
-    const stepInput = message.toString() || null;
+    const stepInput = message.toString();
 
     const stepOutput = step(stepInput, context);
 
     if (stepOutput === true) {
       const share = context.getNewShare().toString("base64");
 
-      processDerivedShare(user, share, parent, connection, deriveConfig);
+      processDerivedShare(user, share, parent, connection, deriveConfig)
+        .then((_) => context.free())
+        .catch((err) => {
+          logger.error({ err }, "Error while Storing Derived Share");
+          context.free();
+        });
+
       return;
     }
 
@@ -102,6 +117,7 @@ const deriveStep = async (
     connection.socket.send(stepOutput as string);
   } catch (err) {
     logger.error({ err }, "Error while Performing Derive Steps");
+    deriveContext.context?.free();
   }
 };
 

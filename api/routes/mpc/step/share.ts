@@ -27,10 +27,10 @@ export const processDerivedShare = async (
     );
 
     connection.socket.send(JSON.stringify({ done: true, serverShareId, path }));
-    connection.socket.close();
+    connection.socket.close(undefined, "Done saving Derived Share");
   } catch (err) {
     logger.error({ err }, "Error while saving Derived Share");
-    connection.socket.close();
+    connection.socket.close(undefined, "Error while saving Derived Share");
   }
 };
 
@@ -98,9 +98,12 @@ export const saveShare = async (
     connection.socket.send(
       JSON.stringify({ done: true, serverShareId: wallet.id })
     );
-    connection.socket.close();
+    connection.socket.close(undefined, "Done Generating Ecdsa Key Shares");
   } catch (err) {
     logger.error({ err }, "Error while saving main key from Ecdas Init");
-    connection.socket.close();
+    connection.socket.close(
+      undefined,
+      "Error while saving main key from Ecdas Init"
+    );
   }
 };
