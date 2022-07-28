@@ -32,7 +32,7 @@ const App = () => {
     backgroundColor: isDarkMode ? "#000" : "#fff",
   };
 
-  const Stack = createNativeStackNavigator();
+  const Stack = createNativeStackNavigator<NavigationRoutes>();
 
   return (
     <NavigationContainer>

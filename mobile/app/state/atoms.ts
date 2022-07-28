@@ -1,3 +1,4 @@
+import { emptyMPCWallet } from "config/constants";
 import { atom } from "recoil";
 import { recoilPersist } from "recoil-persist";
 import { User } from "../api-types/user";
@@ -14,13 +15,7 @@ export const initialAuthState: AuthState = {
   devicePublicKey: "",
   id: "",
   wallets: [],
-  bip44MasterWallet: {
-    id: "",
-    path: "",
-    keyShare: "",
-    parentWalletId: null,
-    xPub: undefined,
-  },
+  bip44MasterWallet: emptyMPCWallet,
 };
 
 export const authState = atom({

@@ -60,7 +60,10 @@ function deriveHandler(
     switch (deriveStatus) {
       case "Init":
         if (!isValidStart(message)) {
-          websocket.close();
+          websocket.close(
+            undefined,
+            "Something went wrong when starting up derive communication"
+          );
           reject(
             new Error(
               "Something went wrong when starting up derive communication"

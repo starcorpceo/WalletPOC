@@ -1,4 +1,5 @@
 import { config } from "config/config";
+import { emptyMPCWallet } from "config/constants";
 import { atom } from "recoil";
 import { recoilPersist } from "recoil-persist";
 import { CustomStorage } from "state/storage";
@@ -18,20 +19,20 @@ export type BitcoinWalletsState = {
 export const initialBitcoinState: BitcoinWalletsState = {
   accounts: [],
   coinTypeWallet: {
-    mpcWallet: {
-      path: "",
-      id: "",
-      keyShare: "",
-      parentWalletId: "",
-      xPub: "",
-    },
+    mpcWallet: emptyMPCWallet,
     config: {
       symbol: "BTC",
       name: "Bitcoin",
       chain: "Bitcoin",
       isTestnet: config.IsTestNet,
     },
-    virtualAccount: null,
+    virtualAccount: {
+      id: "",
+      balance: 0,
+      currency: "",
+      frozen: false,
+      active: false,
+    },
   },
 };
 
