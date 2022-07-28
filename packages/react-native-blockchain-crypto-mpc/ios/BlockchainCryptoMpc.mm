@@ -360,6 +360,8 @@ static void char_vector_to_react_string(std::vector<uint8_t> vector, NSString **
     NSData *outData = [NSData dataWithBytes:vector.data() length:vector.size()];
     
     *reactString = [outData base64EncodedStringWithOptions:0];
+    
+    reactArray = nil;
 }
 
 static void char_array_to_react_string(char charArray[], NSString ** reactString){
@@ -382,6 +384,8 @@ static void react_string_to_char_vector(NSString * reactString, std::vector<uint
     for(int i = 0; i < size; i++) {
         vector.push_back(buffer[i]);
     }
+
+    free(buffer);
 }
 
 static void react_string_to_char_array(NSString * reactString, char ** charArray){
