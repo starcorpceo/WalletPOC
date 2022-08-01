@@ -1,6 +1,6 @@
 {
   "name": "react-native-blockchain-crypto-mpc",
-  "version": "0.1.6",
+  "version": "0.1.8",
   "description": "React Native wrapper for (blockchain-crypto-mpc)[https://github.com/unboundsecurity/blockchain-crypto-mpc]",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
