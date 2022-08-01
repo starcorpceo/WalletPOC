@@ -1,36 +1,38 @@
+import { User } from "api-types/user";
 import constants from "config/constants";
 import React, { useCallback } from "react";
 import { Button } from "react-native";
 import { useSetRecoilState } from "recoil";
+import { KeyShareType } from "shared/mpc";
 import { AuthState, authState } from "state/atoms";
 import {
-  deriveToMpcWallet,
-  generateMpcWallet,
+  deriveMpcKeyShare,
+  generateMPCKeyShare,
 } from "wallet/controller/generator";
-import { User } from "../../../api-types/user";
 
 type GenerateWalletProps = {
   user: User;
 };
 
 const GenerateWallet = ({ user }: GenerateWalletProps) => {
-  const setAuth = useSetRecoilState(authState);
+  const setAuth = useSetRecoilState<AuthState>(authState);
 
   const startGenerate = useCallback(async () => {
-    const bip44MasterWallet = await generateMpcWallet(user);
+    const bip44MasterKeyShare = await generateMPCKeyShare(user);
 
-    const purposeWallet = await deriveToMpcWallet(
-      bip44MasterWallet,
+    const purposeKeyShare = await deriveMpcKeyShare(
+      bip44MasterKeyShare,
       user,
       constants.bip44PurposeIndex,
-      true
+      true,
+      KeyShareType.PURPOSE
     );
 
     setAuth((auth: AuthState) => {
       return {
         ...auth,
-        bip44MasterWallet,
-        wallets: [...auth.wallets, purposeWallet],
+        bip44MasterKeyShare,
+        keyShares: [...auth.keyShares, purposeKeyShare],
       };
     });
   }, [setAuth, user]);

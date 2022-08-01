@@ -1,4 +1,5 @@
 import { useNavigation } from "@react-navigation/native";
+import { CreateUserResponse, User } from "api-types/user";
 import { signWithDeviceKey } from "lib/auth";
 import { fetchFromApi, HttpMethod } from "lib/http";
 import React, { useCallback, useEffect } from "react";
@@ -11,8 +12,9 @@ import {
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { AuthState, authState, initialAuthState } from "state/atoms";
 import { getAllWallets, useResetWalletState } from "state/utils";
-import { CreateUserResponse, User } from "../api-types/user";
-import constants, { emptyMPCWallet } from "../config/constants";
+import constants, {
+  emptyMasterKeyPair as emptyMasterKeyShare,
+} from "../config/constants";
 
 const Header = () => {
   const setAuth = useSetRecoilState<AuthState>(authState);
@@ -101,8 +103,8 @@ const createNewProfile = async (devicePublicKey: string): Promise<User> => {
   return {
     id: userId,
     devicePublicKey,
-    wallets: [],
-    bip44MasterWallet: emptyMPCWallet,
+    keyShares: [],
+    bip44MasterKeyShare: emptyMasterKeyShare,
   };
 };
 

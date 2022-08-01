@@ -20,10 +20,12 @@ const BlockchainCryptoMpc = NativeModules.BlockchainCryptoMpc
     );
 
 export function initGenerateGenericSecret(): Promise<boolean> {
+  reset();
   return BlockchainCryptoMpc.initGenerateGenericSecret();
 }
 
 export function initImportGenericSecret(secret: string): Promise<boolean> {
+  reset();
   return BlockchainCryptoMpc.importGenericSecret([
     ...Buffer.from(secret, 'hex'),
   ]);

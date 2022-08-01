@@ -1,6 +1,5 @@
-export interface MPCWallet {
+export interface MpcKeyShare {
   id: string;
   path: string;
   keyShare: string;
-  parentWalletId: string | null;
 }

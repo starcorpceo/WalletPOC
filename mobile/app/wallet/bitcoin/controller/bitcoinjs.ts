@@ -3,70 +3,7 @@ import "shim";
 
 import * as bitcoin from "der-bitcoinjs-lib";
 
-import { BitcoinWalletsState, initialBitcoinState } from "bitcoin/state/atoms";
-import constants from "config/constants";
 import ec from "lib/elliptic";
-import { deepCompare } from "lib/string";
-import { deriveToMpcWallet } from "wallet/controller/generator";
-import { User } from "../../../api-types/user";
-import { MPCWallet } from "../../../api-types/wallet";
-
-export const createBitcoinAccount = async (
-  bitcoinState: BitcoinWalletsState,
-  user: User,
-  purposeWallet: MPCWallet
-) => {
-  if (walletExists(bitcoinState)) {
-    return;
-  }
-
-  const bitcoinTypeWallet = await getBitcoinTypeWallet(
-    bitcoinState,
-    user,
-    purposeWallet
-  );
-
-  const newIndex = bitcoinState.accounts.length;
-
-  const accountMpcWallet = await deriveToMpcWallet(
-    bitcoinTypeWallet,
-    user,
-    newIndex.toString(),
-    true
-  );
-
-  return { bitcoinTypeWallet, accountMpcWallet };
-};
-
-const getBitcoinTypeWallet = async (
-  state: BitcoinWalletsState,
-  user: User,
-  purposeWallet: MPCWallet
-): Promise<MPCWallet> => {
-  console.log("comparing", {
-    current: state.coinTypeWallet,
-    initial: initialBitcoinState.coinTypeWallet,
-  });
-  if (
-    deepCompare(
-      state.coinTypeWallet.mpcWallet,
-      initialBitcoinState.coinTypeWallet.mpcWallet
-    )
-  )
-    return await deriveToMpcWallet(
-      purposeWallet,
-      user,
-      constants.bip44BitcoinCoinType,
-      true
-    );
-
-  return state.coinTypeWallet.mpcWallet;
-};
-
-const walletExists = (bitcoinState: BitcoinWalletsState): boolean =>
-  bitcoinState &&
-  !!bitcoinState?.coinTypeWallet &&
-  bitcoinState.accounts.length > 0;
 
 export const mpcPublicKeyToBitcoinAddress = (publicKey: string): string => {
   const ecPair = ec.keyFromPublic(

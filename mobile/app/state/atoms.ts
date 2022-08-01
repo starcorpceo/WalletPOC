@@ -1,7 +1,7 @@
-import { emptyMPCWallet } from "config/constants";
+import { User } from "api-types/user";
+import { emptyMasterKeyPair } from "config/constants";
 import { atom } from "recoil";
 import { recoilPersist } from "recoil-persist";
-import { User } from "../api-types/user";
 import { CustomStorage } from "./storage";
 
 const { persistAtom } = recoilPersist({
@@ -14,8 +14,8 @@ export type AuthState = User;
 export const initialAuthState: AuthState = {
   devicePublicKey: "",
   id: "",
-  wallets: [],
-  bip44MasterWallet: emptyMPCWallet,
+  keyShares: [],
+  bip44MasterKeyShare: emptyMasterKeyPair,
 };
 
 export const authState = atom({

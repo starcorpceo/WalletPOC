@@ -1,64 +1,41 @@
-import { assignNewDepositAddress } from "bitcoin/controller/bitcoin-virtual-wallet";
-import { mpcPublicKeyToBitcoinAddress } from "bitcoin/controller/bitcoinjs";
+import { createAddressShare } from "bitcoin/controller/create-addresses";
 import { BitcoinWalletsState, bitcoinWalletsState } from "bitcoin/state/atoms";
-import { deriveNonHardenedShare } from "lib/mpc/deriveBip32";
 import React, { useCallback } from "react";
 import { Button, StyleSheet, Text, View } from "react-native";
-import { getPublicKey } from "react-native-blockchain-crypto-mpc";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { AuthState, authState } from "state/atoms";
-import { VirtualAccount, VirtualAddress } from "wallet/virtual-wallet";
-import { ChangeWallet } from "wallet/wallet";
+import { WalletChange } from "wallet/wallet";
 
 type CreateBitcoinWalletProps = {
-  external: ChangeWallet;
-  virtualAccount: VirtualAccount | null;
+  external: WalletChange;
+  index: number;
 };
 
-const CreateBitcoinAdress = ({
-  external,
-  virtualAccount,
-}: CreateBitcoinWalletProps) => {
+const CreateBitcoinAdress = ({ external, index }: CreateBitcoinWalletProps) => {
   const user = useRecoilValue<AuthState>(authState);
   const setBitcoin =
     useSetRecoilState<BitcoinWalletsState>(bitcoinWalletsState);
 
   const startGenerate = useCallback(async () => {
-    const accountShare = await deriveNonHardenedShare(
-      external.share,
-      external.addresses.length
+    const newAddress = await createAddressShare(
+      external.keyShare,
+      user,
+      external.addresses.length.toString()
     );
 
-    const accountPublicKey = await getPublicKey(accountShare);
-
-    const accountAddress = await mpcPublicKeyToBitcoinAddress(accountPublicKey);
-
-    //adding address to virtual account
-
-    if (!virtualAccount) return;
-
-    const address: VirtualAddress = await assignNewDepositAddress(
-      virtualAccount,
-      accountAddress
-    );
-
-    console.log("is address same: ", address.address == accountAddress);
+    console.log({ external, index });
 
     setBitcoin((current) => {
       return {
         ...current,
         accounts: [
           {
-            ...current.accounts[0],
+            ...current.accounts[index],
             external: {
-              ...current.accounts[0].external,
+              ...current.accounts[index].external,
               addresses: [
-                ...current.accounts[0].external.addresses,
-                {
-                  share: accountShare,
-                  publicKey: accountPublicKey,
-                  address: accountAddress,
-                },
+                ...current.accounts[index].external.addresses,
+                newAddress,
               ],
             },
           },

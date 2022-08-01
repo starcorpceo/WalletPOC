@@ -1,10 +1,10 @@
 import { notFound, other } from "@lib/error";
 import { client } from "../../server";
 import { User } from "./user";
-import { MPCWallet } from "./wallet";
+import { MpcKeyShare } from "./wallet";
 
-export const deleteWallet = (wallet: MPCWallet) => {
-  return client.mpcWallet.delete({
+export const deleteWallet = (wallet: MpcKeyShare) => {
+  return client.mpcKeyShare.delete({
     where: {
       id: wallet.id,
     },
@@ -14,17 +14,11 @@ export const deleteWallet = (wallet: MPCWallet) => {
 export const createDerivedWallet = (
   user: User,
   share: string,
-  parent: MPCWallet,
   path: string
-): Promise<MPCWallet> => {
-  return client.mpcWallet.create({
+): Promise<MpcKeyShare> => {
+  return client.mpcKeyShare.create({
     data: {
       keyShare: share,
-      parentWallet: {
-        connect: {
-          id: parent.id,
-        },
-      },
       path,
       user: {
         connect: {
@@ -42,8 +36,8 @@ export const createWallet = (
   user: User,
   share: string,
   path: string
-): Promise<MPCWallet> => {
-  return client.mpcWallet.create({
+): Promise<MpcKeyShare> => {
+  return client.mpcKeyShare.create({
     data: {
       keyShare: share,
       path,
@@ -59,8 +53,8 @@ export const createWallet = (
   });
 };
 
-export const getWallet = async (id: string): Promise<MPCWallet> => {
-  const wallet = await client.mpcWallet.findUnique({
+export const getWallet = async (id: string): Promise<MpcKeyShare> => {
+  const wallet = await client.mpcKeyShare.findUnique({
     where: {
       id,
     },
@@ -70,20 +64,20 @@ export const getWallet = async (id: string): Promise<MPCWallet> => {
   return wallet;
 };
 
-export const createBip44MasterWallet = async (
+export const createBip44MasterKeyShare = async (
   user: User,
-  parent: MPCWallet,
+  parentId: string,
   share: string,
   path: string
-): Promise<MPCWallet> => {
+): Promise<MpcKeyShare> => {
   try {
     const result = await client.$transaction([
-      client.mpcWallet.delete({
+      client.mpcKeyShare.delete({
         where: {
-          id: parent.id,
+          id: parentId,
         },
       }),
-      client.mpcWallet.create({
+      client.mpcKeyShare.create({
         data: {
           keyShare: share,
           path,
@@ -92,18 +86,6 @@ export const createBip44MasterWallet = async (
               id_devicePublicKey: {
                 id: user.id,
                 devicePublicKey: user.devicePublicKey,
-              },
-            },
-          },
-          bip44MasterWallet: {
-            create: {
-              user: {
-                connect: {
-                  id_devicePublicKey: {
-                    id: user.id,
-                    devicePublicKey: user.devicePublicKey,
-                  },
-                },
               },
             },
           },
@@ -117,9 +99,9 @@ export const createBip44MasterWallet = async (
 
     return master;
   } catch (err) {
-    await client.mpcWallet.delete({
+    await client.mpcKeyShare.delete({
       where: {
-        id: parent.id,
+        id: parentId,
       },
     });
     throw err;

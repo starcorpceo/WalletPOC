@@ -4,7 +4,7 @@ module.exports = {
     [
       "module-resolver",
       {
-        extensions: [".ts", ".tsx", "js", "jsx"],
+        extensions: [".ts", ".tsx", "js", "jsx", ".d.ts"],
         root: ["./app"],
         alias: {
           lib: "./app/lib",

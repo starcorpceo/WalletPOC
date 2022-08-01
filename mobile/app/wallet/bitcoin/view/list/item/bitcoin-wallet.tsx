@@ -1,7 +1,6 @@
 import { BitcoinWallet } from "bitcoin/.";
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
-import { getXPubKey } from "react-native-blockchain-crypto-mpc";
 
 type BitcoinWalletProps = {
   wallet: BitcoinWallet;

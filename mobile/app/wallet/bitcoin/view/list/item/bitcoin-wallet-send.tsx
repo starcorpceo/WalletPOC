@@ -1,14 +1,13 @@
+import { User } from "api-types/user";
 import { BitcoinWallet } from "bitcoin/.";
 import {
   prepareSigner,
   prepareTransaction,
   signTransaction,
-  broadcastTransaction,
 } from "bitcoin/controller/bitcoin-wallet";
-import React, { useCallback, useState } from "react";
-import { Button, TextInput, View, Alert } from "react-native";
-import { User } from "../../../../../api-types/user";
 import * as bitcoin from "der-bitcoinjs-lib";
+import React, { useCallback, useState } from "react";
+import { Alert, Button, TextInput, View } from "react-native";
 import "shim";
 
 type SendBitcoinProps = {

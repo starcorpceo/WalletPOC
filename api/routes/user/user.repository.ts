@@ -1,8 +1,3 @@
-import {
-  Bip44MasterWallet,
-  MpcWallet as PrismaWallet,
-  User as PrismaUser,
-} from ".prisma/client";
 import { notFound, other } from "@lib/error";
 import { client } from "./../../server";
 import { CreateUserRequest, User } from "./user";
@@ -12,12 +7,12 @@ export const persistUserCreation = async (
 ): Promise<User> => {
   const user = await client.user.create({
     data: { ...request },
-    include: includeWallets,
+    include: { keyShares: true },
   });
 
   if (!user) throw other("Error while creating User");
 
-  return prismaUserToUser(user);
+  return user;
 };
 
 export const getUser = async (request: GetUser): Promise<User> => {
@@ -30,40 +25,15 @@ export const getUser = async (request: GetUser): Promise<User> => {
         devicePublicKey,
       },
     },
-    include: includeWallets,
+    include: { keyShares: true },
   });
 
   if (!user) throw notFound("User not found");
 
-  return prismaUserToUser(user);
+  return user;
 };
 
 type GetUser = {
   userId: string;
   devicePublicKey: string;
-};
-
-const includeWallets = {
-  bip44MasterWallet: {
-    include: {
-      wallet: true,
-    },
-  },
-  wallets: true,
-};
-
-const prismaUserToUser = (user: PrismaWalletUser): User => {
-  return {
-    ...user,
-    bip44MasterWallet: user.bip44MasterWallet?.wallet,
-  };
-};
-
-type PrismaWalletUser = PrismaUser & {
-  wallets: PrismaWallet[];
-  bip44MasterWallet:
-    | (Bip44MasterWallet & {
-        wallet: PrismaWallet;
-      })
-    | null;
 };

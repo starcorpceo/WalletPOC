@@ -8,39 +8,19 @@ generator client {
 }
 
 model User {
-    id              String      @default(uuid())
+    id              String        @default(uuid())
     devicePublicKey String
-    wallets         MpcWallet[] @relation("WalletForUser")
-
-    bip44MasterWallet Bip44MasterWallet?
+    keyShares       MpcKeyShare[] @relation("KeySharesForUser")
 
     @@unique([id, devicePublicKey])
 }
 
-model MpcWallet {
+model MpcKeyShare {
     id       String @id @default(uuid())
     path     String
     keyShare String
 
-    user                User   @relation("WalletForUser", fields: [userId, userDevicePublicKey], references: [id, devicePublicKey])
+    user                User   @relation("KeySharesForUser", fields: [userId, userDevicePublicKey], references: [id, devicePublicKey])
     userId              String
     userDevicePublicKey String
-
-    wallets        MpcWallet[] @relation("DerivedWallets")
-    parentWallet   MpcWallet?  @relation("DerivedWallets", fields: [parentWalletId], references: [id])
-    parentWalletId String?
-
-
-    bip44MasterWallet Bip44MasterWallet?
-}
-
-model Bip44MasterWallet {
-    user                User   @relation(fields: [userId, userDevicePublicKey], references: [id, devicePublicKey])
-    userId              String
-    userDevicePublicKey String
-
-    wallet   MpcWallet @relation(fields: [walletId], references: [id])
-    walletId String    @unique
-
-    @@unique([userId, userDevicePublicKey])
 }

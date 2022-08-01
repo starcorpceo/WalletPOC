@@ -3,8 +3,8 @@ import {
   BitcoinWalletsState,
   initialBitcoinState,
 } from "bitcoin/state/atoms";
-import { selector, selectorFamily, useSetRecoilState } from "recoil";
-import { MPCWallet } from "../api-types/wallet";
+import { selector, useSetRecoilState } from "recoil";
+import { KeyShareType, PurposeKeyShare } from "shared/mpc";
 import { AuthState, authState } from "./atoms";
 
 type AllWallets = {
@@ -31,28 +31,19 @@ export const getAllWallets = selector({
   },
 });
 
-export const getPurposeWallet = selectorFamily({
+export const getPurposeWallet = selector({
   key: "GetPurposeWallet",
-  get:
-    (params: { masterId: string; purposeIndex: string }) =>
-    ({ get }): MPCWallet => {
-      const { masterId, purposeIndex } = params;
+  get: ({ get }): PurposeKeyShare => {
+    const auth = get<AuthState>(authState);
 
-      const auth = get<AuthState>(authState);
-      console.log(
-        "finding fromthis auth",
-        auth,
-        masterId,
-        "m/" + purposeIndex + "'"
-      );
-      const purposeWallet = auth.wallets.find(
-        (wallet) =>
-          wallet.parentWalletId === masterId &&
-          wallet.path === "m/" + purposeIndex + "'"
-      );
+    const purposeWallet = auth.keyShares.find(
+      (wallet) =>
+        wallet.parentWalletId === auth.bip44MasterKeyShare.id &&
+        wallet.type === KeyShareType.PURPOSE
+    );
 
-      if (!purposeWallet) throw new Error("Purpose Wallet does not exist!");
+    if (!purposeWallet) throw new Error("Purpose Wallet does not exist!");
 
-      return purposeWallet;
-    },
+    return purposeWallet;
+  },
 });
