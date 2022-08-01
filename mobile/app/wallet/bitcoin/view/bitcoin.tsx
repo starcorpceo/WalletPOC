@@ -8,8 +8,10 @@ import React, { useEffect } from "react";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { AuthState, authState } from "state/atoms";
 import { getPurposeWallet } from "state/utils";
+import { deriveToMpcWallet } from "wallet/controller/generator";
 import Wallets from "wallet/generic-wallet-view";
 import BitcoinWalletListView from "./list/bitcoin-wallet-list";
+import { VirtualBalanceView } from "./virtual/virtual-balance";
 
 const Bitcoin = () => {
   const bitcoinState = useRecoilValue<BitcoinWalletsState>(bitcoinWalletsState);
@@ -62,6 +64,8 @@ const Bitcoin = () => {
 
   return (
     <Wallets name="Bitcoin">
+      <VirtualBalanceView wallet={bitcoinState.coinTypeWallet} />
+
       <BitcoinWalletListView wallets={bitcoinState.accounts} />
     </Wallets>
   );

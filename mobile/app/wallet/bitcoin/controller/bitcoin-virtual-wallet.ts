@@ -7,7 +7,9 @@ import {
   CreateAccount,
   VirtualAccount,
   VirtualAddress,
+  VirtualBalance,
 } from "wallet/virtual-wallet";
+import { Balance } from "wallet/wallet";
 
 export const createNewVirtualAccount = (): Promise<VirtualAccount> => {
   const createAccountData: CreateAccount = {
@@ -23,6 +25,7 @@ export const createNewVirtualAccount = (): Promise<VirtualAccount> => {
   );
 };
 
+// Can be only assigned, if its not already assigned to another virtual account
 export const assignNewDepositAddress = (
   virtualAccount: VirtualAccount,
   address: string
@@ -33,5 +36,14 @@ export const assignNewDepositAddress = (
       address
     ),
     { method: HttpMethod.POST }
+  );
+};
+
+// Gets balance based on virtual account
+export const getBalance = (
+  account: VirtualAccount
+): Promise<VirtualBalance> => {
+  return fetchFromTatum<VirtualBalance>(
+    endpoints.virtualAccounts.balance(account.id)
   );
 };
