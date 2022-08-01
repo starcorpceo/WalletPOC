@@ -2,6 +2,7 @@
  * Deriving a wallet based on previous seed
  */
 
+import { DeriveConfig } from "api-types/bip";
 import constants from "config/constants";
 import {
   getResultDeriveBIP32,
@@ -14,7 +15,6 @@ import {
   isValidStart,
   MPCError,
 } from ".";
-import { DeriveConfig } from "../../api-types/bip";
 
 export const deriveBIP32 = authenticatedShareActionMpc<DeriveContext>(
   "/mpc/ecdsa/derive",

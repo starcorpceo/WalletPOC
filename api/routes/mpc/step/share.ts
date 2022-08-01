@@ -3,9 +3,9 @@ import constants from "@lib/constants";
 import logger from "@lib/logger";
 import Context from "../../../crypto-mpc-js/lib/context";
 import { User } from "../../user/user";
-import { MPCWallet } from "../../user/wallet";
+import { MpcKeyShare } from "../../user/wallet";
 import {
-  createBip44MasterWallet,
+  createBip44MasterKeyShare,
   createDerivedWallet,
   createWallet,
 } from "../../user/wallet.repository";
@@ -14,7 +14,7 @@ import { DeriveConfig } from "../ecdsa/deriveBIP32";
 export const processDerivedShare = async (
   user: User,
   share: string,
-  parent: MPCWallet,
+  parent: MpcKeyShare,
   connection: SocketStream,
   deriveConfig: DeriveConfig
 ) => {
@@ -37,9 +37,9 @@ export const processDerivedShare = async (
 const saveDerivedShare = async (
   user: User,
   share: string,
-  parent: MPCWallet,
+  parent: MpcKeyShare,
   deriveConfig: DeriveConfig
-): Promise<MPCWallet> => {
+): Promise<MpcKeyShare> => {
   const wallet = await saveShareBasedOnPath(user, share, parent, deriveConfig);
 
   logger.info(
@@ -56,15 +56,15 @@ const saveDerivedShare = async (
 const saveShareBasedOnPath = (
   user: User,
   share: string,
-  parent: MPCWallet,
+  parent: MpcKeyShare,
   deriveConfig: DeriveConfig
-): Promise<MPCWallet> => {
+): Promise<MpcKeyShare> => {
   const path = buildPath(deriveConfig);
 
   if (deriveConfig.index === constants.bip44MasterIndex) {
-    return createBip44MasterWallet(user, parent, share, path);
+    return createBip44MasterKeyShare(user, parent.id, share, path);
   }
-  return createDerivedWallet(user, share, parent, path);
+  return createDerivedWallet(user, share, path);
 };
 
 const buildPath = (deriveConfig: DeriveConfig) => {

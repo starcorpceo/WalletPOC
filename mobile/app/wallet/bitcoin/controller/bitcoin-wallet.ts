@@ -1,3 +1,4 @@
+import { User } from "api-types/user";
 import { config } from "config/config";
 import * as bitcoin from "der-bitcoinjs-lib";
 import { fetchFromTatum, HttpMethod } from "lib/http";
@@ -14,16 +15,12 @@ import {
   UTXO,
 } from "wallet/wallet";
 import { BitcoinWallet } from "..";
-import { User } from "../../../api-types/user";
 
-export const getBalance = (wallet: CryptoWallet): Promise<Balance> => {
-  return fetchFromTatum<Balance>(
-    endpoints.bitcoin.balance(wallet.config.address)
-  );
+export const getBalance = (address: string): Promise<Balance> => {
+  return fetchFromTatum<Balance>(endpoints.bitcoin.balance(address));
 };
 
 export const broadcastTransaction = (hex: string): Promise<any> => {
-  console.log("3: ", hex.length);
   return fetchFromTatum<any>(endpoints.bitcoin.broadcastTransaction(), {
     method: HttpMethod.POST,
     body: { txData: hex },
@@ -31,7 +28,7 @@ export const broadcastTransaction = (hex: string): Promise<any> => {
 };
 
 export const getLatestTransactions = (
-  wallet: CryptoWallet,
+  address: string,
   pageSize: number = 10,
   offset: number = 0
 ): Promise<Transaction[]> => {
@@ -41,7 +38,7 @@ export const getLatestTransactions = (
   });
 
   return fetchFromTatum<Transaction[]>(
-    endpoints.bitcoin.transaction(wallet.config.address, query)
+    endpoints.bitcoin.transaction(address, query)
   );
 };
 
@@ -68,14 +65,15 @@ export const getNetValue = (
 };
 
 export const getUnspentTransactions = async (
-  wallet: CryptoWallet
+  transactions: Transaction[],
+  address: string
 ): Promise<UTXO[]> => {
   const unspent = Promise.all(
-    wallet.transactions.flatMap((transaction: Transaction) =>
+    transactions.flatMap((transaction: Transaction) =>
       transaction.outputs.map(async (output: Output, index) => {
         if (
           !isTransactionSpent(transaction, wallet) &&
-          output.address === wallet.config.address
+          output.address === address
         )
           return fetchFromTatum<UTXO>(
             endpoints.bitcoin.utxo(transaction.hash, index)
@@ -104,9 +102,9 @@ export const getUnspentTransactionsSync = (wallet: CryptoWallet) => {
 
 const isTransactionSpent = (
   transaction: Transaction,
-  wallet: CryptoWallet
+  allTransactions: Transaction[]
 ): boolean =>
-  wallet.transactions.some((searchTransaction: Transaction) =>
+  allTransactions.some((searchTransaction: Transaction) =>
     searchTransaction.inputs.find(
       (input: Input) => input.prevout.hash === transaction.hash
     )
@@ -114,10 +112,10 @@ const isTransactionSpent = (
 
 const getChangeFromUTXO = (
   transaction: Transaction,
-  wallet: CryptoWallet
+  address: string
 ): number => {
   const change = transaction.outputs.find(
-    (output: Output) => output.address === wallet.config.address
+    (output: Output) => output.address === address
   );
 
   return change?.value || 0;
@@ -125,10 +123,10 @@ const getChangeFromUTXO = (
 
 const getChangeValueFromUTXOs = (
   transactions: Transaction[],
-  wallet: CryptoWallet
+  address: string
 ): number => {
   return transactions.reduce((prev, curr) => {
-    return prev + getChangeFromUTXO(curr, wallet);
+    return prev + getChangeFromUTXO(curr, address);
   }, 0);
 };
 

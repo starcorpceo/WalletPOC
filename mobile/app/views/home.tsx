@@ -1,5 +1,5 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { emptyMPCWallet } from "config/constants";
+import { emptyMasterKeyPair } from "config/constants";
 import { deepCompare } from "lib/string";
 import React from "react";
 import {
@@ -36,7 +36,7 @@ const Home = ({ navigation }: Props) => {
       <ScrollView contentContainerStyle={{ paddingBottom: "100%" }}>
         <Text style={textStyle}>Welcome to Secure Wallet</Text>
 
-        {deepCompare(user.bip44MasterWallet, emptyMPCWallet) ? (
+        {deepCompare(user.bip44MasterKeyShare, emptyMasterKeyPair) ? (
           <>
             <Text>
               You dont have an Account with Corresponding Wallets yet. Import or

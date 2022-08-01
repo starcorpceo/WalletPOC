@@ -1,3 +1,5 @@
+import { KeyShareType } from "shared/mpc";
+
 interface IConstants {
   deviceKeyName: string;
   bip44MasterIndex: string;
@@ -13,12 +15,11 @@ const constants: IConstants = {
   bip44BitcoinCoinType: "1",
 };
 
-export const emptyMPCWallet = {
+export const emptyMasterKeyPair = {
   id: "",
   path: "",
   keyShare: "",
-  parentWalletId: "",
-  xPub: "",
+  type: KeyShareType.MASTER,
 };
 
 export default constants;

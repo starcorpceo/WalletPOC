@@ -1,14 +1,15 @@
 import constants from "config/constants";
 import React, { useCallback, useState } from "react";
 import { Button, TextInput, View } from "react-native";
-import { getXPubKey } from "react-native-blockchain-crypto-mpc";
 import { useSetRecoilState } from "recoil";
 import { AuthState, authState } from "state/atoms";
 import {
-  deriveToMpcWallet,
-  generateMpcWalletFromSeed,
+  deriveMpcKeyShare,
+  generateMPCKeyShareFromSeed,
 } from "wallet/controller/generator";
-import { User } from "../../../api-types/user";
+
+import { User } from "api-types/user";
+import { KeyShareType } from "shared/mpc";
 
 type ImportWalletProps = {
   user: User;
@@ -20,16 +21,17 @@ const importSeed1: string =
 const ImportWallet = ({ user }: ImportWalletProps) => {
   const [seed, setSeed] = useState<string>(importSeed1);
 
-  const setAuth = useSetRecoilState(authState);
+  const setAuth = useSetRecoilState<AuthState>(authState);
 
   const importWallet = useCallback(async () => {
-    const bip44MasterWallet = await generateMpcWalletFromSeed(seed, user);
+    const bip44MasterKeyShare = await generateMPCKeyShareFromSeed(seed, user);
 
-    const purposeWallet = await deriveToMpcWallet(
-      bip44MasterWallet,
+    const purposeKeyShare = await deriveMpcKeyShare(
+      bip44MasterKeyShare,
       user,
       constants.bip44PurposeIndex,
-      true
+      true,
+      KeyShareType.PURPOSE
     );
 
     //const xPub = await getXPubKey(purposeWallet.keyShare, "main");
@@ -37,9 +39,8 @@ const ImportWallet = ({ user }: ImportWalletProps) => {
     setAuth((auth: AuthState) => {
       return {
         ...auth,
-        bip44MasterWallet,
-        //xPub,
-        wallets: [...auth.wallets, purposeWallet],
+        bip44MasterKeyShare,
+        keyShares: [...auth.keyShares, purposeKeyShare],
       };
     });
   }, [setAuth, seed, user]);

@@ -1,6 +1,6 @@
+import { CreateNonceResponse } from "api-types/auth";
 import { signWithDeviceKey, signWithDeviceKeyNoAuth } from "lib/auth";
 import { fetchFromApi, getApiUrl } from "lib/http";
-import { CreateNonceResponse } from "../../api-types/auth";
 
 export type Share = {
   clientShare: string;

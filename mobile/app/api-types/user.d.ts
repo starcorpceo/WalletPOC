@@ -1,10 +1,8 @@
-import { MPCWallet } from "./wallet";
-
 export interface User {
   id: string;
   devicePublicKey: string;
-  wallets: MPCWallet[];
-  bip44MasterWallet: MPCWallet;
+  keyShares: MPCEcdsaKeyShare[];
+  bip44MasterKeyShare: MasterKeyShare;
 }
 
 export interface CreateUserRequest {

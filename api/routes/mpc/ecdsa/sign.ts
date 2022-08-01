@@ -1,7 +1,7 @@
 import { Context } from "@crypto-mpc";
 import { SocketStream } from "@fastify/websocket";
 import logger from "@lib/logger";
-import { MPCWallet } from "../../user/wallet";
+import { MpcKeyShare } from "../../user/wallet";
 import { getWallet } from "../../user/wallet.repository";
 import { step } from "../step/step";
 
@@ -11,7 +11,7 @@ export const signWithEcdsaShare = (connection: SocketStream) => {
   let context: Context;
   let status: SignStatus = "InitShare";
 
-  let share: MPCWallet;
+  let share: MpcKeyShare;
 
   connection.socket.on("message", async (message) => {
     switch (status) {
