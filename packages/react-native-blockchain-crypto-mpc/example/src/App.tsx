@@ -5,6 +5,7 @@ import {
   getPublicKey,
   getResultDeriveBIP32,
   getSignature,
+  getXPubKey,
   verifySignature,
 } from 'react-native-blockchain-crypto-mpc';
 import styles from './App.styles';
@@ -23,6 +24,9 @@ export default function App() {
 
   const [share, setShare] = useState('');
   const [publicKey, setPublicKey] = useState('');
+  const [xPubMainKey, setXPubMainKey] = useState('');
+  const [xPubTestKey, setXPubTestKey] = useState('');
+
   const [signature, setSignature] = useState('');
   const [verifyLocal, setVerifyLocal] = useState<boolean>();
   const [verifyServer, setVerifyServer] = useState<any>();
@@ -38,7 +42,8 @@ export default function App() {
       const generatedShare = await generateEcdsa();
       setShare(generatedShare);
       setPublicKey(await getPublicKey(generatedShare));
-
+      setXPubMainKey(await getXPubKey(generatedShare, 'main'));
+      setXPubTestKey(await getXPubKey(generatedShare, 'test'));
       // --- Start signing a message
       const signContext = await signEcdsa(messageToSign, generatedShare);
 
@@ -98,6 +103,8 @@ export default function App() {
         <View style={groupStyle}>
           <Text>Client side Key Share: {share.slice(0, 23)}</Text>
           <Text>Client side Public Key: {publicKey}</Text>
+          <Text>Client side Main xPub Key: {xPubMainKey}</Text>
+          <Text>Client side Test tPub Key: {xPubTestKey}</Text>
         </View>
 
         <View style={groupStyle}>

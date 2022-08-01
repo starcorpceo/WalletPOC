@@ -22,7 +22,8 @@ export const signWithEcdsaShare = (connection: SocketStream) => {
           connection.socket.send(JSON.stringify({ value: "ShareSet" }));
         } catch (err) {
           logger.error({ err }, "Error while initiating signing");
-          connection.socket.close();
+          connection.socket.close(undefined, "Error while initiating signing");
+          context?.free();
           return;
         }
         break;
@@ -45,7 +46,8 @@ export const signWithEcdsaShare = (connection: SocketStream) => {
           status = "Stepping";
         } catch (err) {
           logger.error({ err }, "Error while starting signature");
-          connection.socket.close();
+          connection.socket.close(undefined, "Error while starting signature");
+          context.free();
         }
         break;
       case "Stepping":
@@ -54,13 +56,18 @@ export const signWithEcdsaShare = (connection: SocketStream) => {
 
           if (stepOutput === true) {
             logger.info("Completed Signature, closing connection");
-            connection.socket.close();
+            context.free();
+            connection.socket.close(
+              undefined,
+              "Completed Signature, closing connection"
+            );
             return;
           }
 
           connection.socket.send(stepOutput);
         } catch (err) {
           logger.error({ err }, "Error while stepping in sign");
+          context?.free();
         }
         break;
     }
@@ -68,5 +75,6 @@ export const signWithEcdsaShare = (connection: SocketStream) => {
 
   connection.socket.on("error", (err) => {
     logger.error({ err }, "error");
+    context?.free();
   });
 };

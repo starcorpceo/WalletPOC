@@ -8,12 +8,11 @@ generator client {
 }
 
 model User {
-    id              String   @default(uuid())
+    id              String      @default(uuid())
     devicePublicKey String
     wallets         MpcWallet[] @relation("WalletForUser")
 
-    bip44MasterWallet  Bip44MasterWallet?
-    bip44PurposeWallet Bip44PurposeWallet?
+    bip44MasterWallet Bip44MasterWallet?
 
     @@unique([id, devicePublicKey])
 }
@@ -32,8 +31,7 @@ model MpcWallet {
     parentWalletId String?
 
 
-    bip44PurposeWallet Bip44PurposeWallet?
-    bip44MasterWallet  Bip44MasterWallet?
+    bip44MasterWallet Bip44MasterWallet?
 }
 
 model Bip44MasterWallet {
@@ -42,18 +40,7 @@ model Bip44MasterWallet {
     userDevicePublicKey String
 
     wallet   MpcWallet @relation(fields: [walletId], references: [id])
-    walletId String @unique
-
-    @@unique([userId, userDevicePublicKey])
-}
-
-model Bip44PurposeWallet {
-    user                User   @relation(fields: [userId, userDevicePublicKey], references: [id, devicePublicKey])
-    userId              String
-    userDevicePublicKey String
-
-    wallet   MpcWallet @relation(fields: [walletId], references: [id])
-    walletId String @unique
+    walletId String    @unique
 
     @@unique([userId, userDevicePublicKey])
 }

@@ -4,7 +4,6 @@
 
 import constants from "config/constants";
 import {
-  getPublicKey,
   getResultDeriveBIP32,
   initDeriveBIP32,
   step,
@@ -53,8 +52,6 @@ function deriveHandler(
     parentPath,
   };
 
-  console.log(derive);
-
   websocket.onopen = () => {
     websocket.send(JSON.stringify(derive));
   };
@@ -63,7 +60,10 @@ function deriveHandler(
     switch (deriveStatus) {
       case "Init":
         if (!isValidStart(message)) {
-          websocket.close();
+          websocket.close(
+            undefined,
+            "Something went wrong when starting up derive communication"
+          );
           reject(
             new Error(
               "Something went wrong when starting up derive communication"
@@ -77,15 +77,11 @@ function deriveHandler(
           parentShare,
           indexToNumber(index),
           Number(hardened) === 1
-        ).then((success) => {
+        ).then(async (success) => {
           success &&
             step(null).then((stepMsg) => {
               if (stepMsg.finished && stepMsg.context) {
-                getResultDeriveBIP32(stepMsg.context).then((res) => {
-                  getPublicKey(res).then((res2) =>
-                    console.log("resulting public key", res2)
-                  );
-                });
+                websocket.send("nonhardened");
 
                 clientContext = stepMsg.context;
                 return;
@@ -125,13 +121,16 @@ function deriveHandler(
  *
  * Special method for non hardend derive from existing share, because it only needs 1 step on the client side
  */
-function deriveFromShareNonHardened(share: string, index: string) {
+export function deriveNonHardenedShare(
+  share: string,
+  index: number
+): Promise<string> {
   return new Promise((resolve) => {
-    initDeriveBIP32(share, Number(index), false).then((success) => {
+    initDeriveBIP32(share, index, false).then((success) => {
       success &&
         step(null).then((stepMsg) => {
           if (stepMsg.finished && stepMsg.context) {
-            resolve(stepMsg.context);
+            getResultDeriveBIP32(stepMsg.context).then((res) => resolve(res));
           }
         });
     });

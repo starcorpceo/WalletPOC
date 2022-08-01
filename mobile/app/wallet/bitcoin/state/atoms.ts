@@ -1,8 +1,10 @@
-import { atom, useRecoilState } from "recoil";
+import { config } from "config/config";
+import { emptyMPCWallet } from "config/constants";
+import { atom } from "recoil";
 import { recoilPersist } from "recoil-persist";
 import { CustomStorage } from "state/storage";
+import { CoinTypeWallet } from "wallet/wallet";
 import { BitcoinWallet } from "..";
-import { MPCWallet } from "../../../api-types/wallet";
 
 const { persistAtom } = recoilPersist({
   storage: CustomStorage,
@@ -10,17 +12,27 @@ const { persistAtom } = recoilPersist({
 });
 
 export type BitcoinWalletsState = {
-  coinTypeWallet: MPCWallet;
+  coinTypeWallet: CoinTypeWallet;
   accounts: BitcoinWallet[];
 };
 
 export const initialBitcoinState: BitcoinWalletsState = {
   accounts: [],
   coinTypeWallet: {
-    path: "",
-    id: "",
-    keyShare: "",
-    parentWalletId: "",
+    mpcWallet: emptyMPCWallet,
+    config: {
+      symbol: "BTC",
+      name: "Bitcoin",
+      chain: "Bitcoin",
+      isTestnet: config.IsTestNet,
+    },
+    virtualAccount: {
+      id: "",
+      balance: 0,
+      currency: "",
+      frozen: false,
+      active: false,
+    },
   },
 };
 
@@ -30,26 +42,26 @@ export const bitcoinWalletsState = atom({
   effects_UNSTABLE: [persistAtom],
 });
 
-export const useUpdateBitcoinAccountWallet = (
-  updater: () => Promise<BitcoinWallet>
-) => {
-  const [bitcoinState, setBitcoinState] =
-    useRecoilState<BitcoinWalletsState>(bitcoinWalletsState);
+// export const useUpdateBitcoinAccountWallet = (
+//   updater: () => Promise<BitcoinWallet>
+// ) => {
+//   const [bitcoinState, setBitcoinState] =
+//     useRecoilState<BitcoinWalletsState>(bitcoinWalletsState);
 
-  return async function WithBitcoinState() {
-    const updatedWallet = await updater();
+//   return async function WithBitcoinState() {
+//     const updatedWallet = await updater();
 
-    const index = bitcoinState.accounts.findIndex(
-      (findWallet) => findWallet.mpcWallet.id === updatedWallet.mpcWallet.id
-    );
+//     const index = bitcoinState.accounts.findIndex(
+//       (findWallet) => findWallet.mpcWallet.id === updatedWallet.mpcWallet.id
+//     );
 
-    setBitcoinState((currentState) => ({
-      ...currentState,
-      accounts: [
-        ...currentState.accounts.slice(0, index),
-        updatedWallet,
-        ...currentState.accounts.slice(index + 1),
-      ],
-    }));
-  };
-};
+//     setBitcoinState((currentState) => ({
+//       ...currentState,
+//       accounts: [
+//         ...currentState.accounts.slice(0, index),
+//         updatedWallet,
+//         ...currentState.accounts.slice(index + 1),
+//       ],
+//     }));
+//   };
+// };

@@ -23,7 +23,12 @@ export const importGenericSecret = (connection: SocketStream, user: User) => {
           const stepOutput = step(message.toString(), context);
 
           if (stepOutput === true) {
-            processGenericSecret(user, context, connection);
+            processGenericSecret(user, context, connection)
+              .then((_) => context.free())
+              .catch((err) => {
+                logger.error({ err }, "Error while Storing Imported Secret");
+                context.free();
+              });
             return;
           }
 
@@ -35,5 +40,6 @@ export const importGenericSecret = (connection: SocketStream, user: User) => {
 
   connection.socket.on("error", (err) => {
     logger.error({ err }, "error");
+    context?.free();
   });
 };

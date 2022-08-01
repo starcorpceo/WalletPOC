@@ -1,4 +1,5 @@
 type NavigationRoutes = {
   Home: undefined;
-  Wallets: undefined;
+  Bitcoin: undefined;
+  Ethereum: undefined;
 };

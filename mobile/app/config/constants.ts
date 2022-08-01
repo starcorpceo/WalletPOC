@@ -13,4 +13,12 @@ const constants: IConstants = {
   bip44BitcoinCoinType: "1",
 };
 
+export const emptyMPCWallet = {
+  id: "",
+  path: "",
+  keyShare: "",
+  parentWalletId: "",
+  xPub: "",
+};
+
 export default constants;

@@ -6,7 +6,6 @@ import { User } from "../../user/user";
 import { MPCWallet } from "../../user/wallet";
 import {
   createBip44MasterWallet,
-  createBip44PurposeWallet,
   createDerivedWallet,
   createWallet,
 } from "../../user/wallet.repository";
@@ -28,10 +27,10 @@ export const processDerivedShare = async (
     );
 
     connection.socket.send(JSON.stringify({ done: true, serverShareId, path }));
-    connection.socket.close();
+    connection.socket.close(undefined, "Done saving Derived Share");
   } catch (err) {
     logger.error({ err }, "Error while saving Derived Share");
-    connection.socket.close();
+    connection.socket.close(undefined, "Error while saving Derived Share");
   }
 };
 
@@ -62,14 +61,10 @@ const saveShareBasedOnPath = (
 ): Promise<MPCWallet> => {
   const path = buildPath(deriveConfig);
 
-  switch (deriveConfig.index) {
-    case constants.bip44MasterIndex:
-      return createBip44MasterWallet(user, parent, share, path);
-    case constants.bip44PurposeIndex:
-      return createBip44PurposeWallet(user, parent, share, path);
-    default:
-      return createDerivedWallet(user, share, parent, path);
+  if (deriveConfig.index === constants.bip44MasterIndex) {
+    return createBip44MasterWallet(user, parent, share, path);
   }
+  return createDerivedWallet(user, share, parent, path);
 };
 
 const buildPath = (deriveConfig: DeriveConfig) => {
@@ -77,7 +72,7 @@ const buildPath = (deriveConfig: DeriveConfig) => {
 
   if (!parentPath && index === "m") return "m";
 
-  return `${parentPath}/${index}${hardened === "1" && "'"}`;
+  return `${parentPath}/${index}${hardened === "1" ? "'" : ""}`;
 };
 
 export const saveShare = async (
@@ -103,9 +98,12 @@ export const saveShare = async (
     connection.socket.send(
       JSON.stringify({ done: true, serverShareId: wallet.id })
     );
-    connection.socket.close();
+    connection.socket.close(undefined, "Done Generating Ecdsa Key Shares");
   } catch (err) {
     logger.error({ err }, "Error while saving main key from Ecdas Init");
-    connection.socket.close();
+    connection.socket.close(
+      undefined,
+      "Error while saving main key from Ecdas Init"
+    );
   }
 };

@@ -1,18 +1,74 @@
+import { config } from "config/config";
 import "shim";
 
-import { config } from "config/config";
 import * as bitcoin from "der-bitcoinjs-lib";
+
+import { BitcoinWalletsState, initialBitcoinState } from "bitcoin/state/atoms";
+import constants from "config/constants";
 import ec from "lib/elliptic";
-import { getPublicKey } from "react-native-blockchain-crypto-mpc";
-import { MPCWalletToWalletConfig } from "wallet/controller/generator";
-import { BitcoinWallet } from "..";
+import { deepCompare } from "lib/string";
+import { deriveToMpcWallet } from "wallet/controller/generator";
+import { User } from "../../../api-types/user";
 import { MPCWallet } from "../../../api-types/wallet";
 
-export const mpcWalletToBitcoinWallet: MPCWalletToWalletConfig<
-  BitcoinWallet
-> = async (mpcWallet: MPCWallet) => {
-  const publicKey = await getPublicKey(mpcWallet.keyShare);
+export const createBitcoinAccount = async (
+  bitcoinState: BitcoinWalletsState,
+  user: User,
+  purposeWallet: MPCWallet
+) => {
+  if (walletExists(bitcoinState)) {
+    return;
+  }
 
+  const bitcoinTypeWallet = await getBitcoinTypeWallet(
+    bitcoinState,
+    user,
+    purposeWallet
+  );
+
+  const newIndex = bitcoinState.accounts.length;
+
+  const accountMpcWallet = await deriveToMpcWallet(
+    bitcoinTypeWallet,
+    user,
+    newIndex.toString(),
+    true
+  );
+
+  return { bitcoinTypeWallet, accountMpcWallet };
+};
+
+const getBitcoinTypeWallet = async (
+  state: BitcoinWalletsState,
+  user: User,
+  purposeWallet: MPCWallet
+): Promise<MPCWallet> => {
+  console.log("comparing", {
+    current: state.coinTypeWallet,
+    initial: initialBitcoinState.coinTypeWallet,
+  });
+  if (
+    deepCompare(
+      state.coinTypeWallet.mpcWallet,
+      initialBitcoinState.coinTypeWallet.mpcWallet
+    )
+  )
+    return await deriveToMpcWallet(
+      purposeWallet,
+      user,
+      constants.bip44BitcoinCoinType,
+      true
+    );
+
+  return state.coinTypeWallet.mpcWallet;
+};
+
+const walletExists = (bitcoinState: BitcoinWalletsState): boolean =>
+  bitcoinState &&
+  !!bitcoinState?.coinTypeWallet &&
+  bitcoinState.accounts.length > 0;
+
+export const mpcPublicKeyToBitcoinAddress = (publicKey: string): string => {
   const ecPair = ec.keyFromPublic(
     [...Buffer.from(publicKey, "base64")].slice(23)
   );
@@ -32,16 +88,5 @@ export const mpcWalletToBitcoinWallet: MPCWalletToWalletConfig<
     );
   }
 
-  return {
-    config: {
-      symbol: "BTC",
-      name: "Bitcoin",
-      chain: "Bitcoin",
-      address: address || "",
-      publicKey: pubkeyECPair.publicKey,
-      isTestnet: true,
-    },
-    transactions: [],
-    mpcWallet,
-  };
+  return address || "";
 };

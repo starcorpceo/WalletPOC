@@ -12,6 +12,13 @@ const endpoints = {
     fees: () => "https://api-eu1.tatum.io/v3/blockchain/estimate",
     broadcastTransaction: () => "https://api-eu1.tatum.io/v3/bitcoin/broadcast",
   },
+
+  virtualAccounts: {
+    //POST
+    createAccount: () => "https://api-eu1.tatum.io/v3/ledger/account",
+    assignNewDepositAddress: (id: string, address: string) =>
+      `https://api-eu1.tatum.io/v3/offchain/account/${id}/address/${address}`,
+  },
 };
 
 export const apiKeys = {

@@ -3,4 +3,5 @@ export interface MPCWallet {
   path: string;
   keyShare: string;
   parentWalletId: string | null;
+  xPub: string | undefined;
 }

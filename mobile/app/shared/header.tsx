@@ -1,3 +1,4 @@
+import { useNavigation } from "@react-navigation/native";
 import { signWithDeviceKey } from "lib/auth";
 import { fetchFromApi, HttpMethod } from "lib/http";
 import React, { useCallback, useEffect } from "react";
@@ -11,18 +12,20 @@ import { useRecoilValue, useSetRecoilState } from "recoil";
 import { AuthState, authState, initialAuthState } from "state/atoms";
 import { getAllWallets, useResetWalletState } from "state/utils";
 import { CreateUserResponse, User } from "../api-types/user";
-import constants from "../config/constants";
+import constants, { emptyMPCWallet } from "../config/constants";
 
 const Header = () => {
   const setAuth = useSetRecoilState<AuthState>(authState);
   const { bitcoin, account: auth } = useRecoilValue(getAllWallets);
+
+  const navigation = useNavigation();
 
   const resetWallets = useResetWalletState();
 
   console.log("Auth updated", { auth });
   console.log("Bitcoin updated", { bitcoin });
 
-  const onStart = useCallback(async () => {
+  const initUser = useCallback(async () => {
     getKey(constants.deviceKeyName)
       .then((devicePublicKey) => {
         console.log(
@@ -47,7 +50,7 @@ const Header = () => {
   );
 
   useEffect(() => {
-    onStart();
+    initUser();
   }, []);
 
   return (
@@ -58,9 +61,11 @@ const Header = () => {
       <Button
         onPress={() => {
           try {
+            navigation.navigate("Home" as never);
             setAuth((_: AuthState) => ({ ...initialAuthState }));
             resetWallets();
             deleteKeyPair(constants.deviceKeyName);
+            initUser();
           } catch (err) {
             console.error("Error while resetting", err);
           }
@@ -97,8 +102,7 @@ const createNewProfile = async (devicePublicKey: string): Promise<User> => {
     id: userId,
     devicePublicKey,
     wallets: [],
-    bip44MasterWallet: undefined,
-    bip44PurposeWallet: undefined,
+    bip44MasterWallet: emptyMPCWallet,
   };
 };
 

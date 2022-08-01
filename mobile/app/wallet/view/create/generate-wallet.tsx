@@ -19,7 +19,7 @@ const GenerateWallet = ({ user }: GenerateWalletProps) => {
   const startGenerate = useCallback(async () => {
     const bip44MasterWallet = await generateMpcWallet(user);
 
-    const bip44PurposeWallet = await deriveToMpcWallet(
+    const purposeWallet = await deriveToMpcWallet(
       bip44MasterWallet,
       user,
       constants.bip44PurposeIndex,
@@ -27,7 +27,11 @@ const GenerateWallet = ({ user }: GenerateWalletProps) => {
     );
 
     setAuth((auth: AuthState) => {
-      return { ...auth, bip44MasterWallet, bip44PurposeWallet };
+      return {
+        ...auth,
+        bip44MasterWallet,
+        wallets: [...auth.wallets, purposeWallet],
+      };
     });
   }, [setAuth, user]);
 

@@ -1,10 +1,7 @@
 import constants from "config/constants";
 import { createGenericSecret, importSecret, Share } from "lib/mpc";
 import { deriveBIP32NoLocalAuth } from "lib/mpc/deriveBip32";
-import {
-  getPublicKey,
-  getResultDeriveBIP32,
-} from "react-native-blockchain-crypto-mpc";
+import { getResultDeriveBIP32 } from "react-native-blockchain-crypto-mpc";
 import "shim";
 import { User } from "../../api-types/user";
 import { MPCWallet } from "../../api-types/wallet";
@@ -61,7 +58,8 @@ export const deriveToMpcWallet = async (
     keyShare: derivedShare,
     id: context.deriveResult.serverShareId,
     path: context.deriveResult.path,
-    parentWalletId: null,
+    parentWalletId: parent.id,
+    xPub: undefined,
   };
 };
 
@@ -71,5 +69,6 @@ const secretShareToMpcWallet = (share: Share): MPCWallet => {
     keyShare: share.clientShare,
     path: "",
     parentWalletId: null,
+    xPub: undefined,
   };
 };
