@@ -1,6 +1,6 @@
 import { BitcoinWallet } from "bitcoin/.";
 import React from "react";
-import { View } from "react-native";
+import { Text, View } from "react-native";
 import BitcoinWalletView from "./item/bitcoin-wallet";
 
 type BitcoinWalletListViewProps = {
@@ -15,6 +15,7 @@ const BitcoinWalletListView = ({ wallets }: BitcoinWalletListViewProps) => {
         padding: 8,
       }}
     >
+      <Text>Addresses</Text>
       {wallets.map((wallet, index: number) => (
         <BitcoinWalletView
           key={"Wallet-" + index}

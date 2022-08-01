@@ -10,12 +10,12 @@ export interface CryptoWallet {
 }
 
 interface ChangeWallet {
-  share: string;
+  mpcWallet: MPCWallet;
   addresses: AddressWallet[];
 }
 
 interface AddressWallet {
-  share: string;
+  mpcWallet: MPCWallet;
   publicKey: string;
   address: string;
 }

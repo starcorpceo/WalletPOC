@@ -14,9 +14,11 @@ import {
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { AuthState, authState } from "state/atoms";
 import { getPurposeWallet } from "state/utils";
+import { deriveToMpcWallet } from "wallet/controller/generator";
 import Wallets from "wallet/generic-wallet-view";
 import CreateBitcoinAdress from "./create/create-bitcoin-address";
 import BitcoinWalletListView from "./list/bitcoin-wallet-list";
+import { VirtualBalanceView } from "./virtual/virtual-balance";
 
 const Bitcoin = () => {
   const bitcoinState = useRecoilValue<BitcoinWalletsState>(bitcoinWalletsState);
@@ -50,34 +52,19 @@ const Bitcoin = () => {
 
       const virtualAccount = await createNewVirtualAccount();
 
-      // const internalShare = await deriveNonHardenedShare(
-      //   accountMpcWallet.keyShare,
-      //   1
-      // );
-
-      const internal = await deriveBIP32NoLocalAuth(
-        user.devicePublicKey,
-        user.id,
-        accountMpcWallet.id,
-        accountMpcWallet.keyShare,
+      const internal = await deriveToMpcWallet(
+        accountMpcWallet,
+        user,
         "1",
-        "0",
-        accountMpcWallet.path
+        false
       );
 
-      const internalShare = await getResultDeriveBIP32(internal.clientContext);
-
-      const external = await deriveBIP32NoLocalAuth(
-        user.devicePublicKey,
-        user.id,
-        accountMpcWallet.id,
-        accountMpcWallet.keyShare,
+      const external = await deriveToMpcWallet(
+        accountMpcWallet,
+        user,
         "0",
-        "0",
-        accountMpcWallet.path
+        false
       );
-
-      const externalShare = await getResultDeriveBIP32(internal.clientContext);
 
       setBitcoin((current) => {
         return {
@@ -93,11 +80,11 @@ const Bitcoin = () => {
               mpcWallet: accountMpcWallet,
               transactions: [],
               internal: {
-                share: internalShare,
+                mpcWallet: internal,
                 addresses: [],
               },
               external: {
-                share: externalShare,
+                mpcWallet: external,
                 addresses: [],
               },
             },
@@ -109,10 +96,12 @@ const Bitcoin = () => {
     onOpen();
   }, []);
 
-  console.log("Bitcoin State updated", bitcoinState);
+  //console.log("Bitcoin State updated", bitcoinState);
 
   return (
     <Wallets name="Bitcoin">
+      <VirtualBalanceView wallet={bitcoinState.coinTypeWallet} />
+
       <BitcoinWalletListView wallets={bitcoinState.accounts} />
 
       {bitcoinState.accounts[0] && (

@@ -18,6 +18,8 @@ const endpoints = {
     createAccount: () => "https://api-eu1.tatum.io/v3/ledger/account",
     assignNewDepositAddress: (id: string, address: string) =>
       `https://api-eu1.tatum.io/v3/offchain/account/${id}/address/${address}`,
+    balance: (id: string) =>
+      `https://api-eu1.tatum.io/v3/ledger/account/${id}/balance`,
   },
 };
 

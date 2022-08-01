@@ -22,8 +22,8 @@ const Header = () => {
 
   const resetWallets = useResetWalletState();
 
-  console.log("Auth updated", { auth });
-  console.log("Bitcoin updated", { bitcoin });
+  //console.log("Auth updated", { auth });
+  //console.log("Bitcoin updated", { bitcoin });
 
   const initUser = useCallback(async () => {
     getKey(constants.deviceKeyName)

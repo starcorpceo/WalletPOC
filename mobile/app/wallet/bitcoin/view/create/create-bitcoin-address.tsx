@@ -1,12 +1,12 @@
 import { assignNewDepositAddress } from "bitcoin/controller/bitcoin-virtual-wallet";
 import { mpcPublicKeyToBitcoinAddress } from "bitcoin/controller/bitcoinjs";
 import { BitcoinWalletsState, bitcoinWalletsState } from "bitcoin/state/atoms";
-import { deriveNonHardenedShare } from "lib/mpc/deriveBip32";
 import React, { useCallback } from "react";
 import { Button, StyleSheet, Text, View } from "react-native";
 import { getPublicKey } from "react-native-blockchain-crypto-mpc";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { AuthState, authState } from "state/atoms";
+import { deriveToMpcWallet } from "wallet/controller/generator";
 import { VirtualAccount, VirtualAddress } from "wallet/virtual-wallet";
 import { ChangeWallet } from "wallet/wallet";
 
@@ -24,25 +24,29 @@ const CreateBitcoinAdress = ({
     useSetRecoilState<BitcoinWalletsState>(bitcoinWalletsState);
 
   const startGenerate = useCallback(async () => {
-    const accountShare = await deriveNonHardenedShare(
-      external.share,
-      external.addresses.length
+    const addressMPC = await deriveToMpcWallet(
+      external.mpcWallet,
+      user,
+      external.addresses.length.toString(),
+      false
     );
 
-    const accountPublicKey = await getPublicKey(accountShare);
-
-    const accountAddress = await mpcPublicKeyToBitcoinAddress(accountPublicKey);
-
-    //adding address to virtual account
-
+    // Begin adding address to virtual account
+    const addressPublicKey = await getPublicKey(addressMPC.keyShare);
+    const addressAddress = await mpcPublicKeyToBitcoinAddress(addressPublicKey);
     if (!virtualAccount) return;
-
     const address: VirtualAddress = await assignNewDepositAddress(
       virtualAccount,
-      accountAddress
+      addressAddress
     );
+    // End adding address to virtual account
 
-    console.log("is address same: ", address.address == accountAddress);
+    console.log(
+      "Address " +
+        address.address +
+        " created and assigned to virtual account " +
+        virtualAccount.id
+    );
 
     setBitcoin((current) => {
       return {
@@ -55,9 +59,9 @@ const CreateBitcoinAdress = ({
               addresses: [
                 ...current.accounts[0].external.addresses,
                 {
-                  share: accountShare,
-                  publicKey: accountPublicKey,
-                  address: accountAddress,
+                  mpcWallet: addressMPC,
+                  publicKey: addressPublicKey,
+                  address: addressAddress,
                 },
               ],
             },

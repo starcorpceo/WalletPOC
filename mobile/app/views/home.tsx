@@ -23,7 +23,7 @@ const Home = ({ navigation }: Props) => {
   const isDarkMode = useColorScheme() === "dark";
   const user = useRecoilValue<AuthState>(authState);
 
-  console.log(user);
+  //console.log(user);
 
   const textStyle: StyleProp<TextStyle> = {
     color: isDarkMode ? "#fff" : "#000",
