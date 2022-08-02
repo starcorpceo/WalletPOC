@@ -17,6 +17,7 @@ const BitcoinWalletView = ({ wallet, index }: BitcoinWalletProps) => {
         margin: 10,
       }}
     >
+      <Text>Addresses</Text>
       <View>
         {wallet.external.addresses.map((addr) => (
           <>

@@ -11,6 +11,7 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Bitcoin from "bitcoin/view/bitcoin";
+import BitcoinTransactions from "bitcoin/view/transactions";
 import React from "react";
 import {
   SafeAreaView,
@@ -45,6 +46,10 @@ const App = () => {
               <Stack.Screen name="Home" component={Home} />
               <Stack.Screen name="Bitcoin" component={Bitcoin} />
               <Stack.Screen name="Ethereum" component={Ethereum} />
+              <Stack.Screen
+                name="BitcoinTransactions"
+                component={BitcoinTransactions}
+              />
             </Stack.Navigator>
           </View>
         </RecoilRoot>

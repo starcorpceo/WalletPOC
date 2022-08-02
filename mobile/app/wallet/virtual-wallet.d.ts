@@ -465,3 +465,308 @@ export type VirtualBalance = {
    */
   availableBalance: string;
 };
+
+export type VirtualTransaction = {
+  /**
+   * Source account - source of transaction(s)
+   */
+  accountId: string;
+  /**
+   * Counter account - transaction(s) destination account. In case of blockchain recipient, this is addess of blockchain account.
+   */
+  counterAccountId?: string;
+  /**
+   * Transaction currency
+   */
+  currency: string;
+  /**
+   * Amount in account's currency
+   */
+  amount: string;
+  /**
+   * Whether the transaction is anonymous. If true, counter account owner does not see source account.
+   */
+  anonymous: boolean;
+  /**
+   * Time in UTC of transaction.
+   */
+  created: number;
+  marketValue: VirtualMarketValue;
+  /**
+   * Type of operation.
+   */
+  operationType:
+    | "PAYMENT"
+    | "WITHDRAWAL"
+    | "BLOCKCHAIN_TRANSACTION"
+    | "EXCHANGE"
+    | "FAILED"
+    | "DEPOSIT"
+    | "MINT"
+    | "REVOKE";
+  /**
+   * Type of payment.
+   */
+  transactionType:
+    | "FAILED"
+    | "DEBIT_PAYMENT"
+    | "CREDIT_PAYMENT"
+    | "CREDIT_DEPOSIT"
+    | "DEBIT_WITHDRAWAL"
+    | "CANCEL_WITHDRAWAL"
+    | "DEBIT_OUTGOING_PAYMENT"
+    | "CREDIT_INCOMING_PAYMENT"
+    | "EXCHANGE_BUY"
+    | "EXCHANGE_SELL";
+  /**
+   * Transaction internal reference - unique identifier within Tatum ledger. In order of failure, use this value to search for problems.
+   */
+  reference: string;
+  /**
+   * For bookkeeping to distinct transaction purpose.
+   */
+  transactionCode?: string;
+  /**
+   * Note visible for sender.
+   */
+  senderNote?: string;
+  /**
+   * Note visible for both sender and recipient.
+   */
+  recipientNote?: string;
+  /**
+   * Payment ID defined in payment order by sender.
+   */
+  paymentId?: string;
+  /**
+   * Present only for operationType WITHDRAWAL and XLM / XRP based accounts it represents message or destinationTag of the recipient, if present.
+   */
+  attr?: string;
+  /**
+   * For operationType DEPOSIT it represents address, on which was deposit credited for the account.
+   */
+  address?: string;
+  /**
+   * For operationType DEPOSIT, BLOCKCHAIN_TRANSACTION it represents transaction id, for which deposit occured.
+   */
+  txId?: string;
+};
+
+/**
+ * FIAT value of transaction.
+ */
+export type VirtualMarketValue = {
+  /**
+   * Value of transaction in given base pair.
+   */
+  amount: string;
+  /**
+   * Base pair.
+   */
+  currency:
+    | "AED"
+    | "AFN"
+    | "ALL"
+    | "AMD"
+    | "ANG"
+    | "AOA"
+    | "ARS"
+    | "AUD"
+    | "AWG"
+    | "AZN"
+    | "BAM"
+    | "BAT"
+    | "BBD"
+    | "BCH"
+    | "BDT"
+    | "BGN"
+    | "BHD"
+    | "BIF"
+    | "BMD"
+    | "BND"
+    | "BOB"
+    | "BRL"
+    | "BSD"
+    | "BTC"
+    | "BTN"
+    | "BWP"
+    | "BYN"
+    | "BYR"
+    | "BZD"
+    | "CAD"
+    | "CDF"
+    | "CHF"
+    | "CLF"
+    | "CLP"
+    | "CNY"
+    | "COP"
+    | "CRC"
+    | "CUC"
+    | "CUP"
+    | "CVE"
+    | "CZK"
+    | "DJF"
+    | "DKK"
+    | "DOP"
+    | "DOGE"
+    | "DZD"
+    | "EGP"
+    | "ERN"
+    | "ETB"
+    | "ETH"
+    | "EUR"
+    | "FJD"
+    | "FKP"
+    | "FLOW"
+    | "FUSD"
+    | "FREE"
+    | "GMC"
+    | "GMC_BSC"
+    | "RMD"
+    | "GBP"
+    | "GEL"
+    | "GGP"
+    | "GHS"
+    | "GIP"
+    | "GMD"
+    | "GNF"
+    | "GTQ"
+    | "GYD"
+    | "HKD"
+    | "HNL"
+    | "HRK"
+    | "HTG"
+    | "HUF"
+    | "IDR"
+    | "ILS"
+    | "IMP"
+    | "INR"
+    | "IQD"
+    | "IRR"
+    | "ISK"
+    | "JEP"
+    | "JMD"
+    | "JOD"
+    | "JPY"
+    | "KES"
+    | "KGS"
+    | "KHR"
+    | "KMF"
+    | "KPW"
+    | "KRW"
+    | "KWD"
+    | "KYD"
+    | "KZT"
+    | "LAK"
+    | "LBP"
+    | "LEO"
+    | "LINK"
+    | "LKR"
+    | "LRD"
+    | "LSL"
+    | "LTC"
+    | "LTL"
+    | "LVL"
+    | "LYD"
+    | "MAD"
+    | "MDL"
+    | "MGA"
+    | "MKD"
+    | "MKR"
+    | "MMK"
+    | "MMY"
+    | "MNT"
+    | "MOP"
+    | "MRO"
+    | "MUR"
+    | "MVR"
+    | "MWK"
+    | "MXN"
+    | "MYR"
+    | "MZN"
+    | "NAD"
+    | "NGN"
+    | "NIO"
+    | "NOK"
+    | "NPR"
+    | "NZD"
+    | "OMR"
+    | "PAB"
+    | "PAX"
+    | "PAXG"
+    | "PEN"
+    | "PGK"
+    | "PHP"
+    | "PKR"
+    | "PLN"
+    | "PYG"
+    | "QAR"
+    | "RON"
+    | "RSD"
+    | "RUB"
+    | "RWF"
+    | "SAR"
+    | "SBD"
+    | "SCR"
+    | "SDG"
+    | "SEK"
+    | "SGD"
+    | "SHP"
+    | "SLL"
+    | "SOS"
+    | "SRD"
+    | "STD"
+    | "SVC"
+    | "SYP"
+    | "SZL"
+    | "THB"
+    | "TJS"
+    | "TMT"
+    | "TND"
+    | "TOP"
+    | "TRY"
+    | "TTD"
+    | "TRON"
+    | "TUSD"
+    | "BUSD"
+    | "TWD"
+    | "TZS"
+    | "UAH"
+    | "UGX"
+    | "UNI"
+    | "USD"
+    | "USDC"
+    | "USDT"
+    | "USDT_TRON"
+    | "USDT_MATIC"
+    | "QTUM"
+    | "UYU"
+    | "UZS"
+    | "VEF"
+    | "VND"
+    | "VUV"
+    | "WBTC"
+    | "WST"
+    | "XAF"
+    | "XAG"
+    | "XAU"
+    | "XCD"
+    | "XCON"
+    | "XDR"
+    | "XOF"
+    | "XPF"
+    | "XRP"
+    | "YER"
+    | "ZAR"
+    | "ZMK"
+    | "ZMW"
+    | "ZWL";
+  /**
+   * Date of validity of rate in UTC.
+   */
+  sourceDate: number;
+  /**
+   * Source of base pair.
+   */
+  source: string;
+};

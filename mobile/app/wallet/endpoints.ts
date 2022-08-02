@@ -20,6 +20,9 @@ const endpoints = {
       `https://api-eu1.tatum.io/v3/offchain/account/${id}/address/${address}`,
     balance: (id: string) =>
       `https://api-eu1.tatum.io/v3/ledger/account/${id}/balance`,
+    //POST
+    transactions: (query: string) =>
+      `https://api-eu1.tatum.io/v3/ledger/transaction/account?${query}`,
   },
 };
 

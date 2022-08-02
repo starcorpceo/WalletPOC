@@ -8,6 +8,7 @@ import {
   VirtualAccount,
   VirtualAddress,
   VirtualBalance,
+  VirtualTransaction,
 } from "wallet/virtual-wallet";
 import { Balance } from "wallet/wallet";
 
@@ -45,5 +46,15 @@ export const getBalance = (
 ): Promise<VirtualBalance> => {
   return fetchFromTatum<VirtualBalance>(
     endpoints.virtualAccounts.balance(account.id)
+  );
+};
+
+// Gets all transactions of virtual account
+export const getTransactions = (
+  account: VirtualAccount
+): Promise<VirtualTransaction[]> => {
+  return fetchFromTatum<VirtualTransaction[]>(
+    endpoints.virtualAccounts.transactions("pageSize=10"),
+    { method: HttpMethod.POST, body: { id: account.id } }
   );
 };

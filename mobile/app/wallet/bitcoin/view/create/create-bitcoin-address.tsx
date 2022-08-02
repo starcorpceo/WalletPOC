@@ -4,14 +4,20 @@ import React, { useCallback } from "react";
 import { Button, StyleSheet, Text, View } from "react-native";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { AuthState, authState } from "state/atoms";
+import { VirtualAccount, VirtualAddress } from "wallet/virtual-wallet";
 import { WalletChange } from "wallet/wallet";
 
 type CreateBitcoinWalletProps = {
   external: WalletChange;
   index: number;
+  virtualAccount: VirtualAccount;
 };
 
-const CreateBitcoinAdress = ({ external, index }: CreateBitcoinWalletProps) => {
+const CreateBitcoinAdress = ({
+  external,
+  index,
+  virtualAccount,
+}: CreateBitcoinWalletProps) => {
   const user = useRecoilValue<AuthState>(authState);
   const setBitcoin =
     useSetRecoilState<BitcoinWalletsState>(bitcoinWalletsState);
@@ -20,10 +26,9 @@ const CreateBitcoinAdress = ({ external, index }: CreateBitcoinWalletProps) => {
     const newAddress = await createAddressShare(
       external.keyShare,
       user,
+      virtualAccount,
       external.addresses.length.toString()
     );
-
-    console.log({ external, index });
 
     setBitcoin((current) => {
       return {

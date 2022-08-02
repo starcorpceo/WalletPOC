@@ -21,7 +21,7 @@ export const VirtualBalanceView = ({ wallet }: BitcoinBalanceProps) => {
   }, []);
   return (
     <View>
-      <Text>Balance: {balance?.availableBalance}</Text>
+      <Text>Balance: {balance?.availableBalance} BTC</Text>
     </View>
   );
 };

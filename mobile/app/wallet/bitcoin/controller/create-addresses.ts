@@ -12,7 +12,9 @@ import {
   PurposeKeyShare,
 } from "shared/mpc";
 import { deriveMpcKeyShare } from "wallet/controller/generator";
+import { VirtualAccount, VirtualAddress } from "wallet/virtual-wallet";
 import { WalletChange } from "wallet/wallet";
+import { assignNewDepositAddress } from "./bitcoin-virtual-wallet";
 import { mpcPublicKeyToBitcoinAddress } from "./bitcoinjs";
 
 export const createBitcoinAccount = async (
@@ -48,6 +50,7 @@ export const createBitcoinAccount = async (
 export const createChangeKeyShare = async (
   user: User,
   accountShare: AccountKeyShare,
+  virtualAccount: VirtualAccount,
   index: string
 ): Promise<WalletChange> => {
   const change = await deriveMpcKeyShare(
@@ -58,7 +61,7 @@ export const createChangeKeyShare = async (
     KeyShareType.CHANGE
   );
 
-  const address = await createAddressShare(change, user, "0");
+  const address = await createAddressShare(change, user, virtualAccount, "0");
 
   return {
     keyShare: change,
@@ -69,6 +72,7 @@ export const createChangeKeyShare = async (
 export const createAddressShare = async (
   changeShare: ChangeKeyShare,
   user: User,
+  virtualAccount: VirtualAccount,
   index: string
 ): Promise<AddressKeyShare> => {
   const addressShare = await deriveMpcKeyShare(
@@ -81,6 +85,11 @@ export const createAddressShare = async (
 
   const publicKey = await getPublicKey(addressShare.keyShare);
   const address = await mpcPublicKeyToBitcoinAddress(publicKey);
+
+  const tatumAddress: VirtualAddress = await assignNewDepositAddress(
+    virtualAccount,
+    address
+  );
 
   return { ...addressShare, publicKey, address };
 };

@@ -1,14 +1,19 @@
 import { BitcoinWallet } from "bitcoin/.";
 import React from "react";
 import { Text, View } from "react-native";
+import { VirtualAccount } from "wallet/virtual-wallet";
 import CreateBitcoinAdress from "../create/create-bitcoin-address";
 import BitcoinWalletView from "./item/bitcoin-wallet";
 
 type BitcoinWalletListViewProps = {
   wallets: BitcoinWallet[];
+  virtualAccount: VirtualAccount;
 };
 
-const BitcoinWalletListView = ({ wallets }: BitcoinWalletListViewProps) => {
+const BitcoinWalletListView = ({
+  wallets,
+  virtualAccount,
+}: BitcoinWalletListViewProps) => {
   return (
     <View
       style={{
@@ -16,7 +21,6 @@ const BitcoinWalletListView = ({ wallets }: BitcoinWalletListViewProps) => {
         padding: 8,
       }}
     >
-      <Text>Addresses</Text>
       {wallets.map((wallet, index: number) => (
         <>
           <BitcoinWalletView
@@ -24,7 +28,11 @@ const BitcoinWalletListView = ({ wallets }: BitcoinWalletListViewProps) => {
             wallet={wallet}
             index={index}
           />
-          <CreateBitcoinAdress external={wallet.external} index={index} />
+          <CreateBitcoinAdress
+            external={wallet.external}
+            index={index}
+            virtualAccount={virtualAccount}
+          />
         </>
       ))}
     </View>
