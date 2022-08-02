@@ -1,10 +1,13 @@
-import { createAddressShare } from "bitcoin/controller/create-addresses";
+import { mpcPublicKeyToBitcoinAddress } from "bitcoin/controller/bitcoinjs-adapter";
 import { BitcoinWalletsState, bitcoinWalletsState } from "bitcoin/state/atoms";
 import React, { useCallback } from "react";
 import { Button, StyleSheet, Text, View } from "react-native";
 import { useRecoilValue, useSetRecoilState } from "recoil";
+import { KeyShareType } from "shared/types/mpc";
 import { AuthState, authState } from "state/atoms";
-import { VirtualAccount, VirtualAddress } from "wallet/types/virtual-wallet";
+import { createAddress } from "wallet/controller/creation/account-creation";
+import { deriveMpcKeyShare } from "wallet/controller/creation/derived-share-creation";
+import { VirtualAccount } from "wallet/types/virtual-wallet";
 import { AccountChange } from "wallet/types/wallet";
 
 type CreateBitcoinWalletProps = {
@@ -23,11 +26,18 @@ const CreateBitcoinAdress = ({
     useSetRecoilState<BitcoinWalletsState>(bitcoinWalletsState);
 
   const startGenerate = useCallback(async () => {
-    const newAddress = await createAddressShare(
+    const newAddressShare = await deriveMpcKeyShare(
       external.keyShare,
       user,
+      external.addresses.length.toString(),
+      false,
+      KeyShareType.ADDRESS
+    );
+
+    const newAddress = await createAddress(
+      newAddressShare,
       virtualAccount,
-      external.addresses.length.toString()
+      mpcPublicKeyToBitcoinAddress
     );
 
     setBitcoin((current) => {

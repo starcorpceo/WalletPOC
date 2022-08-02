@@ -4,9 +4,9 @@ import { Button, TextInput, View } from "react-native";
 import { useSetRecoilState } from "recoil";
 import { AuthState, authState } from "state/atoms";
 import {
+  createMPCKeyShareFromSeed,
   deriveMpcKeyShare,
-  generateMPCKeyShareFromSeed,
-} from "wallet/controller/generator";
+} from "wallet/controller/creation/derived-share-creation";
 
 import { User } from "api-types/user";
 import { KeyShareType } from "shared/types/mpc";
@@ -24,7 +24,7 @@ const ImportWallet = ({ user }: ImportWalletProps) => {
   const setAuth = useSetRecoilState<AuthState>(authState);
 
   const importWallet = useCallback(async () => {
-    const bip44MasterKeyShare = await generateMPCKeyShareFromSeed(seed, user);
+    const bip44MasterKeyShare = await createMPCKeyShareFromSeed(seed, user);
 
     const purposeKeyShare = await deriveMpcKeyShare(
       bip44MasterKeyShare,

@@ -12,9 +12,8 @@ import {
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { AuthState, authState, initialAuthState } from "state/atoms";
 import { getAllWallets, useResetWalletState } from "state/utils";
-import constants, {
-  emptyMasterKeyPair as emptyMasterKeyShare,
-} from "../config/constants";
+import constants, { emptyKeyPair } from "../config/constants";
+import { KeyShareType } from "./types/mpc";
 
 const Header = () => {
   const setAuth = useSetRecoilState<AuthState>(authState);
@@ -104,7 +103,7 @@ const createNewProfile = async (devicePublicKey: string): Promise<User> => {
     id: userId,
     devicePublicKey,
     keyShares: [],
-    bip44MasterKeyShare: emptyMasterKeyShare,
+    bip44MasterKeyShare: { ...emptyKeyPair, type: KeyShareType.MASTER },
   };
 };
 

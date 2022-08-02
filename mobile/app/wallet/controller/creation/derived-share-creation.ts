@@ -17,7 +17,7 @@ export type MPCKeyShareToWalletConfig<T extends CoinTypeAccount> = (
   MPCKeyShare: MPCKeyShare
 ) => Promise<T>;
 
-export const generateMPCKeyShareFromSeed = async (
+export const createMPCKeyShareFromSeed = async (
   seed: string,
   user: User
 ): Promise<MasterKeyShare> => {
@@ -31,7 +31,7 @@ export const generateMPCKeyShareFromSeed = async (
   );
 };
 
-export const generateMPCKeyShare = async (
+export const createMPCKeyShare = async (
   user: User
 ): Promise<MasterKeyShare> => {
   const share = await createGenericSecret(user.devicePublicKey, user.id);

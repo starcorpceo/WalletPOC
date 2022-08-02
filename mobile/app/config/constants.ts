@@ -1,4 +1,4 @@
-import { KeyShareType } from "shared/types/mpc";
+import { KeyShareType, MPCEcdsaKeyShare } from "shared/types/mpc";
 
 interface IConstants {
   deviceKeyName: string;
@@ -13,11 +13,14 @@ const constants: IConstants = {
   bip44PurposeIndex: "44",
 };
 
-export const emptyMasterKeyPair = {
+export const emptyKeyPair: MPCEcdsaKeyShare = {
   id: "",
   path: "",
   keyShare: "",
-  type: KeyShareType.MASTER,
+  parentWalletId: "",
+  type: KeyShareType.EMPTY,
 };
+
+export const emptyEcdsaKey = {};
 
 export default constants;

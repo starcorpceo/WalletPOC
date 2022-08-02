@@ -12,7 +12,7 @@ export interface MPCEcdsaKeyShare extends MPCKeyShare {
 export interface SecretKeyShare
   extends Omit<MPCKeyShare, "path" | "parentWalletId"> {}
 
-type MasterKeyShare = MPCKeyShare & {
+export type MasterKeyShare = MPCKeyShare & {
   path: string;
 };
 
@@ -34,4 +34,5 @@ export enum KeyShareType {
   ACCOUNT,
   CHANGE,
   ADDRESS,
+  EMPTY,
 }
