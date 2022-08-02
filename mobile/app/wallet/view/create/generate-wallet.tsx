@@ -6,9 +6,9 @@ import { useSetRecoilState } from "recoil";
 import { KeyShareType } from "shared/types/mpc";
 import { AuthState, authState } from "state/atoms";
 import {
+  createMPCKeyShare,
   deriveMpcKeyShare,
-  generateMPCKeyShare,
-} from "wallet/controller/generator";
+} from "wallet/controller/creation/derived-share-creation";
 
 type GenerateWalletProps = {
   user: User;
@@ -18,7 +18,7 @@ const GenerateWallet = ({ user }: GenerateWalletProps) => {
   const setAuth = useSetRecoilState<AuthState>(authState);
 
   const startGenerate = useCallback(async () => {
-    const bip44MasterKeyShare = await generateMPCKeyShare(user);
+    const bip44MasterKeyShare = await createMPCKeyShare(user);
 
     const purposeKeyShare = await deriveMpcKeyShare(
       bip44MasterKeyShare,

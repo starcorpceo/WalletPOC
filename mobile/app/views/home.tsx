@@ -1,5 +1,5 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { emptyMasterKeyPair } from "config/constants";
+import { emptyKeyPair } from "config/constants";
 import { deepCompare } from "lib/util";
 import React from "react";
 import {
@@ -12,6 +12,7 @@ import {
   View,
 } from "react-native";
 import { useRecoilValue } from "recoil";
+import { KeyShareType } from "shared/types/mpc";
 import "shim";
 import { AuthState, authState } from "state/atoms";
 import GenerateWallet from "wallet/view/create/generate-wallet";
@@ -36,7 +37,10 @@ const Home = ({ navigation }: Props) => {
       <ScrollView contentContainerStyle={{ paddingBottom: "100%" }}>
         <Text style={textStyle}>Welcome to Secure Wallet</Text>
 
-        {deepCompare(user.bip44MasterKeyShare, emptyMasterKeyPair) ? (
+        {deepCompare(user.bip44MasterKeyShare, {
+          ...emptyKeyPair,
+          type: KeyShareType.MASTER,
+        }) ? (
           <>
             <Text>
               You dont have an Account with Corresponding Wallets yet. Import or
