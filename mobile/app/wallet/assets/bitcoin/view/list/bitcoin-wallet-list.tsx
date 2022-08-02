@@ -1,7 +1,7 @@
 import { BitcoinWallet } from "bitcoin/types/bitcoin";
 import React from "react";
 import { Text, View } from "react-native";
-import { VirtualAccount } from "wallet/virtual-wallet";
+import { VirtualAccount } from "wallet/types/virtual-wallet";
 import CreateBitcoinAdress from "../create/create-bitcoin-address";
 import BitcoinWalletView from "./item/bitcoin-wallet";
 

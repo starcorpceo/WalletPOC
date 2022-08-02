@@ -1,11 +1,11 @@
 import { getBalance } from "bitcoin/controller/bitcoin-virtual-wallet";
 import React, { useEffect, useState } from "react";
 import { Text, View } from "react-native";
-import { VirtualBalance } from "wallet/virtual-wallet";
-import { CoinTypeWallet } from "wallet/wallet";
+import { VirtualBalance } from "wallet/types/virtual-wallet";
+import { CoinTypeAccount } from "wallet/types/wallet";
 
 type BitcoinBalanceProps = {
-  wallet: CoinTypeWallet;
+  wallet: CoinTypeAccount;
 };
 
 export const VirtualBalanceView = ({ wallet }: BitcoinBalanceProps) => {
