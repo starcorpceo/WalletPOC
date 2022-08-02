@@ -27,7 +27,7 @@ export const verifyUser = (
   request: VerifyUserRequest,
   message: string
 ): ResultAsync<boolean, RouteError> => {
-  const { signature } = request;
+  const { deviceSignature } = request;
 
   return ResultAsync.fromPromise(getUser(request), (e) => e as RouteError).map(
     (user) => {
@@ -38,7 +38,7 @@ export const verifyUser = (
           format: "pem",
           type: "pkcs1",
         },
-        Buffer.from(signature, "base64")
+        Buffer.from(deviceSignature, "base64")
       );
       return result;
     }

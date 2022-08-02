@@ -88,11 +88,11 @@ const createNewProfile = async (devicePublicKey: string): Promise<User> => {
     }
   );
 
-  const signature = await signWithDeviceKey(nonce);
+  const deviceSignature = await signWithDeviceKey(nonce);
 
   const success = await fetchFromApi<boolean>("/user/verify", {
     body: {
-      signature,
+      deviceSignature,
       userId,
       devicePublicKey,
     },

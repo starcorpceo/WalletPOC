@@ -37,11 +37,11 @@ const createUserSchema: FastifySchema = {
 const verifyUserSchema: FastifySchema = {
   body: {
     type: "object",
-    required: ["devicePublicKey", "userId", "signature"],
+    required: ["devicePublicKey", "userId", "deviceSignature"],
     properties: {
       devicePublicKey: { type: "string", maxLength: 130, minLength: 88 },
       userId: { type: "string", maxLength: 36, minLength: 36 },
-      signature: { type: "string", maxLength: 96, minLength: 96 },
+      deviceSignature: { type: "string", maxLength: 96, minLength: 96 },
     },
   },
 };

@@ -1,6 +1,11 @@
+import { CreateNonceResponse } from "api-types/auth";
+import { CreateTatumConnectionResponse } from "api-types/tatum";
 import { User } from "api-types/user";
 import { config } from "bitcoin/config/bitcoin-config";
 import { BitcoinWalletsState, initialBitcoinState } from "bitcoin/state/atoms";
+import { Http2ServerRequest } from "http2";
+import { signWithDeviceKeyNoAuth } from "lib/auth";
+import { fetchFromApi, HttpMethod } from "lib/http";
 import { deepCompare } from "lib/util";
 import { getPublicKey } from "react-native-blockchain-crypto-mpc";
 import {
@@ -13,6 +18,7 @@ import {
 import { deriveMpcKeyShare } from "wallet/controller/generator";
 import { VirtualAccount } from "wallet/types/virtual-wallet";
 import { AccountChange, Address } from "wallet/types/wallet";
+import { assignNewDepositAddress } from "./bitcoin-virtual-wallet";
 import { mpcPublicKeyToBitcoinAddress } from "./bitcoinjs-adapter";
 
 export const createBitcoinAccount = async (
@@ -80,7 +86,13 @@ export const createAddressShare = async (
   );
 
   const publicKey = await getPublicKey(addressShare.keyShare);
-  const address = await mpcPublicKeyToBitcoinAddress(publicKey);
+  const address = mpcPublicKeyToBitcoinAddress(publicKey);
+
+  try {
+    const virtualAddress = assignNewDepositAddress(virtualAccount, address);
+  } catch (err) {
+    console.warn("Unable to assign address to virtual account");
+  }
 
   return { keyShare: addressShare, publicKey, address };
 };
@@ -95,10 +107,6 @@ const getBitcoinTypeKeyShare = async (
   user: User,
   PurposeKeyShare: PurposeKeyShare
 ): Promise<CoinTypeKeyShare> => {
-  console.log("comparing", {
-    current: state.coinTypeWallet,
-    initial: initialBitcoinState.coinTypeWallet,
-  });
   if (deepCompare(state.coinTypeWallet, initialBitcoinState.coinTypeWallet))
     return await deriveMpcKeyShare(
       PurposeKeyShare,

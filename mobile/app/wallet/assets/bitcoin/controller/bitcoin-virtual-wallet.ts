@@ -1,5 +1,11 @@
+import {
+  CreateTatumConnectionResponse,
+  GetTatumConnectionResponse,
+} from "api-types/tatum";
 import endpoints from "bitcoin/blockchain/endpoints";
-import { fetchFromTatum, HttpMethod } from "lib/http";
+import { fetchFromApi, fetchFromTatum, HttpMethod } from "lib/http";
+import { getPublicKey } from "react-native-blockchain-crypto-mpc";
+import { MPCEcdsaKeyShare } from "shared/types/mpc";
 import "shim";
 import {
   CreateAccount,
@@ -8,19 +14,56 @@ import {
   VirtualBalance,
   VirtualTransaction,
 } from "wallet/types/virtual-wallet";
+import { mpcPublicKeyToBitcoinAddress } from "./bitcoinjs-adapter";
 
-export const createNewVirtualAccount = (): Promise<VirtualAccount> => {
-  const createAccountData: CreateAccount = {
-    currency: "BTC",
-  };
-
-  return fetchFromTatum<VirtualAccount>(
-    endpoints.virtualAccounts.createAccount(),
-    {
-      method: HttpMethod.POST,
-      body: createAccountData,
-    }
+export const connectVirtualAccount = async (
+  keyShare: MPCEcdsaKeyShare
+): Promise<VirtualAccount> => {
+  const onlyTatumConnectionUsedPublicKey = await getPublicKey(
+    keyShare.keyShare
   );
+  const tatumConnectionAddress = mpcPublicKeyToBitcoinAddress(
+    onlyTatumConnectionUsedPublicKey
+  );
+
+  const { tatumId } = await fetchFromApi<GetTatumConnectionResponse>(
+    "/tatum/connection/get?accountAddress=" + tatumConnectionAddress
+  );
+
+  //account already have an virtual account
+  if (tatumId) {
+    const virtualAccount = await fetchFromTatum<VirtualAccount>(
+      endpoints.virtualAccounts.getAccount(tatumId)
+    );
+    return virtualAccount;
+  }
+  //create new virtual account and save it in db
+  else {
+    const createAccountData: CreateAccount = {
+      currency: "BTC",
+    };
+
+    const virtualAccount = await fetchFromTatum<VirtualAccount>(
+      endpoints.virtualAccounts.createAccount(),
+      {
+        method: HttpMethod.POST,
+        body: createAccountData,
+      }
+    );
+
+    const { created } = await fetchFromApi<CreateTatumConnectionResponse>(
+      "/tatum/connection/create",
+      {
+        method: HttpMethod.POST,
+        body: {
+          accountAddress: tatumConnectionAddress,
+          tatumId: virtualAccount.id,
+        },
+      }
+    );
+    if (created) return virtualAccount;
+    throw new Error("Could not connect accountAddress with Tatum");
+  }
 };
 
 // Can be only assigned, if its not already assigned to another virtual account

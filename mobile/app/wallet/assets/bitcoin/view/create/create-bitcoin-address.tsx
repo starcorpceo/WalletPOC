@@ -4,11 +4,11 @@ import React, { useCallback } from "react";
 import { Button, StyleSheet, Text, View } from "react-native";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { AuthState, authState } from "state/atoms";
-import { VirtualAccount, VirtualAddress } from "wallet/virtual-wallet";
-import { WalletChange } from "wallet/wallet";
+import { VirtualAccount, VirtualAddress } from "wallet/types/virtual-wallet";
+import { AccountChange } from "wallet/types/wallet";
 
 type CreateBitcoinWalletProps = {
-  external: WalletChange;
+  external: AccountChange;
   index: number;
   virtualAccount: VirtualAccount;
 };
