@@ -3,7 +3,7 @@ import constants from "config/constants";
 import React, { useCallback } from "react";
 import { Button } from "react-native";
 import { useSetRecoilState } from "recoil";
-import { KeyShareType } from "shared/mpc";
+import { KeyShareType } from "shared/types/mpc";
 import { AuthState, authState } from "state/atoms";
 import {
   deriveMpcKeyShare,

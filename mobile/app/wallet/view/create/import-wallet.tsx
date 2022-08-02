@@ -9,7 +9,7 @@ import {
 } from "wallet/controller/generator";
 
 import { User } from "api-types/user";
-import { KeyShareType } from "shared/mpc";
+import { KeyShareType } from "shared/types/mpc";
 
 type ImportWalletProps = {
   user: User;

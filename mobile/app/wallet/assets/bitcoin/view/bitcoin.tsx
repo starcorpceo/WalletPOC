@@ -1,3 +1,5 @@
+import { config } from "bitcoin/config/bitcoin-config";
+import { defaultBitcoinAccountConfig } from "bitcoin/config/bitcoin-constants";
 import { createNewVirtualAccount } from "bitcoin/controller/bitcoin-virtual-wallet";
 import {
   createBitcoinAccount,
@@ -5,10 +7,11 @@ import {
 } from "bitcoin/controller/create-addresses";
 import { BitcoinWalletsState, bitcoinWalletsState } from "bitcoin/state/atoms";
 import React, { useEffect } from "react";
+import { getXPubKey } from "react-native-blockchain-crypto-mpc";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { AuthState, authState } from "state/atoms";
 import { getPurposeWallet } from "state/utils";
-import Wallets from "wallet/generic-wallet-view";
+import Wallets from "wallet/view/generic-wallet-view";
 import BitcoinWalletListView from "./list/bitcoin-wallet-list";
 
 const Bitcoin = () => {
@@ -29,28 +32,42 @@ const Bitcoin = () => {
 
       if (!result) return;
 
-      const { bitcoinTypeKeyShare, account } = result;
+      const { bitcoinTypeKeyShare: coinTypeWallet, accountMpcKeyShare } =
+        result;
+
+      const xPub = await getXPubKey(
+        accountMpcKeyShare.keyShare,
+        config.IsTestNet ? "test" : "main"
+      );
 
       const virtualAccount = await createNewVirtualAccount();
 
-      const internal = await createChangeKeyShare(user, account, "1");
-      const external = await createChangeKeyShare(user, account, "0");
+      const internal = await createChangeKeyShare(
+        user,
+        accountMpcKeyShare,
+        "1"
+      );
+      const external = await createChangeKeyShare(
+        user,
+        accountMpcKeyShare,
+        "0"
+      );
 
       setBitcoin((current: BitcoinWalletsState): BitcoinWalletsState => {
         return {
           ...current,
-          coinTypeWallet: {
-            ...current.coinTypeWallet,
-            mpcKeyShare: bitcoinTypeKeyShare,
-            virtualAccount: virtualAccount,
-          },
+          coinTypeWallet,
           accounts: [
             ...current.accounts,
             {
-              mpcKeyShare: account,
+              mpcKeyShare: accountMpcKeyShare,
               transactions: [],
+              virtualAccount,
+              balance: { incoming: 0, outgoing: 0 },
+              xPub,
               internal,
               external,
+              config: defaultBitcoinAccountConfig,
             },
           ],
         };

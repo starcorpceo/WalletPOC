@@ -1,6 +1,6 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { emptyMasterKeyPair } from "config/constants";
-import { deepCompare } from "lib/string";
+import { deepCompare } from "lib/util";
 import React from "react";
 import {
   Button,

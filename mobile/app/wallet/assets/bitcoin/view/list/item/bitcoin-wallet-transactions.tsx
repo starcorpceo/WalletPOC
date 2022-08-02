@@ -1,7 +1,6 @@
-import { BitcoinWallet } from "bitcoin/.";
-import { getNetValue } from "bitcoin/controller/bitcoin-wallet";
+import { BitcoinWallet } from "bitcoin/types/bitcoin";
 import React from "react";
-import { Button, Text, View } from "react-native";
+import { View } from "react-native";
 
 type BitcionTransactionProps = {
   wallet: BitcoinWallet;
@@ -14,7 +13,8 @@ const BitcoinTransactions = ({
 }: BitcionTransactionProps) => {
   return (
     <View>
-      <Button onPress={updateTransactions} title="Fetch Transactions" />
+      // TODO gather from all internal and external addresses
+      {/* <Button onPress={updateTransactions} title="Fetch Transactions" />
       <View
         style={{ flexDirection: "column", justifyContent: "space-between" }}
       >
@@ -29,8 +29,8 @@ const BitcoinTransactions = ({
               {`${isPlus ? "+" : "-"} ${netValue}`} Satoshis
             </Text>
           );
-        })}
-      </View>
+        })} 
+      </View> */}
     </View>
   );
 };

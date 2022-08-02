@@ -21,7 +21,7 @@ import {
 } from "react-native";
 import { RecoilRoot } from "recoil";
 
-import Ethereum from "wallet/ethereum/view/ethereum";
+import Ethereum from "wallet/assets/ethereum/view/ethereum";
 import Header from "./shared/header";
 import Home from "./views/home";
 

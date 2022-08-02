@@ -20,16 +20,11 @@ export interface PurposeKeyShare extends MPCEcdsaKeyShare {}
 
 export interface CoinTypeKeyShare extends MPCEcdsaKeyShare {}
 
-export interface AccountKeyShare extends MPCEcdsaKeyShare {
-  xPub: string;
-}
+export interface AccountKeyShare extends MPCEcdsaKeyShare {}
 
 export interface ChangeKeyShare extends MPCEcdsaKeyShare {}
 
-export interface AddressKeyShare extends MPCEcdsaKeyShare {
-  publicKey: string;
-  address: string;
-}
+export interface AddressKeyShare extends MPCEcdsaKeyShare {}
 
 export enum KeyShareType {
   SECRET,
