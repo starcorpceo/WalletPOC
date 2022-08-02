@@ -1,21 +1,19 @@
 import { User } from "api-types/user";
+import { config } from "bitcoin/config/bitcoin-config";
 import { BitcoinWalletsState, initialBitcoinState } from "bitcoin/state/atoms";
-import constants from "config/constants";
-import { deepCompare } from "lib/string";
-import { getPublicKey, getXPubKey } from "react-native-blockchain-crypto-mpc";
+import { deepCompare } from "lib/util";
+import { getPublicKey } from "react-native-blockchain-crypto-mpc";
 import {
   AccountKeyShare,
-  AddressKeyShare,
   ChangeKeyShare,
   CoinTypeKeyShare,
   KeyShareType,
   PurposeKeyShare,
-} from "shared/mpc";
+} from "shared/types/mpc";
 import { deriveMpcKeyShare } from "wallet/controller/generator";
-import { VirtualAccount, VirtualAddress } from "wallet/virtual-wallet";
-import { WalletChange } from "wallet/wallet";
-import { assignNewDepositAddress } from "./bitcoin-virtual-wallet";
-import { mpcPublicKeyToBitcoinAddress } from "./bitcoinjs";
+import { VirtualAccount } from "wallet/types/virtual-wallet";
+import { AccountChange, Address } from "wallet/types/wallet";
+import { mpcPublicKeyToBitcoinAddress } from "./bitcoinjs-adapter";
 
 export const createBitcoinAccount = async (
   bitcoinState: BitcoinWalletsState,
@@ -42,9 +40,7 @@ export const createBitcoinAccount = async (
     KeyShareType.ACCOUNT
   );
 
-  const xPub = await getXPubKey(accountMpcKeyShare.keyShare, "test");
-
-  return { bitcoinTypeKeyShare, account: { ...accountMpcKeyShare, xPub } };
+  return { bitcoinTypeKeyShare, accountMpcKeyShare };
 };
 
 export const createChangeKeyShare = async (
@@ -52,7 +48,7 @@ export const createChangeKeyShare = async (
   accountShare: AccountKeyShare,
   virtualAccount: VirtualAccount,
   index: string
-): Promise<WalletChange> => {
+): Promise<AccountChange> => {
   const change = await deriveMpcKeyShare(
     accountShare,
     user,
@@ -74,7 +70,7 @@ export const createAddressShare = async (
   user: User,
   virtualAccount: VirtualAccount,
   index: string
-): Promise<AddressKeyShare> => {
+): Promise<Address> => {
   const addressShare = await deriveMpcKeyShare(
     changeShare,
     user,
@@ -86,12 +82,7 @@ export const createAddressShare = async (
   const publicKey = await getPublicKey(addressShare.keyShare);
   const address = await mpcPublicKeyToBitcoinAddress(publicKey);
 
-  const tatumAddress: VirtualAddress = await assignNewDepositAddress(
-    virtualAccount,
-    address
-  );
-
-  return { ...addressShare, publicKey, address };
+  return { keyShare: addressShare, publicKey, address };
 };
 
 const walletExists = (bitcoinState: BitcoinWalletsState): boolean =>
@@ -108,19 +99,14 @@ const getBitcoinTypeKeyShare = async (
     current: state.coinTypeWallet,
     initial: initialBitcoinState.coinTypeWallet,
   });
-  if (
-    deepCompare(
-      state.coinTypeWallet.mpcKeyShare,
-      initialBitcoinState.coinTypeWallet.mpcKeyShare
-    )
-  )
+  if (deepCompare(state.coinTypeWallet, initialBitcoinState.coinTypeWallet))
     return await deriveMpcKeyShare(
       PurposeKeyShare,
       user,
-      constants.bip44BitcoinCoinType,
+      config.bip44BitcoinCoinType,
       true,
       KeyShareType.COINTYPE
     );
 
-  return state.coinTypeWallet.mpcKeyShare;
+  return state.coinTypeWallet;
 };

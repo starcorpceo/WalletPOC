@@ -1,25 +1,32 @@
-import { AccountKeyShare, AddressKeyShare } from "shared/mpc";
-import { ChangeKeyShare, CoinTypeKeyShare } from "types/mpc";
+import {
+  AccountKeyShare,
+  AddressKeyShare,
+  ChangeKeyShare,
+} from "shared/types/mpc";
 import { VirtualAccount } from "./virtual-wallet";
 
-export interface CryptoWallet {
-  transactions?: Transaction[];
-  balance?: Balance;
+export interface CoinTypeAccount {
+  virtualAccount: VirtualAccount;
   mpcKeyShare: AccountKeyShare;
-  internal: WalletChange;
-  external: WalletChange;
-}
-
-export interface WalletChange {
-  keyShare: ChangeKeyShare;
-  addresses: AddressKeyShare[];
-}
-
-export interface CoinTypeWallet {
-  mpcKeyShare: CoinTypeKeyShare;
+  internal: AccountChange;
+  external: AccountChange;
   config: WalletConfig;
-  virtualAccount: VirtualAccount | null;
+  xPub: string;
+  transactions: Transaction[];
+  balance: Balance;
 }
+
+export interface AccountChange {
+  keyShare: ChangeKeyShare;
+  addresses: Address[];
+}
+
+export interface Address {
+  keyShare: AddressKeyShare;
+  address: string;
+  publicKey: string;
+}
+
 export interface Balance {
   incoming: number;
   outgoing: number;

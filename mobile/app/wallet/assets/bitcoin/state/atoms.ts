@@ -1,10 +1,8 @@
-import { config } from "config/config";
+import { BitcoinWallet } from "bitcoin/types/bitcoin";
 import { atom } from "recoil";
 import { recoilPersist } from "recoil-persist";
-import { CoinTypeKeyShare, KeyShareType } from "shared/mpc";
+import { CoinTypeKeyShare, KeyShareType } from "shared/types/mpc";
 import { CustomStorage } from "state/storage";
-import { BitcoinWallet } from "wallet/bitcoin";
-import { CoinTypeWallet } from "wallet/wallet";
 
 const { persistAtom } = recoilPersist({
   storage: CustomStorage,
@@ -12,7 +10,7 @@ const { persistAtom } = recoilPersist({
 });
 
 export type BitcoinWalletsState = {
-  coinTypeWallet: CoinTypeWallet;
+  coinTypeWallet: CoinTypeKeyShare;
   accounts: BitcoinWallet[];
 };
 
@@ -26,22 +24,7 @@ const emptyCoinTypeShare: CoinTypeKeyShare = {
 
 export const initialBitcoinState: BitcoinWalletsState = {
   accounts: [],
-  coinTypeWallet: {
-    mpcKeyShare: emptyCoinTypeShare,
-    config: {
-      symbol: "BTC",
-      name: "Bitcoin",
-      chain: "Bitcoin",
-      isTestnet: config.IsTestNet,
-    },
-    virtualAccount: {
-      id: "",
-      balance: 0,
-      currency: "",
-      frozen: false,
-      active: false,
-    },
-  },
+  coinTypeWallet: emptyCoinTypeShare,
 };
 
 export const bitcoinWalletsState = atom({

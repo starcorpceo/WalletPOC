@@ -9,11 +9,11 @@ import {
   MPCEcdsaKeyShare,
   MPCKeyShare,
   SecretKeyShare,
-} from "shared/mpc";
+} from "shared/types/mpc";
 import "shim";
-import { CryptoWallet } from "../wallet";
+import { CoinTypeAccount } from "wallet/types/wallet";
 
-export type MPCKeyShareToWalletConfig<T extends CryptoWallet> = (
+export type MPCKeyShareToWalletConfig<T extends CoinTypeAccount> = (
   MPCKeyShare: MPCKeyShare
 ) => Promise<T>;
 

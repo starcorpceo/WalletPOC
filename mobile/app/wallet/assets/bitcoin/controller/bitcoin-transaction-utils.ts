@@ -1,20 +1,22 @@
 import { User } from "api-types/user";
-import { config } from "config/config";
+import endpoints from "bitcoin/blockchain/endpoints";
+import { config } from "bitcoin/config/bitcoin-config";
 import * as bitcoin from "der-bitcoinjs-lib";
 import { fetchFromTatum, HttpMethod } from "lib/http";
 import { signEcdsa } from "lib/mpc";
 import "shim";
-import endpoints from "wallet/endpoints";
 import {
   Balance,
-  CryptoWallet,
+  CoinTypeAccount,
   Fees,
   Input,
   Output,
   Transaction,
   UTXO,
-} from "wallet/wallet";
-import { BitcoinWallet } from "..";
+} from "wallet/types/wallet";
+import { BitcoinWallet } from "../types/bitcoin";
+
+// TODO rework after now transactions have to be built from all external and internal addresses
 
 export const getBalance = (address: string): Promise<Balance> => {
   return fetchFromTatum<Balance>(endpoints.bitcoin.balance(address));
@@ -85,7 +87,7 @@ export const getUnspentTransactions = async (
   return (await unspent).filter((out): out is UTXO => !!out);
 };
 
-export const getUnspentTransactionsSync = (wallet: CryptoWallet) => {
+export const getUnspentTransactionsSync = (wallet: CoinTypeAccount) => {
   const unspent = wallet.transactions.flatMap((transaction: Transaction) =>
     transaction.outputs.map(
       (output: Output) =>

@@ -1,16 +1,13 @@
-import { config } from "config/config";
-import * as bitcoin from "der-bitcoinjs-lib";
+import endpoints from "bitcoin/blockchain/endpoints";
 import { fetchFromTatum, HttpMethod } from "lib/http";
 import "shim";
-import endpoints from "wallet/endpoints";
 import {
   CreateAccount,
   VirtualAccount,
   VirtualAddress,
   VirtualBalance,
   VirtualTransaction,
-} from "wallet/virtual-wallet";
-import { Balance } from "wallet/wallet";
+} from "wallet/types/virtual-wallet";
 
 export const createNewVirtualAccount = (): Promise<VirtualAccount> => {
   const createAccountData: CreateAccount = {

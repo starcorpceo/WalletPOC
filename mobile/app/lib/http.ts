@@ -1,5 +1,5 @@
 import { Platform } from "react-native";
-import { apiKeys } from "../wallet/endpoints";
+import { apiKeys } from "wallet/assets/bitcoin/blockchain/endpoints";
 
 export enum HttpMethod {
   POST = "POST",

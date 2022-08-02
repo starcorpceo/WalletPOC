@@ -1,4 +1,4 @@
-import { BitcoinWallet } from "bitcoin/.";
+import { BitcoinWallet } from "bitcoin/types/bitcoin";
 import React from "react";
 import { Button, Text } from "react-native";
 
