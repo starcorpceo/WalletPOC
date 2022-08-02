@@ -4,7 +4,7 @@ import {
   initialBitcoinState,
 } from "bitcoin/state/atoms";
 import { selector, useSetRecoilState } from "recoil";
-import { KeyShareType, PurposeKeyShare } from "shared/mpc";
+import { KeyShareType, PurposeKeyShare } from "shared/types/mpc";
 import { AuthState, authState } from "./atoms";
 
 type AllWallets = {

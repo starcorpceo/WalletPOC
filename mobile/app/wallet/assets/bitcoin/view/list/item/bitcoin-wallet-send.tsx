@@ -1,10 +1,10 @@
 import { User } from "api-types/user";
-import { BitcoinWallet } from "bitcoin/.";
 import {
   prepareSigner,
   prepareTransaction,
   signTransaction,
-} from "bitcoin/controller/bitcoin-wallet";
+} from "bitcoin/controller/bitcoin-transaction-utils";
+import { BitcoinWallet } from "bitcoin/types/bitcoin";
 import * as bitcoin from "der-bitcoinjs-lib";
 import React, { useCallback, useState } from "react";
 import { Alert, Button, TextInput, View } from "react-native";
