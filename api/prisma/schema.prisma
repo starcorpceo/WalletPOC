@@ -25,7 +25,7 @@ model MpcKeyShare {
     userDevicePublicKey String
 }
 
-model accountAddressToTatumId {
+model AccountAddressToTatumId {
     //address from account level (bip44)
     accountAddress String @id
     //external id from tatum
