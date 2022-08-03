@@ -2,12 +2,12 @@ import { Context } from "@crypto-mpc";
 import { SocketStream } from "@fastify/websocket";
 import logger from "@lib/logger";
 import { RawData } from "ws";
-import { User } from "../../user/user";
-import { MpcKeyShare } from "../../user/wallet";
-import { getWallet } from "../../user/wallet.repository";
-import { ActionStatus } from "../mpc-routes";
-import { processDerivedShare } from "../step/share";
-import { step } from "../step/step";
+import { User } from "../../../user/user";
+import { MpcKeyShare } from "../../../user/wallet";
+import { ActionStatus } from "../../mpc-routes";
+import { processDerivedShare } from "../../step/share";
+import { step } from "../../step/step";
+import { initDerive } from "./init";
 
 export const deriveBIP32 = async (connection: SocketStream, user: User) => {
   let status: ActionStatus = "Init";
@@ -16,7 +16,7 @@ export const deriveBIP32 = async (connection: SocketStream, user: User) => {
   connection.socket.on("message", async (message: RawData) => {
     switch (status) {
       case "Init":
-        deriveContext = await initDerive(message, connection);
+        deriveContext = await initDerive(message, connection, user.id);
         status = "Stepping";
         return;
       case "Stepping":
@@ -60,32 +60,6 @@ export const deriveBIP32 = async (connection: SocketStream, user: User) => {
   });
 };
 
-const initDerive = async (
-  message: RawData,
-  connection: SocketStream
-): Promise<DeriveContext> => {
-  try {
-    const deriveConfig = JSON.parse(message.toString()) as DeriveConfig;
-
-    const parent = await getWallet(deriveConfig.serverShareId);
-
-    const context = Context.createDeriveBIP32Context(
-      2,
-      Buffer.from(parent.keyShare as string, "base64"),
-      Number(deriveConfig.hardened) === 1,
-      Number(deriveConfig.index)
-    );
-
-    connection.socket.send(JSON.stringify({ value: "Start" }));
-
-    return { deriveConfig, parent, context };
-  } catch (err) {
-    logger.error({ err }, "Error while initiating Derive Bip32");
-    connection.socket.close(undefined, "Error while initiating Derive Bip32");
-    throw err;
-  }
-};
-
 const deriveStep = async (
   message: RawData,
   deriveContext: DeriveContext,
@@ -95,7 +69,23 @@ const deriveStep = async (
   try {
     const { context, parent, deriveConfig } = deriveContext;
 
+    if (!context || context.contextPtr == null) {
+      connection.socket.close(
+        undefined,
+        "Context undefined during Stepping, closing connection"
+      );
+      return;
+    }
+
     const stepInput = message.toString();
+
+    if (!stepInput || stepInput === "") {
+      connection.socket.close(
+        undefined,
+        "Invalid Step Message, closing connection"
+      );
+      return;
+    }
 
     const stepOutput = step(stepInput, context);
 
@@ -128,7 +118,7 @@ export type DeriveConfig = {
   parentPath: string;
 };
 
-type DeriveContext = {
+export type DeriveContext = {
   deriveConfig: DeriveConfig;
   parent: MpcKeyShare;
   context: Context;

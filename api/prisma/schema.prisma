@@ -23,6 +23,8 @@ model MpcKeyShare {
     user                User   @relation("KeySharesForUser", fields: [userId, userDevicePublicKey], references: [id, devicePublicKey])
     userId              String
     userDevicePublicKey String
+
+    @@unique([userId, path])
 }
 
 model accountAddressToTatumId {

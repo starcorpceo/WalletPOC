@@ -1,4 +1,5 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { BitcoinAccountBuilder } from "bitcoin/controller/bitcoin-account-creation";
 import { BitcoinWalletsState, bitcoinWalletsState } from "bitcoin/state/atoms";
 import React, { useCallback, useEffect } from "react";
 import { Button } from "react-native";
@@ -6,7 +7,6 @@ import { useRecoilValue, useSetRecoilState } from "recoil";
 import { NavigationRoutes } from "shared/types/navigation";
 import { AuthState, authState } from "state/atoms";
 import { getPurposeWallet } from "state/utils";
-import { AccountBuilder } from "wallet/controller/creation/account-creation";
 import Wallets from "wallet/view/generic-wallet-view";
 import BitcoinWalletListView from "./list/bitcoin-wallet-list";
 import { VirtualBalanceView } from "./virtual/virtual-balance";
@@ -25,7 +25,7 @@ const Bitcoin = ({ navigation }: Props) => {
     const onOpen = async () => {
       if (bitcoinState.accounts.length > 0) return;
 
-      const accountBuilder = new AccountBuilder(user);
+      const accountBuilder = new BitcoinAccountBuilder(user);
 
       const newState = await accountBuilder
         .init()
@@ -36,7 +36,6 @@ const Bitcoin = ({ navigation }: Props) => {
           )
         )
         .then((builder) => builder.createAccount())
-        .then((builder) => builder.forBlockchain("Bitcoin"))
         .then((builder) => builder.createChange("internal"))
         .then((builder) => builder.createChange("external"))
         .then((builder) => builder.build());

@@ -1,3 +1,5 @@
+import { MasterKeyShare, MPCEcdsaKeyShare } from "shared/types/mpc";
+
 export interface User {
   id: string;
   devicePublicKey: string;

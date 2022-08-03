@@ -9,7 +9,7 @@ import {
   createDerivedWallet,
   createWallet,
 } from "../../user/wallet.repository";
-import { DeriveConfig } from "../ecdsa/deriveBIP32";
+import { DeriveConfig } from "../ecdsa/derive/deriveBIP32";
 
 export const processDerivedShare = async (
   user: User,
@@ -67,7 +67,7 @@ const saveShareBasedOnPath = (
   return createDerivedWallet(user, share, path);
 };
 
-const buildPath = (deriveConfig: DeriveConfig) => {
+export const buildPath = (deriveConfig: DeriveConfig) => {
   const { parentPath, index, hardened } = deriveConfig;
 
   if (!parentPath && index === "m") return "m";
