@@ -1,29 +1,44 @@
-import { createAddressShare } from "bitcoin/controller/create-addresses";
+import { mpcPublicKeyToBitcoinAddress } from "bitcoin/controller/bitcoinjs-adapter";
 import { BitcoinWalletsState, bitcoinWalletsState } from "bitcoin/state/atoms";
 import React, { useCallback } from "react";
 import { Button, StyleSheet, Text, View } from "react-native";
 import { useRecoilValue, useSetRecoilState } from "recoil";
+import { KeyShareType } from "shared/types/mpc";
 import { AuthState, authState } from "state/atoms";
-import { WalletChange } from "wallet/wallet";
+import { createAddress } from "wallet/controller/creation/account-creation";
+import { deriveMpcKeyShare } from "wallet/controller/creation/derived-share-creation";
+import { VirtualAccount } from "wallet/types/virtual-wallet";
+import { AccountChange } from "wallet/types/wallet";
 
 type CreateBitcoinWalletProps = {
-  external: WalletChange;
+  external: AccountChange;
   index: number;
+  virtualAccount: VirtualAccount;
 };
 
-const CreateBitcoinAdress = ({ external, index }: CreateBitcoinWalletProps) => {
+const CreateBitcoinAdress = ({
+  external,
+  index,
+  virtualAccount,
+}: CreateBitcoinWalletProps) => {
   const user = useRecoilValue<AuthState>(authState);
   const setBitcoin =
     useSetRecoilState<BitcoinWalletsState>(bitcoinWalletsState);
 
   const startGenerate = useCallback(async () => {
-    const newAddress = await createAddressShare(
+    const newAddressShare = await deriveMpcKeyShare(
       external.keyShare,
       user,
-      external.addresses.length.toString()
+      external.addresses.length.toString(),
+      false,
+      KeyShareType.ADDRESS
     );
 
-    console.log({ external, index });
+    const newAddress = await createAddress(
+      newAddressShare,
+      virtualAccount,
+      mpcPublicKeyToBitcoinAddress
+    );
 
     setBitcoin((current) => {
       return {

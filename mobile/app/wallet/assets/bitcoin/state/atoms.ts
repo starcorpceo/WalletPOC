@@ -10,7 +10,7 @@ const { persistAtom } = recoilPersist({
 });
 
 export type BitcoinWalletsState = {
-  coinTypeWallet: CoinTypeKeyShare;
+  coinTypeKeyShare: CoinTypeKeyShare;
   accounts: BitcoinWallet[];
 };
 
@@ -24,7 +24,7 @@ const emptyCoinTypeShare: CoinTypeKeyShare = {
 
 export const initialBitcoinState: BitcoinWalletsState = {
   accounts: [],
-  coinTypeWallet: emptyCoinTypeShare,
+  coinTypeKeyShare: emptyCoinTypeShare,
 };
 
 export const bitcoinWalletsState = atom({

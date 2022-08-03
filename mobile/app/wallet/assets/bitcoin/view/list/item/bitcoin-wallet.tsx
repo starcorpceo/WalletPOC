@@ -17,10 +17,11 @@ const BitcoinWalletView = ({ wallet, index }: BitcoinWalletProps) => {
         margin: 10,
       }}
     >
+      <Text>Addresses</Text>
       <View>
         {wallet.external.addresses.map((addr) => (
           <>
-            <Text key={addr.publicKey}>Address {addr.address}</Text>
+            <Text key={addr.publicKey}>{addr.address}</Text>
           </>
         ))}
       </View>

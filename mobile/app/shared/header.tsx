@@ -12,9 +12,8 @@ import {
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { AuthState, authState, initialAuthState } from "state/atoms";
 import { getAllWallets, useResetWalletState } from "state/utils";
-import constants, {
-  emptyMasterKeyPair as emptyMasterKeyShare,
-} from "../config/constants";
+import constants, { emptyKeyPair } from "../config/constants";
+import { KeyShareType } from "./types/mpc";
 
 const Header = () => {
   const setAuth = useSetRecoilState<AuthState>(authState);
@@ -24,8 +23,8 @@ const Header = () => {
 
   const resetWallets = useResetWalletState();
 
-  console.log("Auth updated", { auth });
-  console.log("Bitcoin updated", { bitcoin });
+  //console.log("Auth updated", { auth });
+  //console.log("Bitcoin updated", { bitcoin });
 
   const initUser = useCallback(async () => {
     getKey(constants.deviceKeyName)
@@ -88,11 +87,11 @@ const createNewProfile = async (devicePublicKey: string): Promise<User> => {
     }
   );
 
-  const signature = await signWithDeviceKey(nonce);
+  const deviceSignature = await signWithDeviceKey(nonce);
 
   const success = await fetchFromApi<boolean>("/user/verify", {
     body: {
-      signature,
+      deviceSignature,
       userId,
       devicePublicKey,
     },
@@ -104,7 +103,7 @@ const createNewProfile = async (devicePublicKey: string): Promise<User> => {
     id: userId,
     devicePublicKey,
     keyShares: [],
-    bip44MasterKeyShare: emptyMasterKeyShare,
+    bip44MasterKeyShare: { ...emptyKeyPair, type: KeyShareType.MASTER },
   };
 };
 

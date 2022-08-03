@@ -1,20 +1,19 @@
-import { config } from "bitcoin/config/bitcoin-config";
-import { defaultBitcoinAccountConfig } from "bitcoin/config/bitcoin-constants";
-import { createNewVirtualAccount } from "bitcoin/controller/bitcoin-virtual-wallet";
-import {
-  createBitcoinAccount,
-  createChangeKeyShare,
-} from "bitcoin/controller/create-addresses";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { BitcoinWalletsState, bitcoinWalletsState } from "bitcoin/state/atoms";
-import React, { useEffect } from "react";
-import { getXPubKey } from "react-native-blockchain-crypto-mpc";
+import React, { useCallback, useEffect } from "react";
+import { Button } from "react-native";
 import { useRecoilValue, useSetRecoilState } from "recoil";
+import { NavigationRoutes } from "shared/types/navigation";
 import { AuthState, authState } from "state/atoms";
 import { getPurposeWallet } from "state/utils";
+import { AccountBuilder } from "wallet/controller/creation/account-creation";
 import Wallets from "wallet/view/generic-wallet-view";
 import BitcoinWalletListView from "./list/bitcoin-wallet-list";
+import { VirtualBalanceView } from "./virtual/virtual-balance";
 
-const Bitcoin = () => {
+type Props = NativeStackScreenProps<NavigationRoutes, "Bitcoin">;
+
+const Bitcoin = ({ navigation }: Props) => {
   const bitcoinState = useRecoilValue<BitcoinWalletsState>(bitcoinWalletsState);
   const user = useRecoilValue<AuthState>(authState);
   const setBitcoin =
@@ -24,62 +23,60 @@ const Bitcoin = () => {
 
   useEffect(() => {
     const onOpen = async () => {
-      const result = await createBitcoinAccount(
-        bitcoinState,
-        user,
-        purposeKeyShare
-      );
+      if (bitcoinState.accounts.length > 0) return;
 
-      if (!result) return;
+      const accountBuilder = new AccountBuilder(user);
 
-      const { bitcoinTypeKeyShare: coinTypeWallet, accountMpcKeyShare } =
-        result;
+      const newState = await accountBuilder
+        .init()
+        .then((builder) =>
+          builder.useCoinTypeShare(
+            purposeKeyShare,
+            bitcoinState.coinTypeKeyShare
+          )
+        )
+        .then((builder) => builder.createAccount())
+        .then((builder) => builder.forBlockchain("Bitcoin"))
+        .then((builder) => builder.createChange("internal"))
+        .then((builder) => builder.createChange("external"))
+        .then((builder) => builder.build());
 
-      const xPub = await getXPubKey(
-        accountMpcKeyShare.keyShare,
-        config.IsTestNet ? "test" : "main"
-      );
-
-      const virtualAccount = await createNewVirtualAccount();
-
-      const internal = await createChangeKeyShare(
-        user,
-        accountMpcKeyShare,
-        "1"
-      );
-      const external = await createChangeKeyShare(
-        user,
-        accountMpcKeyShare,
-        "0"
-      );
-
-      setBitcoin((current: BitcoinWalletsState): BitcoinWalletsState => {
-        return {
-          ...current,
-          coinTypeWallet,
-          accounts: [
-            ...current.accounts,
-            {
-              mpcKeyShare: accountMpcKeyShare,
-              transactions: [],
-              virtualAccount,
-              balance: { incoming: 0, outgoing: 0 },
-              xPub,
-              internal,
-              external,
-              config: defaultBitcoinAccountConfig,
-            },
-          ],
-        };
-      });
+      setBitcoin(() => newState);
     };
 
     onOpen();
   }, []);
 
+  const deleteBitcoinAccount = useCallback(() => {
+    setBitcoin((current) => ({ ...current, accounts: [] }));
+  }, [setBitcoin]);
+
   return (
     <Wallets name="Bitcoin">
-      <BitcoinWalletListView wallets={bitcoinState.accounts} />
+      {bitcoinState.accounts[0] && (
+        <>
+          <VirtualBalanceView wallet={bitcoinState.accounts[0]} />
+
+          <Button
+            onPress={() =>
+              navigation.navigate("BitcoinTransactions", {
+                account: bitcoinState.accounts[0].virtualAccount,
+              })
+            }
+            title="Show transactions"
+          />
+
+          <BitcoinWalletListView
+            wallets={bitcoinState.accounts}
+            virtualAccount={bitcoinState.accounts[0]?.virtualAccount!}
+          />
+
+          <Button
+            onPress={deleteBitcoinAccount}
+            title="Delete Bitcoin Account"
+          />
+        </>
+      )}
     </Wallets>
   );
 };

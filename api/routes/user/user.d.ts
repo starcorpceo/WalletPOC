@@ -18,6 +18,6 @@ export interface CreateUserResponse {
 export interface VerifyUserRequest {
   userId: string;
   message: string;
-  signature: string;
+  deviceSignature: string;
   devicePublicKey: string;
 }
