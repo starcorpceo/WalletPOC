@@ -1,8 +1,10 @@
+import fetch, { RequestInit } from 'node-fetch';
+
 export type Fetch = <T>(url: string, params?: HttpParams) => Promise<T>;
 
 export enum HttpMethod {
-  POST = "POST",
-  GET = "GET",
+  POST = 'POST',
+  GET = 'GET',
 }
 
 export const fetchFrom = async <T>(url: string, params?: HttpParams): Promise<T> => {
@@ -12,15 +14,15 @@ export const fetchFrom = async <T>(url: string, params?: HttpParams): Promise<T>
     method: determineMethod(body, method),
     body: JSON.stringify(body),
     headers: {
+      'Content-Type': 'application/json',
       ...args?.headers,
-      "Content-Type": "application/json",
     },
   });
 
-  const content: T = await response.json();
+  const content = (await response.json()) as T;
 
   if (!response.ok) {
-    console.error("Error from API, possibly show snackbar", content);
+    console.error('Error from API, possibly show snackbar', content);
   }
 
   return content;

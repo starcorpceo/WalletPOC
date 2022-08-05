@@ -1,5 +1,4 @@
-import { Balance, Transaction } from "wallet/types/wallet";
-import { ApiBalance, ApiTransaction } from "./types";
+import { ApiBalance, ApiTransaction, Balance, Transaction } from './types';
 
 export interface Mapper {
   responseToBalance: (input: ApiBalance) => Balance;

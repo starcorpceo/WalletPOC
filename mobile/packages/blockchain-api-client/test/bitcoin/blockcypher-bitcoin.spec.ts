@@ -1,21 +1,21 @@
-import { Balance, Output, Transaction } from "wallet/types/wallet";
+import { Balance, Transaction } from '../../src/base/types';
 import {
   mapBlockCypherBalance,
   mapBlockCypherTransactions,
-} from "../../src/provider/blockcypher/bitcoin/blockcypher-bitcoin-mapper";
+} from '../../src/provider/blockcypher/bitcoin/blockcypher-bitcoin-mapper';
 import {
   BlockCypherBalance,
   BlockCypherBalanceFull,
-} from "../../src/provider/blockcypher/bitcoin/blockcypher-bitcoin-types";
+} from '../../src/provider/blockcypher/bitcoin/blockcypher-bitcoin-types';
 
-describe("Test Blockcypher Bitcoin", () => {
-  test("Mapper Blockcypher Balance Works", () => {
+describe('Test Blockcypher Bitcoin', () => {
+  test('Mapper Blockcypher Balance Works', () => {
     const transformed = mapBlockCypherBalance(blockCypherBalanceMock);
 
     expect(transformed).toEqual(expect.objectContaining(expectedBalance));
   });
 
-  test("Mapper Blockcypher Transaction Works", () => {
+  test('Mapper Blockcypher Transaction Works', () => {
     const transformed = mapBlockCypherTransactions(blockCypherTransactionFull);
 
     expect(transformed).toEqual(expect.arrayContaining(expectedTransaction));
@@ -23,7 +23,7 @@ describe("Test Blockcypher Bitcoin", () => {
 });
 
 const blockCypherTransactionFull: BlockCypherBalanceFull = {
-  address: "",
+  address: '',
   total_received: 0,
   total_sent: 0,
   balance: 0,
@@ -34,16 +34,16 @@ const blockCypherTransactionFull: BlockCypherBalanceFull = {
   final_n_tx: 0,
   txs: [
     {
-      block_hash: "",
+      block_hash: '',
       block_height: 0,
       block_index: 0,
-      hash: "",
+      hash: '',
       addresses: [],
       total: 0,
       fees: 0,
       size: 0,
       vsize: 0,
-      preference: "",
+      preference: '',
       confirmed: new Date(0),
       received: new Date(0),
       ver: 0,
@@ -54,22 +54,22 @@ const blockCypherTransactionFull: BlockCypherBalanceFull = {
       confidence: 0,
       inputs: [
         {
-          prev_hash: "",
+          prev_hash: '',
           output_index: 0,
-          script: "",
+          script: '',
           output_value: 0,
           sequence: 0,
           addresses: [],
-          script_type: "",
+          script_type: '',
           age: 0,
         },
       ],
       outputs: [
         {
           value: 0,
-          script: "",
-          addresses: [""],
-          script_type: "",
+          script: '',
+          addresses: [''],
+          script_type: '',
         },
       ],
       lock_time: 0,
@@ -88,8 +88,6 @@ const blockCypherBalanceMock: BlockCypherBalance = {
   n_tx: 0,
   unconfirmed_n_tx: 0,
   final_n_tx: 0,
-  incoming: 0,
-  outgoing: 0,
 };
 
 const expectedBalance: Balance = {
@@ -97,43 +95,37 @@ const expectedBalance: Balance = {
   outgoing: 0,
 };
 
-const out: Output = {
-  value: 0,
-  script: "",
-  address: "",
-};
-
 const expectedTransaction: Transaction[] = [
   {
     blockNumber: 0,
     fee: 0,
-    hash: "",
-    hex: "",
+    hash: '',
+    hex: '',
     index: 0,
     inputs: [
       {
         prevout: {
-          hash: "",
+          hash: '',
           index: 0,
         },
         sequence: 0,
-        script: "",
-        scriptType: "",
+        script: '',
+        scriptType: '',
       },
     ],
     locktime: 0,
     outputs: [
       {
         value: 0,
-        script: "",
-        address: "",
+        script: '',
+        address: '',
       },
     ],
     size: 0,
     time: 0,
     version: 0,
     vsize: 0,
-    witnessHash: "",
+    witnessHash: '',
     total: 0,
   },
 ];

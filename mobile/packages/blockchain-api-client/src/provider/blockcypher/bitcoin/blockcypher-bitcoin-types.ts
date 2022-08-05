@@ -1,5 +1,4 @@
-import { Balance } from "wallet/types/wallet";
-import { ApiTransaction } from "../../..";
+import { ApiTransaction, Balance } from '../../../base/types';
 
 export interface BlockCypherBalance extends Balance {
   total_received: number;

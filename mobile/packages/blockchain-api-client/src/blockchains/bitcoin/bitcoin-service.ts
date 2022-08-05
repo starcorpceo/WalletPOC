@@ -1,7 +1,6 @@
-import { Balance, Transaction } from "wallet/types/wallet";
-import { Service } from "../../base/service";
-import { Network } from "../../base/types";
-import { BitcoinFactory, BitcoinProvider } from "./bitcoin-factory";
+import { Service } from '../../base/service';
+import { Balance, Network, Transaction } from '../../base/types';
+import { BitcoinFactory, BitcoinProvider } from './bitcoin-factory';
 
 export class BitcoinService implements Service {
   private factory: BitcoinFactory;
@@ -16,7 +15,10 @@ export class BitcoinService implements Service {
    * @param provider Which API should be called
    * @returns
    */
-  getBalance = async (address: string, provider: BitcoinProvider): Promise<Balance> => {
+  getBalance = async (
+    address: string,
+    provider: BitcoinProvider
+  ): Promise<Balance> => {
     const { mapper, fetcher } = this.factory.getProviderFunctions(provider);
 
     const apiBalance = await fetcher.fetchBalance(address);

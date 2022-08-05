@@ -1,5 +1,4 @@
-import { Balance, Transaction } from "wallet/types/wallet";
-import { Provider } from "./types";
+import { Balance, Provider, Transaction } from './types';
 
 export interface Service {
   getBalance: (address: string, provider: Provider) => Promise<Balance>;
