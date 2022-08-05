@@ -1,1 +1,1 @@
-export { BitcoinService } from "./blockchains/bitcoin/bitcoin-service";
+export { BitcoinService } from "./src/blockchains/bitcoin/bitcoin-service";

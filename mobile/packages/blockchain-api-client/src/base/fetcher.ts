@@ -1,4 +1,4 @@
-import { ApiBalance, ApiTransaction } from "..";
+import { ApiBalance, ApiTransaction } from "./types";
 
 export interface Fetcher {
   fetchBalance: (address: string) => Promise<ApiBalance>;

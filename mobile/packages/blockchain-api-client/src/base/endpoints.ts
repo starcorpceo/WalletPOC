@@ -1,4 +1,4 @@
-import { Provider } from "..";
+import { Provider } from "./types";
 
 export interface Endpoints {
   balance: (address: string) => string;

@@ -1,6 +1,5 @@
-import { ApiBalance, ApiTransaction } from "../..";
 import { Factory, ProviderFunctions } from "../../base/factory";
-import { Network } from "../../base/types";
+import { ApiBalance, ApiTransaction, Network } from "../../base/types";
 import { blockCypherEndpoints } from "../../provider/blockcypher/bitcoin/blockcypher-bitcoin-endpoints";
 import {
   mapBlockCypherBalance,

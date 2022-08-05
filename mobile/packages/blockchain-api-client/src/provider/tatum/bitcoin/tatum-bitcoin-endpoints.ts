@@ -1,4 +1,4 @@
-import { Endpoints } from "../../../base/enpoints";
+import { Endpoints } from "../../../base/endpoints";
 
 // TODO Deal with different Blockchains e.g. what if /btc/ should be /eth/
 export const tatumEndpoints: Endpoints = {

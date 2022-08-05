@@ -1,4 +1,4 @@
-export type Fetch<T> = (url: string, params?: HttpParams) => Promise<T>;
+export type Fetch = <T>(url: string, params?: HttpParams) => Promise<T>;
 
 export enum HttpMethod {
   POST = "POST",
