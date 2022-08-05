@@ -1,8 +1,4 @@
-import {
-  AccountKeyShare,
-  AddressKeyShare,
-  ChangeKeyShare,
-} from "shared/types/mpc";
+import { AccountKeyShare, AddressKeyShare, ChangeKeyShare } from "shared/types/mpc";
 import { VirtualAccount } from "./virtual-wallet";
 
 export interface CoinTypeAccount {
@@ -49,15 +45,15 @@ export interface Transaction {
   time: number;
   version: number;
   vsize: number;
-  weight: number;
   witnessHash: string;
+  total: number | undefined;
 }
 
 export interface Input {
   prevout: Prevout;
   sequence: number;
   script: string;
-  coin: Coin;
+  scriptType: string;
 }
 
 export interface Coin {
