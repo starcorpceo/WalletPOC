@@ -21,7 +21,6 @@ const BitcoinWalletListView = ({ wallets, virtualAccount }: BitcoinWalletListVie
       {wallets.map((wallet, index: number) => (
         <>
           <BitcoinWalletView key={"Wallet-" + index} wallet={wallet} index={index} />
-          <CreateBitcoinAdress wallet={wallet} />
         </>
       ))}
     </View>

@@ -1,5 +1,6 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { BitcoinAccountBuilder } from "bitcoin/controller/creation/bitcoin-account-creation";
+import { getUsedAddresses } from "bitcoin/controller/creation/bitcoin-transaction-scanning";
 import { BitcoinWalletsState, bitcoinWalletsState } from "bitcoin/state/atoms";
 import React, { useCallback, useEffect } from "react";
 import { Button } from "react-native";
@@ -44,6 +45,10 @@ const Bitcoin = ({ navigation }: Props) => {
     setBitcoin((current) => ({ ...current, accounts: [] }));
   }, [setBitcoin]);
 
+  const loadUsedAddresses = () => {
+    getUsedAddresses(user, bitcoinState.accounts[0], setBitcoin);
+  };
+
   return (
     <Wallets name="Bitcoin">
       {bitcoinState.accounts[0] && (
@@ -63,6 +68,7 @@ const Bitcoin = ({ navigation }: Props) => {
             wallets={bitcoinState.accounts}
             virtualAccount={bitcoinState.accounts[0]?.virtualAccount!}
           />
+          <Button onPress={loadUsedAddresses} title="Load Used Addresses" />
 
           <Button onPress={deleteBitcoinAccount} title="Delete Bitcoin Account" />
         </>

@@ -21,6 +21,7 @@ export interface Address {
   keyShare: AddressKeyShare;
   address: string;
   publicKey: string;
+  transactions: Transaction[];
 }
 
 export interface Balance {
