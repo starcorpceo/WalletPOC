@@ -1,0 +1,61 @@
+{
+  "version": "0.1.1",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "repository": "https://github.com/lauhon/WalletPOC",
+  "keywords": [
+    "blockchain",
+    "bitcoin",
+    "tatum",
+    "blockcypher"
+  ],
+  "typings": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "engines": {
+    "node": ">=10"
+  },
+  "scripts": {
+    "build": "tsdx build",
+    "test": "tsdx test --coverage",
+    "lint": "tsdx lint",
+    "prepare": "tsdx build"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "tsdx lint"
+    }
+  },
+  "prettier": {
+    "semi": true,
+    "singleQuote": true,
+    "trailingComma": "es5"
+  },
+  "name": "blockchain-api-client",
+  "author": "Laurenz Honauer",
+  "module": "dist/blockchain-api-client.esm.js",
+  "size-limit": [
+    {
+      "path": "dist/blockchain-api-client.cjs.production.min.js",
+      "limit": "10 KB"
+    },
+    {
+      "path": "dist/blockchain-api-client.esm.js",
+      "limit": "10 KB"
+    }
+  ],
+  "devDependencies": {
+    "@size-limit/preset-small-lib": "^8.0.0",
+    "@types/jest": "^28.1.6",
+    "@types/node-fetch": "^2.6.2",
+    "husky": "^8.0.1",
+    "msw": "^0.44.2",
+    "node-fetch": "^2.6.7",
+    "size-limit": "^8.0.0",
+    "tsdx": "^0.14.1",
+    "tslib": "^2.4.0",
+    "typescript": "^4.7.4"
+  }
+}

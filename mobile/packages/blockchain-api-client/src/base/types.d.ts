@@ -1,27 +1,21 @@
-import { AccountKeyShare, AddressKeyShare, ChangeKeyShare } from "shared/types/mpc";
-import { VirtualAccount } from "./virtual-wallet";
+import { BitcoinProvider } from './blockchains/bitcoin/bitcoin-factory';
+import {
+  BlockCypherBalance,
+  BlockCypherBalanceFull,
+} from './provider/blockcypher/bitcoin/blockcypher-bitcoin-types';
+import {
+  TatumBalance,
+  TatumTransaction,
+} from './provider/tatum/bitcoin/tatum-bitcoin-types';
 
-export interface CoinTypeAccount {
-  virtualAccount: VirtualAccount;
-  mpcKeyShare: AccountKeyShare;
-  internal: AccountChange;
-  external: AccountChange;
-  config: WalletConfig;
-  xPub: string;
-  transactions: Transaction[];
-  balance: Balance;
-}
+export type Provider = BitcoinProvider;
 
-export interface AccountChange {
-  keyShare: ChangeKeyShare;
-  addresses: Address[];
-}
+export type ApiBalance<T = BlockCypherBalance | TatumBalance> = T;
+export type ApiTransaction<T = BlockCypherBalanceFull | TatumTransaction[]> = T;
 
-export interface Address {
-  keyShare: AddressKeyShare;
-  address: string;
-  publicKey: string;
-}
+export interface TransactionRequest {}
+
+export type Network = 'TEST' | 'MAIN';
 
 export interface Balance {
   incoming: number;

@@ -1,6 +1,6 @@
 import { CreateNonceResponse } from "api-types/auth";
 import { Platform } from "react-native";
-import { apiKeys } from "wallet/assets/bitcoin/blockchain/endpoints";
+import { apiKeys } from "../wallet/assets/bitcoin/blockchain/endpoints";
 import { signWithDeviceKeyNoAuth } from "./auth";
 
 export enum HttpMethod {
@@ -8,13 +8,8 @@ export enum HttpMethod {
   GET = "GET",
 }
 
-export const fetchFromApi = async <T>(
-  path: string,
-  params?: HttpParams
-): Promise<T> => {
-  const { nonce } = await fetchFrom<CreateNonceResponse>(
-    getApiUrl("http") + "/getNonce"
-  );
+export const fetchFromApi = async <T>(path: string, params?: HttpParams): Promise<T> => {
+  const { nonce } = await fetchFrom<CreateNonceResponse>(getApiUrl("http") + "/getNonce");
   const deviceSignature = await signWithDeviceKeyNoAuth(nonce);
 
   const paramsWithSignature = {
@@ -31,10 +26,7 @@ export const fetchFromApi = async <T>(
   return fetchFrom(getApiUrl("http") + path, paramsWithSignature);
 };
 
-export const fetchFromTatum = async <T>(
-  url: string,
-  params?: HttpParams
-): Promise<T> => {
+export const fetchFromTatum = async <T>(url: string, params?: HttpParams): Promise<T> => {
   return fetchFrom(url, {
     ...params,
     args: {

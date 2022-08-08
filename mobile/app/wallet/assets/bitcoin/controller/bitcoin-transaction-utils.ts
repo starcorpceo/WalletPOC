@@ -1,19 +1,11 @@
 import { User } from "api-types/user";
-import endpoints from "bitcoin/blockchain/endpoints";
 import { config } from "bitcoin/config/bitcoin-config";
 import * as bitcoin from "der-bitcoinjs-lib";
 import { fetchFromTatum, HttpMethod } from "lib/http";
 import { signEcdsa } from "lib/mpc";
 import "shim";
-import {
-  Balance,
-  CoinTypeAccount,
-  Fees,
-  Input,
-  Output,
-  Transaction,
-  UTXO,
-} from "wallet/types/wallet";
+import { Balance, CoinTypeAccount, Fees, Input, Output, Transaction, UTXO } from "wallet/types/wallet";
+import endpoints from "../blockchain/endpoints";
 import { BitcoinWallet } from "../types/bitcoin";
 
 // TODO rework after now transactions have to be built from all external and internal addresses
@@ -39,15 +31,10 @@ export const getLatestTransactions = (
     offset: offset.toString(),
   });
 
-  return fetchFromTatum<Transaction[]>(
-    endpoints.bitcoin.transaction(address, query)
-  );
+  return fetchFromTatum<Transaction[]>(endpoints.bitcoin.transaction(address, query));
 };
 
-export const getNetValue = (
-  address: string,
-  transaction: Transaction
-): number => {
+export const getNetValue = (address: string, transaction: Transaction): number => {
   var fullValueInput = 0;
   var fullValueReturn = 0;
 
@@ -66,20 +53,12 @@ export const getNetValue = (
   return -fullValueInput + fullValueReturn;
 };
 
-export const getUnspentTransactions = async (
-  transactions: Transaction[],
-  address: string
-): Promise<UTXO[]> => {
+export const getUnspentTransactions = async (transactions: Transaction[], address: string): Promise<UTXO[]> => {
   const unspent = Promise.all(
     transactions.flatMap((transaction: Transaction) =>
       transaction.outputs.map(async (output: Output, index) => {
-        if (
-          !isTransactionSpent(transaction, wallet) &&
-          output.address === address
-        )
-          return fetchFromTatum<UTXO>(
-            endpoints.bitcoin.utxo(transaction.hash, index)
-          );
+        if (!isTransactionSpent(transaction, wallet) && output.address === address)
+          return fetchFromTatum<UTXO>(endpoints.bitcoin.utxo(transaction.hash, index));
       })
     )
   );
@@ -91,51 +70,31 @@ export const getUnspentTransactionsSync = (wallet: CoinTypeAccount) => {
   const unspent = wallet.transactions.flatMap((transaction: Transaction) =>
     transaction.outputs.map(
       (output: Output) =>
-        !isTransactionSpent(transaction, wallet) &&
-        output.address === wallet.config.address &&
-        transaction
+        !isTransactionSpent(transaction, wallet) && output.address === wallet.config.address && transaction
     )
   );
 
-  return unspent.filter(
-    (transaction): transaction is Transaction => !!transaction
-  );
+  return unspent.filter((transaction): transaction is Transaction => !!transaction);
 };
 
-const isTransactionSpent = (
-  transaction: Transaction,
-  allTransactions: Transaction[]
-): boolean =>
+const isTransactionSpent = (transaction: Transaction, allTransactions: Transaction[]): boolean =>
   allTransactions.some((searchTransaction: Transaction) =>
-    searchTransaction.inputs.find(
-      (input: Input) => input.prevout.hash === transaction.hash
-    )
+    searchTransaction.inputs.find((input: Input) => input.prevout.hash === transaction.hash)
   );
 
-const getChangeFromUTXO = (
-  transaction: Transaction,
-  address: string
-): number => {
-  const change = transaction.outputs.find(
-    (output: Output) => output.address === address
-  );
+const getChangeFromUTXO = (transaction: Transaction, address: string): number => {
+  const change = transaction.outputs.find((output: Output) => output.address === address);
 
   return change?.value || 0;
 };
 
-const getChangeValueFromUTXOs = (
-  transactions: Transaction[],
-  address: string
-): number => {
+const getChangeValueFromUTXOs = (transactions: Transaction[], address: string): number => {
   return transactions.reduce((prev, curr) => {
     return prev + getChangeFromUTXO(curr, address);
   }, 0);
 };
 
-const estimateFeeFromUTXO = (
-  from: Transaction[],
-  to: Transaction[]
-): Promise<Fees> => {
+const estimateFeeFromUTXO = (from: Transaction[], to: Transaction[]): Promise<Fees> => {
   const fromUTXO = from.flatMap;
   return fetchFromTatum<Fees>(endpoints.bitcoin.fees(), {
     method: HttpMethod.POST,
@@ -191,10 +150,7 @@ export const signTransaction = async (
   return transaction;
 };
 
-export const prepareSigner = (
-  wallet: BitcoinWallet,
-  user: User
-): bitcoin.SignerAsync => {
+export const prepareSigner = (wallet: BitcoinWallet, user: User): bitcoin.SignerAsync => {
   const ec: bitcoin.SignerAsync = {
     publicKey: wallet.config.publicKey as Buffer,
     sign: async (hash: Buffer) =>
@@ -245,11 +201,6 @@ const getUTXOByValue = (
   return transactions;
 };
 
-const getChangeIndexFromTransaction = (
-  wallet: BitcoinWallet,
-  transaction: Transaction
-): number => {
-  return transaction.outputs.findIndex(
-    (output) => output.address === wallet.config.address
-  );
+const getChangeIndexFromTransaction = (wallet: BitcoinWallet, transaction: Transaction): number => {
+  return transaction.outputs.findIndex((output) => output.address === wallet.config.address);
 };

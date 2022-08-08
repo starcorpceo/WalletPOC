@@ -8,7 +8,9 @@
     "start": "react-native start",
     "test": "jest",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
-    "postinstall": "rn-nodeify --install buffer,stream,assert,events,crypto,vm,process --hack"
+    "postinstall": "npm run install-blockchain-client && npm run nodeify",
+    "install-blockchain-client": "cd ./packages/blockchain-api-client/ && npm i",
+    "nodeify": "rn-nodeify --install buffer,stream,assert,events,crypto,vm,process --hack"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^1.17.7",
