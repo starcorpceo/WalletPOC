@@ -5,7 +5,6 @@ import {
   assignNewDepositAddress,
   connectVirtualAccount,
 } from "bitcoin/controller/bitcoin-virtual-wallet";
-import { mpcPublicKeyToBitcoinAddress } from "bitcoin/controller/bitcoinjs-adapter";
 import { BitcoinWalletsState, initialBitcoinState } from "bitcoin/state/atoms";
 import { emptyKeyPair } from "config/constants";
 import { deepCompare } from "lib/util";
@@ -26,23 +25,25 @@ import { deriveMpcKeyShare } from "./derived-share-creation";
  * Utilizes Builder pattern to take (or create) a CoinTypeKeyShare and creates the Account all the way down to the Address level
  */
 export class AccountBuilder {
-  private user: User;
-  private coinTypeKeyShare: CoinTypeKeyShare = emptyKeyPair;
-  private accountKeyShare: AccountKeyShare = emptyKeyPair;
   private xPub = "";
 
   private internal: AccountChange = { keyShare: emptyKeyPair, addresses: [] };
   private external: AccountChange = { keyShare: emptyKeyPair, addresses: [] };
-  private publicKeyToAddress: PublicKeyToAddress = () => "";
+  private publicKeyToAddress: PublicKeyToAddress;
 
-  private virtualAccount: VirtualAccount | undefined;
+  protected user: User;
+  protected coinTypeKeyShare: CoinTypeKeyShare = emptyKeyPair;
+  protected accountKeyShare: AccountKeyShare = emptyKeyPair;
+
+  virtualAccount: VirtualAccount | undefined;
 
   /**
    *
    * @param user which is the owner of the new Account
    */
-  constructor(user: User) {
+  constructor(user: User, publicKeyToAddress: PublicKeyToAddress) {
     this.user = user;
+    this.publicKeyToAddress = publicKeyToAddress;
   }
 
   /**
@@ -59,16 +60,16 @@ export class AccountBuilder {
    * @param coinTypeShareFromState CoinTypeShare form the local state. Can be empty, in this case it has the values of initialBitcoinState
    * @returns
    */
-  public async useCoinTypeShare(
+  protected async buildCoinTypeShare(
     purposeShare: PurposeKeyShare,
     coinTypeShareFromState: CoinTypeKeyShare
-  ): Promise<AccountBuilder> {
+  ): Promise<CoinTypeKeyShare> {
     const noCoinTypeWalletExists = deepCompare(
       coinTypeShareFromState,
       initialBitcoinState.coinTypeKeyShare
     );
 
-    this.coinTypeKeyShare = noCoinTypeWalletExists
+    return noCoinTypeWalletExists
       ? await deriveMpcKeyShare(
           purposeShare,
           this.user,
@@ -77,8 +78,6 @@ export class AccountBuilder {
           KeyShareType.COINTYPE
         )
       : coinTypeShareFromState;
-
-    return this;
   }
 
   /**
@@ -103,19 +102,6 @@ export class AccountBuilder {
     this.virtualAccount = virtualAccount;
     this.accountKeyShare = accountKeyShare;
     this.xPub = xPub;
-
-    return this;
-  }
-
-  /**
-   *
-   * @param chain Defines which algorithm is used for creating addresses
-   */
-  public async forBlockchain(
-    chain: "Bitcoin" | "Ethereum"
-  ): Promise<AccountBuilder> {
-    if (chain === "Bitcoin")
-      this.publicKeyToAddress = mpcPublicKeyToBitcoinAddress;
 
     return this;
   }

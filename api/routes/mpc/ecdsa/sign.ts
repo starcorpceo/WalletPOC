@@ -1,13 +1,14 @@
 import { Context } from "@crypto-mpc";
 import { SocketStream } from "@fastify/websocket";
 import logger from "@lib/logger";
+import { User } from "../../user/user";
 import { MpcKeyShare } from "../../user/wallet";
 import { getWallet } from "../../user/wallet.repository";
 import { step } from "../step/step";
 
 type SignStatus = "InitShare" | "InitMessage" | "Stepping";
 
-export const signWithEcdsaShare = (connection: SocketStream) => {
+export const signWithEcdsaShare = (connection: SocketStream, user: User) => {
   let context: Context;
   let status: SignStatus = "InitShare";
 
@@ -17,7 +18,7 @@ export const signWithEcdsaShare = (connection: SocketStream) => {
     switch (status) {
       case "InitShare":
         try {
-          share = await getWallet(message.toString());
+          share = await getWallet(message.toString(), user.id);
           status = "InitMessage";
           connection.socket.send(JSON.stringify({ value: "ShareSet" }));
         } catch (err) {

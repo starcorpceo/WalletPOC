@@ -53,13 +53,34 @@ export const createWallet = (
   });
 };
 
-export const getWallet = async (id: string): Promise<MpcKeyShare> => {
-  const wallet = await client.mpcKeyShare.findUnique({
+export const getWallet = async (
+  id: string,
+  userId: string
+): Promise<MpcKeyShare> => {
+  const wallet = await client.mpcKeyShare.findFirst({
     where: {
       id,
+      userId,
     },
   });
+
   if (!wallet) throw notFound("No Wallet Found");
+
+  return wallet;
+};
+
+export const getWalletByPath = async (
+  path: string,
+  userId: string
+): Promise<MpcKeyShare | null> => {
+  const wallet = await client.mpcKeyShare.findUnique({
+    where: {
+      userId_path: {
+        userId,
+        path,
+      },
+    },
+  });
 
   return wallet;
 };

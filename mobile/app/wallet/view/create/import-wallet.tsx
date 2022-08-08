@@ -1,6 +1,6 @@
-import constants from "config/constants";
+import constants, { emptyKeyPair } from "config/constants";
 import React, { useCallback, useState } from "react";
-import { Button, TextInput, View } from "react-native";
+import { Button, Text, TextInput, View } from "react-native";
 import { useSetRecoilState } from "recoil";
 import { AuthState, authState } from "state/atoms";
 import {
@@ -9,7 +9,8 @@ import {
 } from "wallet/controller/creation/derived-share-creation";
 
 import { User } from "api-types/user";
-import { KeyShareType } from "shared/types/mpc";
+import { deepCompare } from "lib/util";
+import { KeyShareType, MasterKeyShare } from "shared/types/mpc";
 
 type ImportWalletProps = {
   user: User;
@@ -23,27 +24,38 @@ const ImportWallet = ({ user }: ImportWalletProps) => {
 
   const setAuth = useSetRecoilState<AuthState>(authState);
 
-  const importWallet = useCallback(async () => {
+  const derivePurposeShare = useCallback(
+    async (masterKeyShare: MasterKeyShare) => {
+      const purposeKeyShare = await deriveMpcKeyShare(
+        masterKeyShare,
+        user,
+        constants.bip44PurposeIndex,
+        true,
+        KeyShareType.PURPOSE
+      );
+
+      setAuth((auth: AuthState) => {
+        return {
+          ...auth,
+          keyShares: [...auth.keyShares, purposeKeyShare],
+        };
+      });
+    },
+    [setAuth, user]
+  );
+
+  const importMaster = useCallback(async () => {
     const bip44MasterKeyShare = await createMPCKeyShareFromSeed(seed, user);
 
-    const purposeKeyShare = await deriveMpcKeyShare(
-      bip44MasterKeyShare,
-      user,
-      constants.bip44PurposeIndex,
-      true,
-      KeyShareType.PURPOSE
-    );
+    setAuth((current) => ({ ...current, bip44MasterKeyShare }));
 
-    //const xPub = await getXPubKey(purposeWallet.keyShare, "main");
-
-    setAuth((auth: AuthState) => {
-      return {
-        ...auth,
-        bip44MasterKeyShare,
-        keyShares: [...auth.keyShares, purposeKeyShare],
-      };
-    });
+    derivePurposeShare(bip44MasterKeyShare);
   }, [setAuth, seed, user]);
+
+  const isCleanStart = deepCompare(user.bip44MasterKeyShare, {
+    ...emptyKeyPair,
+    type: KeyShareType.MASTER,
+  });
 
   return (
     <View style={{ padding: 4 }}>
@@ -52,7 +64,21 @@ const ImportWallet = ({ user }: ImportWalletProps) => {
         value={seed}
         style={{ backgroundColor: "white", padding: 4 }}
       />
-      <Button onPress={importWallet} title="Import Wallet" />
+      {isCleanStart ? (
+        <Button onPress={importMaster} title="Import Wallet" />
+      ) : (
+        <>
+          <Text>
+            Looks like you are in the middle of importing or generating a
+            Wallet. If you just stared, please wait a moment. If you aborted the
+            Import Process for some reason, you can Continue the import safely:
+          </Text>
+          <Button
+            onPress={() => derivePurposeShare(user.bip44MasterKeyShare)}
+            title="Continue Wallet Import"
+          />
+        </>
+      )}
     </View>
   );
 };

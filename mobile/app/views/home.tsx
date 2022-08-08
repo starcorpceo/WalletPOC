@@ -1,4 +1,5 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { User } from "api-types/user";
 import { emptyKeyPair } from "config/constants";
 import { deepCompare } from "lib/util";
 import React from "react";
@@ -13,6 +14,7 @@ import {
 } from "react-native";
 import { useRecoilValue } from "recoil";
 import { KeyShareType } from "shared/types/mpc";
+import { NavigationRoutes } from "shared/types/navigation";
 import "shim";
 import { AuthState, authState } from "state/atoms";
 import GenerateWallet from "wallet/view/create/generate-wallet";
@@ -23,8 +25,6 @@ type Props = NativeStackScreenProps<NavigationRoutes, "Home">;
 const Home = ({ navigation }: Props) => {
   const isDarkMode = useColorScheme() === "dark";
   const user = useRecoilValue<AuthState>(authState);
-
-  //console.log(user);
 
   const textStyle: StyleProp<TextStyle> = {
     color: isDarkMode ? "#fff" : "#000",
@@ -37,19 +37,7 @@ const Home = ({ navigation }: Props) => {
       <ScrollView contentContainerStyle={{ paddingBottom: "100%" }}>
         <Text style={textStyle}>Welcome to Secure Wallet</Text>
 
-        {deepCompare(user.bip44MasterKeyShare, {
-          ...emptyKeyPair,
-          type: KeyShareType.MASTER,
-        }) ? (
-          <>
-            <Text>
-              You dont have an Account with Corresponding Wallets yet. Import or
-              derive a Master Key (BIP44 root)
-            </Text>
-            <GenerateWallet user={user} />
-            <ImportWallet user={user} />
-          </>
-        ) : (
+        {isWalletReadyForAccountsView(user) ? (
           <>
             <Button
               onPress={() => navigation.navigate("Bitcoin")}
@@ -60,10 +48,30 @@ const Home = ({ navigation }: Props) => {
               title="Ethereum"
             />
           </>
+        ) : (
+          <>
+            <Text>
+              You dont have an Account with Corresponding Wallets yet. Import or
+              derive a Master Key (BIP44 root)
+            </Text>
+            <GenerateWallet user={user} />
+            <ImportWallet user={user} />
+          </>
         )}
       </ScrollView>
     </View>
   );
+};
+
+const isWalletReadyForAccountsView = (user: User): boolean => {
+  const isMasterEmpty = deepCompare(user.bip44MasterKeyShare, {
+    ...emptyKeyPair,
+    type: KeyShareType.MASTER,
+  });
+
+  const isPurposeEmpty = user.keyShares.length === 0;
+
+  return !isMasterEmpty && !isPurposeEmpty;
 };
 
 export default Home;
