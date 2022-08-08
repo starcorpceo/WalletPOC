@@ -34,9 +34,7 @@ const Ethereum = ({ navigation }: Props) => {
         .then((builder) => builder.createChange("external"))
         .then((builder) => builder.build());
 
-      console.log("Before set", newState);
-
-      setEthereum(() => newState);
+      setEthereum(() => newState as EthereumWalletsState);
     };
 
     onOpen();

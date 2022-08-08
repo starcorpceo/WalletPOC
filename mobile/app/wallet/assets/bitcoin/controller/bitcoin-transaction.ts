@@ -1,29 +1,28 @@
-import { Address, CoinTypeAccount, Fees, Transaction } from "wallet/types/wallet";
+import { User } from "api-types/user";
+import { config } from "bitcoin/config/bitcoin-config";
+import * as bitcoin from "der-bitcoinjs-lib";
+import "shim";
+import { Address, BitcoinTransaction, CoinTypeAccount, Fees } from "wallet/types/wallet";
+import { BitcoinService } from "../../../../../packages/blockchain-api-client/src";
+import { BroadcastTransaction } from "../../../../../packages/blockchain-api-client/src/base/types";
+import { BitcoinProvider } from "../../../../../packages/blockchain-api-client/src/blockchains/bitcoin/bitcoin-factory";
+import { getNextUnusedAddress } from "./bitcoin-address";
+import { prepareSingleSigner } from "./bitcoin-signer";
 import {
   getAddressFromUTXOOutput,
   getChangeFromUTXOs,
   getChangeIndexFromUTXO,
   getUTXOByValueCache,
-  getUTXOsCache,
 } from "./bitcoin-transaction-utils";
-import * as bitcoin from "der-bitcoinjs-lib";
-import "shim";
-import { config } from "bitcoin/config/bitcoin-config";
-import { User } from "api-types/user";
-import { getNextUnusedAddress } from "./bitcoin-address";
-import { BitcoinService } from "../../../../../packages/blockchain-api-client/src";
-import { BitcoinProvider } from "../../../../../packages/blockchain-api-client/src/blockchains/bitcoin/bitcoin-factory";
 import { BitcoinToSatoshis } from "./bitcoin-utils";
-import { prepareSingleSigner } from "./bitcoin-signer";
-import { BroadcastTransaction } from "../../../../../packages/blockchain-api-client/src/base/types";
 
 /**
  * Get all transactions from account, only from state
  * @param account
  * @returns
  */
-export const getAllTransactionsCache = (account: CoinTypeAccount): Transaction[] => {
-  let transactions: Transaction[] = [];
+export const getAllTransactionsCache = (account: CoinTypeAccount): BitcoinTransaction[] => {
+  let transactions: BitcoinTransaction[] = [];
   account.external.addresses.map((address) =>
     address.transactions.map((transaction) => {
       transactions.push(transaction);
@@ -34,7 +33,7 @@ export const getAllTransactionsCache = (account: CoinTypeAccount): Transaction[]
       transactions.push(transaction);
     })
   );
-  const uniqueTransaction: Transaction[] = [
+  const uniqueTransaction: BitcoinTransaction[] = [
     ...new Map(transactions.map((transaction) => [transaction.hash, transaction])).values(),
   ];
   return uniqueTransaction;

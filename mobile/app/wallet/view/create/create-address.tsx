@@ -1,6 +1,6 @@
 import React, { useCallback } from "react";
 import { Button, StyleSheet, Text, View } from "react-native";
-import { useRecoilValue } from "recoil";
+import { RecoilState, useRecoilValue } from "recoil";
 import { AuthState, authState } from "state/atoms";
 import { CoinTypeState } from "state/types";
 import { createAddress } from "wallet/controller/creation/address-creation";
@@ -9,12 +9,12 @@ import { CoinTypeAccount } from "wallet/types/wallet";
 
 interface CreateBitcoinWalletProps<T extends CoinTypeAccount> {
   wallet: CoinTypeAccount;
-  state: CoinTypeState<T>;
+  state: RecoilState<CoinTypeState<T>>;
 }
 
 const CreateAddress = <T extends CoinTypeAccount>({ wallet, state }: CreateBitcoinWalletProps<T>) => {
   const user = useRecoilValue<AuthState>(authState);
-  const setAddAddress = useAddAddress(state);
+  const setAddAddress = useAddAddress<T>(state);
 
   const startGenerate = useCallback(async () => {
     const address = await createAddress(user, wallet, "external");

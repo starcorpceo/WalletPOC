@@ -1,6 +1,6 @@
 import { User } from "api-types/user";
 import { createAddress } from "wallet/controller/creation/address-creation";
-import { Address, CoinTypeAccount, Transaction } from "wallet/types/wallet";
+import { Address, CoinTypeAccount } from "wallet/types/wallet";
 import { BitcoinService } from "../../../../../packages/blockchain-api-client/src";
 import { BitcoinProvider } from "../../../../../packages/blockchain-api-client/src/blockchains/bitcoin/bitcoin-factory";
 

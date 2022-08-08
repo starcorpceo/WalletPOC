@@ -15,6 +15,7 @@ module.exports = {
           ethereum: "./app/wallet/assets/ethereum/",
           wallet: "./app/wallet/",
           config: "./app/config/",
+          packages: "./packages/",
           shim: "./shim.js",
         },
       },

@@ -1,16 +1,11 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { getTransactions } from "bitcoin/controller/virtual/bitcoin-virtual-wallet";
-import React, { useEffect, useState } from "react";
-import { Alert, Button, StyleSheet, Text, TextInput, View } from "react-native";
-import { VirtualAccount, VirtualTransaction } from "wallet/types/virtual-wallet";
-import { NavigationRoutes } from "shared/types/navigation";
-import { Address, Transaction } from "wallet/types/wallet";
-import { getNextUnusedAddress } from "bitcoin/controller/bitcoin-address";
-import { useRecoilValue } from "recoil";
-import { authState, AuthState } from "state/atoms";
-import { prepareTransactionP2PKH } from "bitcoin/controller/bitcoin-transaction";
 import { signAllInputs } from "bitcoin/controller/bitcoin-signer";
-import { broadcastTransaction } from "bitcoin/controller/bitcoin-transaction";
+import { broadcastTransaction, prepareTransactionP2PKH } from "bitcoin/controller/bitcoin-transaction";
+import React, { useState } from "react";
+import { Alert, Button, StyleSheet, Text, TextInput } from "react-native";
+import { useRecoilValue } from "recoil";
+import { NavigationRoutes } from "shared/types/navigation";
+import { authState, AuthState } from "state/atoms";
 
 type Props = NativeStackScreenProps<NavigationRoutes, "SendTransaction">;
 

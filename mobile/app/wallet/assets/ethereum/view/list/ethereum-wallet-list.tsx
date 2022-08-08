@@ -1,9 +1,8 @@
-import { publicKeyToEthereumAddress } from "ethereum/controller/ethereum-utils";
-import { ethereumWalletsState, EthereumWalletsState } from "ethereum/state/atoms";
+import { ethereumWalletsState } from "ethereum/state/atoms";
 import { EthereumWallet } from "ethereum/types/ethereum";
 import React from "react";
 import { View } from "react-native";
-import { useSetRecoilState } from "recoil";
+import { useUpdateAccount } from "wallet/state/wallet-state-utils";
 import CreateAddress from "wallet/view/create/create-address";
 import EthereumWalletView from "./item/ethereum-wallet";
 
@@ -12,7 +11,8 @@ type EthereumWalletListViewProps = {
 };
 
 const EthereumWalletListView = ({ wallets }: EthereumWalletListViewProps) => {
-  const setEthereum = useSetRecoilState<EthereumWalletsState>(ethereumWalletsState);
+  const updateWallet = useUpdateAccount<EthereumWallet>(ethereumWalletsState);
+
   return (
     <View
       style={{
@@ -22,13 +22,8 @@ const EthereumWalletListView = ({ wallets }: EthereumWalletListViewProps) => {
     >
       {wallets.map((wallet, index: number) => (
         <View key={"Wallet-" + index}>
-          <EthereumWalletView wallet={wallet} index={index} />
-          <CreateAddress
-            pubKeyToAddress={publicKeyToEthereumAddress}
-            external={wallet.external}
-            index={index}
-            setCoin={setEthereum}
-          />
+          <EthereumWalletView wallet={wallet} index={index} updateWallet={updateWallet} />
+          <CreateAddress wallet={wallet} state={ethereumWalletsState} />
         </View>
       ))}
     </View>

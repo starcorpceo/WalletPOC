@@ -8,8 +8,8 @@ export interface CoinTypeAccount {
   external: AccountChange;
   config: WalletConfig;
   xPub: string;
-  transactions: Transaction[];
-  balance: Balance;
+  transactions: BitcoinTransaction[];
+  balance: BitcoinBalance;
 }
 
 export interface AccountChange {
@@ -21,11 +21,11 @@ export interface Address {
   keyShare: AddressKeyShare;
   address: string;
   publicKey: Buffer;
-  transactions: Transaction[];
+  transactions: BitcoinTransaction[];
   balance: Balance;
 }
 
-export interface Balance {
+export interface BitcoinBalance {
   incoming: number;
   outgoing: number;
 
@@ -34,7 +34,7 @@ export interface Balance {
   confirmedBalance?: number;
 }
 
-export interface Transaction {
+export interface BitcoinTransaction {
   blockNumber: number;
   fee: number;
   hash: string;

@@ -4,13 +4,13 @@ import { Button, Text } from "react-native";
 
 type EthereumBalanceProps = {
   wallet: EthereumWallet;
-  updateBalance: () => void;
+  updateBalance: () => Promise<void>;
 };
 
 export const EthereumBalance = ({ wallet, updateBalance }: EthereumBalanceProps) => {
   return (
     <>
-      {wallet.balance && <Text>Balance: {wallet.balance.incoming - wallet.balance.outgoing} BTC</Text>}
+      {wallet.balance && <Text>Balance: {wallet.ethBalance} Wei</Text>}
       <Button onPress={updateBalance} title="Fetch Balance" />
     </>
   );

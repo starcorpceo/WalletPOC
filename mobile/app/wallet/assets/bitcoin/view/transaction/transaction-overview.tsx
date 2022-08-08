@@ -1,27 +1,24 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { getTransactions } from "bitcoin/controller/virtual/bitcoin-virtual-wallet";
-import React, { useEffect, useState } from "react";
-import { Button, Text, View } from "react-native";
-import { VirtualAccount, VirtualTransaction } from "wallet/types/virtual-wallet";
-import { NavigationRoutes } from "shared/types/navigation";
-import { getAllTransactionsCache } from "bitcoin/controller/bitcoin-transaction";
-import { Address, Transaction } from "wallet/types/wallet";
 import { getNextUnusedAddress } from "bitcoin/controller/bitcoin-address";
-import { useRecoilValue } from "recoil";
-import { authState, AuthState } from "state/atoms";
+import { getAllTransactionsCache } from "bitcoin/controller/bitcoin-transaction";
 import {
-  getChangeFromUTXOs,
   getNetValueFromTransaction,
   getOtherInputs,
   getOtherOutputs,
 } from "bitcoin/controller/bitcoin-transaction-utils";
+import React, { useEffect, useState } from "react";
+import { Button, Text, View } from "react-native";
+import { useRecoilValue } from "recoil";
+import { NavigationRoutes } from "shared/types/navigation";
+import { authState, AuthState } from "state/atoms";
+import { Address, BitcoinTransaction } from "wallet/types/wallet";
 
 type Props = NativeStackScreenProps<NavigationRoutes, "BitcoinTransactions">;
 
 const BitcoinTransactions = ({ route }: Props) => {
   const user = useRecoilValue<AuthState>(authState);
 
-  const [transactions, setTransactions] = useState<Transaction[]>();
+  const [transactions, setTransactions] = useState<BitcoinTransaction[]>();
   const [receiveAddress, setReceiveAddress] = useState<Address>();
 
   useEffect(() => {

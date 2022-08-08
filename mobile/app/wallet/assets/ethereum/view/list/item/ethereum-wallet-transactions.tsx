@@ -1,6 +1,6 @@
 import { EthereumWallet } from "ethereum/types/Ethereum";
 import React from "react";
-import { View } from "react-native";
+import { Button, Text, View } from "react-native";
 
 type EthereumTransactionProps = {
   wallet: EthereumWallet;
@@ -10,24 +10,17 @@ type EthereumTransactionProps = {
 const EthereumTransactions = ({ wallet, updateTransactions }: EthereumTransactionProps) => {
   return (
     <View>
-      // TODO gather from all internal and external addresses
-      {/* <Button onPress={updateTransactions} title="Fetch Transactions" />
-      <View
-        style={{ flexDirection: "column", justifyContent: "space-between" }}
-      >
-        {wallet?.transactions.map((transaction) => {
-          const netValue = getNetValue(wallet.config.address, transaction);
-          const isPlus = netValue > 0;
+      <Button onPress={updateTransactions} title="Fetch Transactions" />
+      <View style={{ flexDirection: "column", justifyContent: "space-between" }}>
+        {wallet?.ethTransactions?.map((transaction) => {
+          const isPlus = transaction.value > 0;
           return (
-            <Text
-              key={transaction.hash}
-              style={{ color: isPlus ? "green" : "red" }}
-            >
-              {`${isPlus ? "+" : "-"} ${netValue}`} Satoshis
+            <Text key={transaction.hash} style={{ color: isPlus ? "green" : "red" }}>
+              {`${isPlus ? "+" : "-"} ${transaction.value}`} Weis
             </Text>
           );
-        })} 
-      </View> */}
+        })}
+      </View>
     </View>
   );
 };

@@ -1,12 +1,10 @@
 import { getBalanceFromAccount } from "bitcoin/controller/bitcoin-balance";
 import { SatoshisToBitcoin } from "bitcoin/controller/bitcoin-utils";
-import { BitcoinWalletsState, bitcoinWalletsState } from "bitcoin/state/atoms";
+import { bitcoinWalletsState } from "bitcoin/state/atoms";
+import { useUpdateAccountBalance } from "bitcoin/state/bitcoin-wallet-state-utils";
 import { BitcoinWallet } from "bitcoin/types/bitcoin";
-import React, { useState } from "react";
+import React from "react";
 import { Button, Text } from "react-native";
-import { useRecoilValue } from "recoil";
-import { useUpdateAccountBalance } from "wallet/state/wallet-state-utils";
-import { Balance } from "wallet/types/wallet";
 
 type BitcoinBalanceProps = {
   wallet: BitcoinWallet;
