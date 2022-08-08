@@ -1,27 +1,18 @@
-import { SetterOrUpdater } from "recoil";
-import { KeyShareType } from "shared/types/mpc";
+import { AddressKeyShare, KeyShareType } from "shared/types/mpc";
 import { deriveMpcKeyShare } from "wallet/controller/creation/derived-share-creation";
 import { Address, CoinTypeAccount } from "wallet/types/wallet";
-import { createAddress } from "./account-creation";
-import { CoinTypeState } from "state/types";
 import { getPublicKeyToAddressAdapter } from "../adapter/blockchain-adapter";
 import { User } from "api-types/user";
+import { VirtualAccount } from "wallet/types/virtual-wallet";
+import { getPublicKey } from "react-native-blockchain-crypto-mpc";
+import { assignNewDepositAddress } from "bitcoin/controller/bitcoin-virtual-wallet";
 
-interface CreateAddressProps<T extends CoinTypeAccount> {
-  user: User;
-  account: CoinTypeAccount;
-  changeType: "internal" | "external";
-  setCoin: SetterOrUpdater<CoinTypeState<T>>;
-  derivationIndex?: Number;
-}
-
-export const CreateAddress = async <T extends CoinTypeAccount>({
-  user,
-  account,
-  changeType,
-  setCoin,
-  derivationIndex,
-}: CreateAddressProps<T>): Promise<Address> => {
+export const createAddress = async <T extends CoinTypeAccount>(
+  user: User,
+  account: CoinTypeAccount,
+  changeType: "internal" | "external",
+  derivationIndex?: Number
+): Promise<Address> => {
   const change = changeType === "external" ? account.external : account.internal;
 
   const newAddressShare = await deriveMpcKeyShare(
@@ -32,41 +23,30 @@ export const CreateAddress = async <T extends CoinTypeAccount>({
     KeyShareType.ADDRESS
   );
 
-  const newAddress = await createAddress(newAddressShare, getPublicKeyToAddressAdapter(account.config));
-
-  const index =
-    account.mpcKeyShare.path.slice(-1) === "'"
-      ? Number(account.mpcKeyShare.path.slice(-2).slice(0, 1))
-      : Number(account.mpcKeyShare.path.slice(-1));
-
-  //TODO auto return external or internal
-  setCoin((current) => {
-    return changeType === "external"
-      ? {
-          ...current,
-          accounts: [
-            {
-              ...current.accounts[index],
-              external: {
-                ...current.accounts[index].external,
-                addresses: [...current.accounts[index].external.addresses, newAddress],
-              },
-            },
-          ],
-        }
-      : {
-          ...current,
-          accounts: [
-            {
-              ...current.accounts[index],
-              internal: {
-                ...current.accounts[index].internal,
-                addresses: [...current.accounts[index].internal.addresses, newAddress],
-              },
-            },
-          ],
-        };
-  });
+  const newAddress = await transformPublicKey(newAddressShare, getPublicKeyToAddressAdapter(account.config));
 
   return newAddress;
+};
+
+type PublicKeyToAddress = (publicKey: string) => string;
+
+const transformPublicKey = async (
+  addressShare: AddressKeyShare,
+  publicKeyToAddress: PublicKeyToAddress,
+  virtualAccount?: VirtualAccount
+): Promise<Address> => {
+  const publicKey = await getPublicKey(addressShare.keyShare);
+  const address = await publicKeyToAddress(publicKey);
+
+  virtualAccount && assignVirtualAccount(virtualAccount, address);
+
+  return { keyShare: addressShare, publicKey, address, transactions: [] };
+};
+
+const assignVirtualAccount = async (virtualAccount: VirtualAccount, address: string) => {
+  try {
+    const virtualAddress = await assignNewDepositAddress(virtualAccount, address);
+  } catch (err) {
+    console.warn("Unable to assign address to virtual account");
+  }
 };

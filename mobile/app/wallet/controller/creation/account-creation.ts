@@ -146,24 +146,3 @@ export class AccountBuilder {
   //   };
   // }
 }
-
-export const createAddress = async (
-  addressShare: AddressKeyShare,
-  publicKeyToAddress: PublicKeyToAddress,
-  virtualAccount?: VirtualAccount
-): Promise<Address> => {
-  const publicKey = await getPublicKey(addressShare.keyShare);
-  const address = await publicKeyToAddress(publicKey);
-
-  virtualAccount && assignVirtualAccount(virtualAccount, address);
-
-  return { keyShare: addressShare, publicKey, address };
-};
-
-const assignVirtualAccount = async (virtualAccount: VirtualAccount, address: string) => {
-  try {
-    const virtualAddress = await assignNewDepositAddress(virtualAccount, address);
-  } catch (err) {
-    console.warn("Unable to assign address to virtual account");
-  }
-};

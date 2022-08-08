@@ -1,9 +1,6 @@
 import { User } from "api-types/user";
-import { bitcoinWalletsState, BitcoinWalletsState } from "bitcoin/state/atoms";
-import { SetterOrUpdater, useSetRecoilState } from "recoil";
-import { CoinTypeState } from "state/types";
-import { CreateAddress } from "wallet/controller/creation/address-creation";
-import { CoinTypeAccount, Transaction } from "wallet/types/wallet";
+import { createAddress } from "wallet/controller/creation/address-creation";
+import { Address, CoinTypeAccount, Transaction } from "wallet/types/wallet";
 import { BitcoinService } from "../../../../../../packages/blockchain-api-client/src";
 import { BitcoinProvider } from "../../../../../../packages/blockchain-api-client/src/blockchains/bitcoin/bitcoin-factory";
 
@@ -11,58 +8,30 @@ import { BitcoinProvider } from "../../../../../../packages/blockchain-api-clien
  * Loads all addresses which were already used in a transaction
  * @param user
  * @param account
- * @param setCoin
+ * @param changeType
  */
 export const getUsedAddresses = async <T extends CoinTypeAccount>(
   user: User,
   account: CoinTypeAccount,
-  setCoin: SetterOrUpdater<CoinTypeState<T>>
-) => {
-  var isUnused = false;
-  var derivationIndex = 0;
+  changeType: "internal" | "external"
+): Promise<Address[]> => {
+  let isUnused = false;
+  let derivationIndex = 0;
+  let addresses: Address[] = [];
   while (!isUnused) {
-    const newAddress = await CreateAddress({
-      user,
-      account,
-      changeType: "external",
-      setCoin: setCoin,
-      derivationIndex,
-    });
+    const newAddress = await createAddress(user, account, changeType, derivationIndex);
+
     const bitcoinService = new BitcoinService("TEST");
     const query = new URLSearchParams({
-      pageSize: "1",
+      pageSize: "10",
       offset: "0",
     });
-    const transactions = await bitcoinService.getTransactions(newAddress.address, query, BitcoinProvider.TATUM);
-    newAddress.transactions = transactions;
+    newAddress.transactions = await bitcoinService.getTransactions(newAddress.address, query, BitcoinProvider.TATUM);
 
-    const index =
-      account.mpcKeyShare.path.slice(-1) === "'"
-        ? Number(account.mpcKeyShare.path.slice(-2).slice(0, 1))
-        : Number(account.mpcKeyShare.path.slice(-1));
+    addresses.push(newAddress);
 
-    isUnused = transactions.length === 0;
+    isUnused = newAddress.transactions.length === 0;
     derivationIndex++;
   }
-
-  isUnused = false;
-  derivationIndex = 0;
-
-  while (!isUnused) {
-    const newAddress = await CreateAddress({
-      user,
-      account,
-      changeType: "internal",
-      setCoin: setCoin,
-      derivationIndex,
-    });
-    const bitcoinService = new BitcoinService("TEST");
-    const query = new URLSearchParams({
-      pageSize: "1",
-      offset: "0",
-    });
-    const transactions = await bitcoinService.getTransactions(newAddress.address, query, BitcoinProvider.TATUM);
-    isUnused = transactions.length === 0;
-    derivationIndex++;
-  }
+  return addresses;
 };

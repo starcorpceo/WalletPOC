@@ -8,6 +8,7 @@ import { useRecoilValue, useSetRecoilState } from "recoil";
 import { NavigationRoutes } from "shared/types/navigation";
 import { AuthState, authState } from "state/atoms";
 import { getPurposeWallet } from "state/utils";
+import { useAddAddress } from "wallet/state/wallet-state-utils";
 import Wallets from "wallet/view/generic-wallet-view";
 import BitcoinWalletListView from "./list/bitcoin-wallet-list";
 import { VirtualBalanceView } from "./virtual/virtual-balance";
@@ -18,6 +19,7 @@ const Bitcoin = ({ navigation }: Props) => {
   const bitcoinState = useRecoilValue<BitcoinWalletsState>(bitcoinWalletsState);
   const user = useRecoilValue<AuthState>(authState);
   const setBitcoin = useSetRecoilState<BitcoinWalletsState>(bitcoinWalletsState);
+  const setAddAddress = useAddAddress(bitcoinWalletsState);
 
   const purposeKeyShare = useRecoilValue(getPurposeWallet);
 
@@ -45,8 +47,17 @@ const Bitcoin = ({ navigation }: Props) => {
     setBitcoin((current) => ({ ...current, accounts: [] }));
   }, [setBitcoin]);
 
-  const loadUsedAddresses = () => {
-    getUsedAddresses(user, bitcoinState.accounts[0], setBitcoin);
+  const loadUsedAddresses = async () => {
+    setAddAddress(
+      await getUsedAddresses(user, bitcoinState.accounts[0], "external"),
+      bitcoinState.accounts[0],
+      "external"
+    );
+    setAddAddress(
+      await getUsedAddresses(user, bitcoinState.accounts[0], "internal"),
+      bitcoinState.accounts[0],
+      "internal"
+    );
   };
 
   return (

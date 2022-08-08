@@ -4,7 +4,8 @@ import React from "react";
 import { Button, StyleSheet, Text, View } from "react-native";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { AuthState, authState } from "state/atoms";
-import { CreateAddress } from "wallet/controller/creation/address-creation";
+import { createAddress } from "wallet/controller/creation/address-creation";
+import { useAddAddress } from "wallet/state/wallet-state-utils";
 
 type CreateBitcoinWalletProps = {
   wallet: BitcoinWallet;
@@ -12,10 +13,11 @@ type CreateBitcoinWalletProps = {
 
 const CreateBitcoinAdress = ({ wallet }: CreateBitcoinWalletProps) => {
   const user = useRecoilValue<AuthState>(authState);
-  const setBitcoin = useSetRecoilState<BitcoinWalletsState>(bitcoinWalletsState);
+  const setAddAddress = useAddAddress(bitcoinWalletsState);
 
-  const startGenerate = () => {
-    CreateAddress({ user, account: wallet, changeType: "external", setCoin: setBitcoin });
+  const startGenerate = async () => {
+    const address = await createAddress(user, wallet, "external");
+    setAddAddress([address], wallet, "external");
   };
 
   return (
