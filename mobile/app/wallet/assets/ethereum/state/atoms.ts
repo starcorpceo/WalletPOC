@@ -1,4 +1,4 @@
-import { BitcoinWallet } from "bitcoin/types/bitcoin";
+import { EthereumWallet } from "ethereum/types/ethereum";
 import { atom } from "recoil";
 import { recoilPersist } from "recoil-persist";
 import { CoinTypeKeyShare, KeyShareType } from "shared/types/mpc";
@@ -7,10 +7,10 @@ import { CoinTypeState } from "state/types";
 
 const { persistAtom } = recoilPersist({
   storage: CustomStorage,
-  key: "BitcoinWalletsStatePersist",
+  key: "EthereumWalletsStatePersist",
 });
 
-export type BitcoinWalletsState = CoinTypeState<BitcoinWallet>;
+export type EthereumWalletsState = CoinTypeState<EthereumWallet>;
 
 const emptyCoinTypeShare: CoinTypeKeyShare = {
   id: "",
@@ -20,13 +20,13 @@ const emptyCoinTypeShare: CoinTypeKeyShare = {
   type: KeyShareType.COINTYPE,
 };
 
-export const initialBitcoinState: BitcoinWalletsState = {
+export const initialEthereumState: EthereumWalletsState = {
   accounts: [],
   coinTypeKeyShare: emptyCoinTypeShare,
 };
 
-export const bitcoinWalletsState = atom({
-  key: "BitcoinWallets",
-  default: initialBitcoinState,
+export const ethereumWalletsState = atom({
+  key: "EthereumWallets",
+  default: initialEthereumState,
   effects_UNSTABLE: [persistAtom],
 });

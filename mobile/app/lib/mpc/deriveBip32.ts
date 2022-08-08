@@ -4,29 +4,16 @@
 
 import { DeriveConfig } from "api-types/bip";
 import constants from "config/constants";
-import {
-  getResultDeriveBIP32,
-  initDeriveBIP32,
-  step,
-} from "react-native-blockchain-crypto-mpc";
-import {
-  ActionStatus,
-  authenticatedShareActionMpc,
-  isValidStart,
-  MPCError,
-} from ".";
+import { getResultDeriveBIP32, initDeriveBIP32, step } from "react-native-blockchain-crypto-mpc";
+import { ActionStatus, authenticatedShareActionMpc, isValidStart, MPCError } from ".";
 
-export const deriveBIP32 = authenticatedShareActionMpc<DeriveContext>(
+export const deriveBIP32 = authenticatedShareActionMpc<DeriveContext>("/mpc/ecdsa/derive", deriveHandler);
+
+export const deriveBIP32NoLocalAuth = authenticatedShareActionMpc<DeriveContext>(
   "/mpc/ecdsa/derive",
-  deriveHandler
+  deriveHandler,
+  false
 );
-
-export const deriveBIP32NoLocalAuth =
-  authenticatedShareActionMpc<DeriveContext>(
-    "/mpc/ecdsa/derive",
-    deriveHandler,
-    false
-  );
 
 /**
  * What works:
@@ -60,24 +47,13 @@ function deriveHandler(
     switch (deriveStatus) {
       case "Init":
         if (!isValidStart(message)) {
-          websocket.close(
-            undefined,
-            "Something went wrong when starting up derive communication"
-          );
-          reject(
-            new Error(
-              "Something went wrong when starting up derive communication"
-            )
-          );
+          websocket.close(undefined, "Something went wrong when starting up derive communication");
+          reject(new Error("Something went wrong when starting up derive communication"));
           return;
         }
 
         deriveStatus = "Stepping";
-        initDeriveBIP32(
-          parentShare,
-          indexToNumber(index),
-          Number(hardened) === 1
-        ).then(async (success) => {
+        initDeriveBIP32(parentShare, indexToNumber(index), Number(hardened) === 1).then(async (success) => {
           success &&
             step(null).then((stepMsg) => {
               if (stepMsg.finished && stepMsg.context) {
@@ -106,8 +82,7 @@ function deriveHandler(
         step(message.data).then((stepMsg) => {
           websocket.send(stepMsg.message);
 
-          if (stepMsg.finished && stepMsg.context)
-            clientContext = stepMsg.context;
+          if (stepMsg.finished && stepMsg.context) clientContext = stepMsg.context;
         });
     }
   };
@@ -121,10 +96,7 @@ function deriveHandler(
  *
  * Special method for non hardend derive from existing share, because it only needs 1 step on the client side
  */
-export function deriveNonHardenedShare(
-  share: string,
-  index: number
-): Promise<string> {
+export function deriveNonHardenedShare(share: string, index: number): Promise<string> {
   return new Promise((resolve) => {
     initDeriveBIP32(share, index, false).then((success) => {
       success &&
@@ -147,9 +119,7 @@ type DeriveContext = {
   deriveResult: DeriveResult;
 };
 
-const getDeriveResult = (
-  message: WebSocketMessageEvent
-): DeriveResult | undefined => {
+const getDeriveResult = (message: WebSocketMessageEvent): DeriveResult | undefined => {
   try {
     const msg = JSON.parse(message.data);
 

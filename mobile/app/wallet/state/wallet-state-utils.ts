@@ -1,4 +1,5 @@
 import { bitcoinWalletsState, BitcoinWalletsState, initialBitcoinState } from "bitcoin/state/atoms";
+import { EthereumWalletsState, ethereumWalletsState, initialEthereumState } from "ethereum/state/atoms";
 import { selector, useSetRecoilState } from "recoil";
 import { authState, AuthState } from "state/atoms";
 import { Address, Balance, CoinTypeAccount } from "wallet/types/wallet";
@@ -10,9 +11,11 @@ type AllWallets = {
 
 export const useResetWalletState = () => {
   const setBitcoinState = useSetRecoilState<BitcoinWalletsState>(bitcoinWalletsState);
+  const setEthereumState = useSetRecoilState<EthereumWalletsState>(ethereumWalletsState);
 
   return function WithAllCoinStates() {
     setBitcoinState((_) => ({ ...initialBitcoinState, accounts: [] }));
+    setEthereumState((_) => ({ ...initialEthereumState, accounts: [] }));
   };
 };
 

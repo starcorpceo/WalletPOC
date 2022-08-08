@@ -23,6 +23,8 @@ const Bitcoin = ({ navigation }: Props) => {
 
   const purposeKeyShare = useRecoilValue(getPurposeWallet);
 
+  console.log("Bitcoin updated", { bitcoinState });
+
   useEffect(() => {
     const onOpen = async () => {
       if (bitcoinState.accounts.length > 0) return;
@@ -32,7 +34,7 @@ const Bitcoin = ({ navigation }: Props) => {
       const newState = await accountBuilder
         .init()
         .then((builder) => builder.useCoinTypeShare(purposeKeyShare, bitcoinState.coinTypeKeyShare))
-        .then((builder) => builder.createAccount())
+        .then((builder) => builder.createAccount(false))
         .then((builder) => builder.createChange("internal"))
         .then((builder) => builder.createChange("external"))
         .then((builder) => builder.build());

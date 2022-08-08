@@ -1,15 +1,18 @@
 import { User } from "api-types/user";
+import { config } from "bitcoin/config/bitcoin-config";
+import { defaultBitcoinAccountConfig } from "bitcoin/config/bitcoin-constants";
+import { publicKeyToBitcoinAddressP2PKH } from "bitcoin/controller/adapter/bitcoin-adapter";
 import { BitcoinWalletsState } from "bitcoin/state/atoms";
+import { BitcoinWallet } from "bitcoin/types/bitcoin";
 import { SetterOrUpdater } from "recoil";
 import { CoinTypeKeyShare, PurposeKeyShare } from "shared/types/mpc";
 import { AccountBuilder } from "wallet/controller/creation/account-creation";
-import { publicKeyToBitcoinAddressP2PKH } from "bitcoin/controller/adapter/bitcoin-adapter";
 
-export class BitcoinAccountBuilder extends AccountBuilder {
+export class BitcoinAccountBuilder extends AccountBuilder<BitcoinWallet> {
   private setState: SetterOrUpdater<BitcoinWalletsState> = () => {};
 
   constructor(user: User) {
-    super(user, publicKeyToBitcoinAddressP2PKH);
+    super(user, publicKeyToBitcoinAddressP2PKH, defaultBitcoinAccountConfig);
   }
 
   public async useSetState(setState: SetterOrUpdater<BitcoinWalletsState>) {
@@ -28,7 +31,11 @@ export class BitcoinAccountBuilder extends AccountBuilder {
     purposeShare: PurposeKeyShare,
     coinTypeShareFromState: CoinTypeKeyShare
   ): Promise<BitcoinAccountBuilder> {
-    this.coinTypeKeyShare = await super.buildCoinTypeShare(purposeShare, coinTypeShareFromState);
+    this.coinTypeKeyShare = await super.buildCoinTypeShare(
+      purposeShare,
+      coinTypeShareFromState,
+      config.bip44BitcoinCoinType
+    );
 
     this.setState((current) => ({
       ...current,

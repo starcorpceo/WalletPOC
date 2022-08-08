@@ -5,22 +5,20 @@ import { fetchFromApi, HttpMethod } from "lib/http";
 import React, { useCallback, useEffect } from "react";
 import { Button, Text, View } from "react-native";
 import { deleteKeyPair, generateKeyPair, getKey } from "react-native-secure-encryption-module";
-import { useRecoilValue, useSetRecoilState } from "recoil";
+import { useRecoilState } from "recoil";
 import { AuthState, authState, initialAuthState } from "state/atoms";
-import { getAllWallets, useResetWalletState } from "wallet/state/wallet-state-utils";
+import { useResetWalletState } from "wallet/state/wallet-state-utils";
 import constants, { emptyKeyPair } from "../config/constants";
 import { KeyShareType } from "./types/mpc";
 
 const Header = () => {
-  const setAuth = useSetRecoilState<AuthState>(authState);
-  const { bitcoin, account: auth } = useRecoilValue(getAllWallets);
+  const [auth, setAuth] = useRecoilState<AuthState>(authState);
 
   const navigation = useNavigation();
 
   const resetWallets = useResetWalletState();
 
   console.log("Auth updated", { auth });
-  console.log("Bitcoin updated", { bitcoin });
 
   const initUser = useCallback(async () => {
     getKey(constants.deviceKeyName)

@@ -2,7 +2,7 @@ import { AccountKeyShare, AddressKeyShare, ChangeKeyShare } from "shared/types/m
 import { VirtualAccount } from "./virtual-wallet";
 
 export interface CoinTypeAccount {
-  virtualAccount: VirtualAccount;
+  virtualAccount: VirtualAccount | undefined;
   mpcKeyShare: AccountKeyShare;
   internal: AccountChange;
   external: AccountChange;

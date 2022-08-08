@@ -12,6 +12,7 @@ module.exports = {
           shared: "./app/shared/",
           state: "./app/state/",
           bitcoin: "./app/wallet/assets/bitcoin/",
+          ethereum: "./app/wallet/assets/ethereum/",
           wallet: "./app/wallet/",
           config: "./app/config/",
           shim: "./shim.js",
