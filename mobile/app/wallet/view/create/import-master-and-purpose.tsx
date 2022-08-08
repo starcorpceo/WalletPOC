@@ -13,7 +13,8 @@ type ImportWalletProps = {
   user: User;
 };
 
-const importSeed1: string = "982a490f7e3fe73233a54d4f2cd9030457bdf735c68d453a0d14d6679e5b33aa";
+const importSeed1: string =
+  "706d8345a2823515777b836ba84591ded4aa849e469e326cc22af26c88bf95a991d5ac0fcd736bafab2294ca9b4129d2f8d09147c03a2e0e3692216fb43373c9";
 
 const ImportMasterAndPurpose = ({ user }: ImportWalletProps) => {
   const [seed, setSeed] = useState<string>(importSeed1);

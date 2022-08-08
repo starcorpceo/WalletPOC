@@ -1,6 +1,7 @@
 import { Service } from '../../base/service';
-import { Balance, BroadcastTransaction, Fees, Network, Transaction } from '../../base/types';
+import { BroadcastTransaction, Fees, Network } from '../../base/types';
 import { BitcoinFactory, BitcoinProvider } from './bitcoin-factory';
+import { BitcoinBalance, BitcoinTransaction } from './types';
 
 export class BitcoinService implements Service {
   private factory: BitcoinFactory;
@@ -29,7 +30,7 @@ export class BitcoinService implements Service {
    * @param provider Which API should be called
    * @returns
    */
-  getBalance = async (address: string, provider: BitcoinProvider): Promise<Balance> => {
+  getBalance = async (address: string, provider: BitcoinProvider): Promise<BitcoinBalance> => {
     const { mapper, fetcher } = this.factory.getProviderFunctions(provider);
 
     const apiBalance = await fetcher.fetchBalance(address);
@@ -50,7 +51,7 @@ export class BitcoinService implements Service {
     address: string,
     query: URLSearchParams,
     provider: BitcoinProvider
-  ): Promise<Transaction[]> => {
+  ): Promise<BitcoinTransaction[]> => {
     const { mapper, fetcher } = this.factory.getProviderFunctions(provider);
 
     const apiTransactions = await fetcher.fetchTransactions(address, query);

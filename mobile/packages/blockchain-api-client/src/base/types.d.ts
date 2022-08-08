@@ -1,16 +1,17 @@
 import { BlockCypherTransaction } from '../provider/blockcypher/bitcoin/blockcypher-bitcoin-types';
 import { TatumBroadcastTransaction } from '../provider/tatum/bitcoin/tatum-bitcoin-types';
 import { BitcoinProvider } from './blockchains/bitcoin/bitcoin-factory';
+import { AlchemyBalance } from './provider/alchemy/ethereum/alchemy-ethereum-types';
 import {
+  BlockCyperFees,
   BlockCypherBalance,
   BlockCypherBalanceFull,
-  BlockCyperFees,
 } from './provider/blockcypher/bitcoin/blockcypher-bitcoin-types';
-import { TatumBalance, TatumTransaction, TatumFees } from './provider/tatum/bitcoin/tatum-bitcoin-types';
+import { TatumBalance, TatumFees, TatumTransaction } from './provider/tatum/bitcoin/tatum-bitcoin-types';
 
 export type Provider = BitcoinProvider;
 
-export type ApiBalance<T = BlockCypherBalance | TatumBalance> = T;
+export type ApiBalance<T = BlockCypherBalance | TatumBalance | AlchemyBalance> = T;
 export type ApiTransaction<T = BlockCypherBalanceFull | TatumTransaction[]> = T;
 export type ApiFees<T = BlockCyperFees | TatumFees> = T;
 export type ApiBroadcastTransaction<T = BlockCypherTransaction | TatumBroadcastTransaction> = T;
@@ -18,32 +19,6 @@ export type ApiBroadcastTransaction<T = BlockCypherTransaction | TatumBroadcastT
 export interface TransactionRequest {}
 
 export type Network = 'TEST' | 'MAIN';
-
-export interface Balance {
-  incoming: number;
-  outgoing: number;
-
-  // Is not delivered by tatum but would be cool to have
-  unconfirmedBalance?: number;
-  confirmedBalance?: number;
-}
-
-export interface Transaction {
-  blockNumber: number;
-  fee: number;
-  hash: string;
-  hex: string;
-  index: number;
-  inputs: Input[];
-  locktime: number;
-  outputs: Output[];
-  size: number;
-  time: number;
-  version: number;
-  vsize: number;
-  witnessHash: string;
-  total: number | undefined;
-}
 
 export interface Input {
   prevout: Prevout;
