@@ -1,10 +1,7 @@
 import { User } from "api-types/user";
 import { config } from "bitcoin/config/bitcoin-config";
 import { defaultBitcoinAccountConfig } from "bitcoin/config/bitcoin-constants";
-import {
-  assignNewDepositAddress,
-  connectVirtualAccount,
-} from "bitcoin/controller/bitcoin-virtual-wallet";
+import { assignNewDepositAddress, connectVirtualAccount } from "bitcoin/controller/bitcoin-virtual-wallet";
 import { BitcoinWalletsState, initialBitcoinState } from "bitcoin/state/atoms";
 import { emptyKeyPair } from "config/constants";
 import { deepCompare } from "lib/util";
@@ -20,6 +17,8 @@ import {
 import { VirtualAccount } from "wallet/types/virtual-wallet";
 import { AccountChange, Address } from "wallet/types/wallet";
 import { deriveMpcKeyShare } from "./derived-share-creation";
+
+type PublicKeyToAddress = (publicKey: string) => string;
 
 /**
  * Utilizes Builder pattern to take (or create) a CoinTypeKeyShare and creates the Account all the way down to the Address level
@@ -64,19 +63,10 @@ export class AccountBuilder {
     purposeShare: PurposeKeyShare,
     coinTypeShareFromState: CoinTypeKeyShare
   ): Promise<CoinTypeKeyShare> {
-    const noCoinTypeWalletExists = deepCompare(
-      coinTypeShareFromState,
-      initialBitcoinState.coinTypeKeyShare
-    );
+    const noCoinTypeWalletExists = deepCompare(coinTypeShareFromState, initialBitcoinState.coinTypeKeyShare);
 
     return noCoinTypeWalletExists
-      ? await deriveMpcKeyShare(
-          purposeShare,
-          this.user,
-          config.bip44BitcoinCoinType,
-          true,
-          KeyShareType.COINTYPE
-        )
+      ? await deriveMpcKeyShare(purposeShare, this.user, config.bip44BitcoinCoinType, true, KeyShareType.COINTYPE)
       : coinTypeShareFromState;
   }
 
@@ -84,18 +74,9 @@ export class AccountBuilder {
    * Creates Account Level KeyShare and xPub Key
    */
   public async createAccount(): Promise<AccountBuilder> {
-    const accountKeyShare = await deriveMpcKeyShare(
-      this.coinTypeKeyShare,
-      this.user,
-      "0",
-      true,
-      KeyShareType.ACCOUNT
-    );
+    const accountKeyShare = await deriveMpcKeyShare(this.coinTypeKeyShare, this.user, "0", true, KeyShareType.ACCOUNT);
 
-    const xPub = await getXPubKey(
-      accountKeyShare.keyShare,
-      config.IsTestNet ? "test" : "main"
-    );
+    const xPub = await getXPubKey(accountKeyShare.keyShare, config.IsTestNet ? "test" : "main");
 
     const virtualAccount = await connectVirtualAccount(accountKeyShare);
 
@@ -106,38 +87,21 @@ export class AccountBuilder {
     return this;
   }
 
+  //TODO derive as many addresses as there are already in use - but in bitcoin specific file
   /**
-   * Builds Change and Address KeyShares for a given changeType (internal or external)
+   * Builds Change KeyShares for a given changeType (internal or external)
    * @param changeType Defines if derivation index will be 0 or 1 e.g. if it is an internal or external Address Holder
    * @returns
    */
-  public async createChange(
-    changeType: "internal" | "external"
-  ): Promise<AccountBuilder> {
+  public async createChange(changeType: "internal" | "external"): Promise<AccountBuilder> {
     const index = changeType === "external" ? "0" : "1";
 
-    const internalKeyShare = await deriveMpcKeyShare(
-      this.accountKeyShare,
-      this.user,
-      index,
-      false,
-      KeyShareType.CHANGE
-    );
+    const changeKeyShare = await deriveMpcKeyShare(this.accountKeyShare, this.user, index, false, KeyShareType.CHANGE);
 
-    const internalAddressShare = await deriveMpcKeyShare(
-      internalKeyShare,
-      this.user,
-      "0",
-      false,
-      KeyShareType.ADDRESS
-    );
-
-    this[changeType] = await this.createAccountChange(
-      internalKeyShare,
-      internalAddressShare,
-      this.virtualAccount as VirtualAccount,
-      this.publicKeyToAddress
-    );
+    this[changeType] = {
+      keyShare: changeKeyShare,
+      addresses: [],
+    };
 
     return this;
   }
@@ -164,43 +128,42 @@ export class AccountBuilder {
     };
   }
 
-  private async createAccountChange(
-    changeShare: ChangeKeyShare,
-    addressShare: AddressKeyShare,
-    virtualAccount: VirtualAccount,
-    publicKeyToAddress: PublicKeyToAddress
-  ): Promise<AccountChange> {
-    const address = await createAddress(
-      addressShare,
-      virtualAccount,
-      publicKeyToAddress
-    );
+  // private async createAccountChange(
+  //   changeShare: ChangeKeyShare,
+  //   addressShare: AddressKeyShare,
+  //   virtualAccount: VirtualAccount,
+  //   publicKeyToAddress: PublicKeyToAddress
+  // ): Promise<AccountChange> {
+  //   const address = await createAddress(
+  //     addressShare,
+  //     virtualAccount,
+  //     publicKeyToAddress
+  //   );
 
-    return {
-      keyShare: changeShare,
-      addresses: [address],
-    };
-  }
+  //   return {
+  //     keyShare: changeShare,
+  //     addresses: [address],
+  //   };
+  // }
 }
-
-type PublicKeyToAddress = (publicKey: string) => string;
 
 export const createAddress = async (
   addressShare: AddressKeyShare,
-  virtualAccount: VirtualAccount,
-  publicKeyToAddress: PublicKeyToAddress
+  publicKeyToAddress: PublicKeyToAddress,
+  virtualAccount?: VirtualAccount
 ): Promise<Address> => {
   const publicKey = await getPublicKey(addressShare.keyShare);
   const address = await publicKeyToAddress(publicKey);
 
+  virtualAccount && assignVirtualAccount(virtualAccount, address);
+
+  return { keyShare: addressShare, publicKey, address };
+};
+
+const assignVirtualAccount = async (virtualAccount: VirtualAccount, address: string) => {
   try {
-    const virtualAddress = await assignNewDepositAddress(
-      virtualAccount,
-      address
-    );
+    const virtualAddress = await assignNewDepositAddress(virtualAccount, address);
   } catch (err) {
     console.warn("Unable to assign address to virtual account");
   }
-
-  return { keyShare: addressShare, publicKey, address };
 };

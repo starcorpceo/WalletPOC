@@ -10,10 +10,7 @@ type BitcoinWalletListViewProps = {
   virtualAccount: VirtualAccount;
 };
 
-const BitcoinWalletListView = ({
-  wallets,
-  virtualAccount,
-}: BitcoinWalletListViewProps) => {
+const BitcoinWalletListView = ({ wallets, virtualAccount }: BitcoinWalletListViewProps) => {
   return (
     <View
       style={{
@@ -23,16 +20,8 @@ const BitcoinWalletListView = ({
     >
       {wallets.map((wallet, index: number) => (
         <>
-          <BitcoinWalletView
-            key={"Wallet-" + index}
-            wallet={wallet}
-            index={index}
-          />
-          <CreateBitcoinAdress
-            external={wallet.external}
-            index={index}
-            virtualAccount={virtualAccount}
-          />
+          <BitcoinWalletView key={"Wallet-" + index} wallet={wallet} index={index} />
+          <CreateBitcoinAdress wallet={wallet} />
         </>
       ))}
     </View>

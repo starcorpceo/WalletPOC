@@ -5,10 +5,14 @@ import * as bitcoin from "der-bitcoinjs-lib";
 
 import ec from "lib/elliptic";
 
-export const mpcPublicKeyToBitcoinAddress = (publicKey: string): string => {
-  const ecPair = ec.keyFromPublic(
-    [...Buffer.from(publicKey, "base64")].slice(23)
-  );
+/**
+ * Transforms bitcoin public key to bitcoin p2pkh address
+ * @param publicKey public key from mpc creation
+ * @returns string bitcoin p2pkh address
+ */
+
+export const publicKeyToBitcoinAddress = (publicKey: string): string => {
+  const ecPair = ec.keyFromPublic([...Buffer.from(publicKey, "base64")].slice(23));
 
   const pubKeyBuf = Buffer.from(ecPair.getPublic().encode("hex", false), "hex");
   const pubkeyECPair = bitcoin.ECPair.fromPublicKey(pubKeyBuf);
@@ -20,9 +24,7 @@ export const mpcPublicKeyToBitcoinAddress = (publicKey: string): string => {
 
   if (!address) {
     // TODO: Error handling frontend display or smth
-    console.error(
-      "Not able to transform MPC Public Key to Bitcoin address, fool"
-    );
+    console.error("Not able to transform MPC Public Key to Bitcoin address, fool");
   }
 
   return address || "";

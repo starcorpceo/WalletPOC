@@ -1,5 +1,5 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { BitcoinAccountBuilder } from "bitcoin/controller/bitcoin-account-creation";
+import { BitcoinAccountBuilder } from "bitcoin/controller/creation/bitcoin-account-creation";
 import { BitcoinWalletsState, bitcoinWalletsState } from "bitcoin/state/atoms";
 import React, { useCallback, useEffect } from "react";
 import { Button } from "react-native";
@@ -16,8 +16,7 @@ type Props = NativeStackScreenProps<NavigationRoutes, "Bitcoin">;
 const Bitcoin = ({ navigation }: Props) => {
   const bitcoinState = useRecoilValue<BitcoinWalletsState>(bitcoinWalletsState);
   const user = useRecoilValue<AuthState>(authState);
-  const setBitcoin =
-    useSetRecoilState<BitcoinWalletsState>(bitcoinWalletsState);
+  const setBitcoin = useSetRecoilState<BitcoinWalletsState>(bitcoinWalletsState);
 
   const purposeKeyShare = useRecoilValue(getPurposeWallet);
 
@@ -29,12 +28,7 @@ const Bitcoin = ({ navigation }: Props) => {
 
       const newState = await accountBuilder
         .init()
-        .then((builder) =>
-          builder.useCoinTypeShare(
-            purposeKeyShare,
-            bitcoinState.coinTypeKeyShare
-          )
-        )
+        .then((builder) => builder.useCoinTypeShare(purposeKeyShare, bitcoinState.coinTypeKeyShare))
         .then((builder) => builder.createAccount())
         .then((builder) => builder.createChange("internal"))
         .then((builder) => builder.createChange("external"))
@@ -70,10 +64,7 @@ const Bitcoin = ({ navigation }: Props) => {
             virtualAccount={bitcoinState.accounts[0]?.virtualAccount!}
           />
 
-          <Button
-            onPress={deleteBitcoinAccount}
-            title="Delete Bitcoin Account"
-          />
+          <Button onPress={deleteBitcoinAccount} title="Delete Bitcoin Account" />
         </>
       )}
     </Wallets>
