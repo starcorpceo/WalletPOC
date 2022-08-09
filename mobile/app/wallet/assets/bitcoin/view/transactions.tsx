@@ -1,11 +1,8 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { getTransactions } from "bitcoin/controller/bitcoin-virtual-wallet";
+import { getTransactions } from "bitcoin/controller/virtual/bitcoin-virtual-wallet";
 import React, { useEffect, useState } from "react";
 import { Text, View } from "react-native";
-import {
-  VirtualAccount,
-  VirtualTransaction,
-} from "wallet/types/virtual-wallet";
+import { VirtualAccount, VirtualTransaction } from "wallet/types/virtual-wallet";
 import { NavigationRoutes } from "shared/types/navigation";
 
 type Props = NativeStackScreenProps<NavigationRoutes, "BitcoinTransactions">;

@@ -10,7 +10,7 @@ import {
   VirtualBalance,
   VirtualTransaction,
 } from "wallet/types/virtual-wallet";
-import endpoints from "../blockchain/endpoints";
+import endpoints from "../../blockchain/endpoints";
 import { publicKeyToBitcoinAddress } from "bitcoin/controller/adapter/bitcoin-adapter";
 
 export const connectVirtualAccount = async (keyShare: MPCEcdsaKeyShare): Promise<VirtualAccount> => {

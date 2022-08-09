@@ -12,7 +12,6 @@ import { useAddAddress } from "wallet/state/wallet-state-utils";
 import Wallets from "wallet/view/generic-wallet-view";
 import BitcoinWalletListView from "./list/bitcoin-wallet-list";
 import { BitcoinBalance } from "./list/item/bitcoin-wallet-balance";
-import { VirtualBalanceView } from "./virtual/virtual-balance";
 
 type Props = NativeStackScreenProps<NavigationRoutes, "Bitcoin">;
 
@@ -39,6 +38,8 @@ const Bitcoin = ({ navigation }: Props) => {
         .then((builder) => builder.build());
 
       setBitcoin(() => newState);
+      await loadUsedAddresses(newState);
+      //TODO also load balances here
     };
 
     onOpen();
@@ -48,17 +49,9 @@ const Bitcoin = ({ navigation }: Props) => {
     setBitcoin((current) => ({ ...current, accounts: [] }));
   }, [setBitcoin]);
 
-  const loadUsedAddresses = async () => {
-    setAddAddress(
-      await getUsedAddresses(user, bitcoinState.accounts[0], "external"),
-      bitcoinState.accounts[0],
-      "external"
-    );
-    setAddAddress(
-      await getUsedAddresses(user, bitcoinState.accounts[0], "internal"),
-      bitcoinState.accounts[0],
-      "internal"
-    );
+  const loadUsedAddresses = async (state: any) => {
+    setAddAddress(await getUsedAddresses(user, state.accounts[0], "external"), state.accounts[0], "external");
+    setAddAddress(await getUsedAddresses(user, state.accounts[0], "internal"), state.accounts[0], "internal");
   };
 
   return (
@@ -80,8 +73,6 @@ const Bitcoin = ({ navigation }: Props) => {
             wallets={bitcoinState.accounts}
             virtualAccount={bitcoinState.accounts[0]?.virtualAccount!}
           />
-          <Button onPress={loadUsedAddresses} title="Load Used Addresses" />
-
           <Button onPress={deleteBitcoinAccount} title="Delete Bitcoin Account" />
         </>
       )}

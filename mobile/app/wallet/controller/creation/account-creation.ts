@@ -1,7 +1,7 @@
 import { User } from "api-types/user";
 import { config } from "bitcoin/config/bitcoin-config";
 import { defaultBitcoinAccountConfig } from "bitcoin/config/bitcoin-constants";
-import { assignNewDepositAddress, connectVirtualAccount } from "bitcoin/controller/bitcoin-virtual-wallet";
+import { assignNewDepositAddress, connectVirtualAccount } from "bitcoin/controller/virtual/bitcoin-virtual-wallet";
 import { BitcoinWalletsState, initialBitcoinState } from "bitcoin/state/atoms";
 import { emptyKeyPair } from "config/constants";
 import { deepCompare } from "lib/util";

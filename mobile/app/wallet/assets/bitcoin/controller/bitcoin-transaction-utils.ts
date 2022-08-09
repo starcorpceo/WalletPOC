@@ -10,9 +10,9 @@ import { BitcoinWallet } from "../types/bitcoin";
 
 // TODO rework after now transactions have to be built from all external and internal addresses
 
-export const getBalance = (address: string): Promise<Balance> => {
-  return fetchFromTatum<Balance>(endpoints.bitcoin.balance(address));
-};
+// export const getBalance = (address: string): Promise<Balance> => {
+//   return fetchFromTatum<Balance>(endpoints.bitcoin.balance(address));
+// };
 
 export const broadcastTransaction = (hex: string): Promise<any> => {
   return fetchFromTatum<any>(endpoints.bitcoin.broadcastTransaction(), {
@@ -34,24 +34,24 @@ export const getLatestTransactions = (
   return fetchFromTatum<Transaction[]>(endpoints.bitcoin.transaction(address, query));
 };
 
-export const getNetValue = (address: string, transaction: Transaction): number => {
-  var fullValueInput = 0;
-  var fullValueReturn = 0;
+// export const getNetValue = (address: string, transaction: Transaction): number => {
+//   var fullValueInput = 0;
+//   var fullValueReturn = 0;
 
-  transaction.inputs.forEach((input) => {
-    if (input.coin.address == address) {
-      fullValueInput += input.coin.value;
-    }
-  });
+//   transaction.inputs.forEach((input) => {
+//     if (input.coin.address == address) {
+//       fullValueInput += input.coin.value;
+//     }
+//   });
 
-  transaction.outputs.forEach((output) => {
-    if (output.address == address) {
-      fullValueReturn += output.value;
-    }
-  });
+//   transaction.outputs.forEach((output) => {
+//     if (output.address == address) {
+//       fullValueReturn += output.value;
+//     }
+//   });
 
-  return -fullValueInput + fullValueReturn;
-};
+//   return -fullValueInput + fullValueReturn;
+// };
 
 export const getUnspentTransactions = async (transactions: Transaction[], address: string): Promise<UTXO[]> => {
   const unspent = Promise.all(

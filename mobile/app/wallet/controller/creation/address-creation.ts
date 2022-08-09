@@ -5,7 +5,7 @@ import { getPublicKeyToAddressAdapter } from "../adapter/blockchain-adapter";
 import { User } from "api-types/user";
 import { VirtualAccount } from "wallet/types/virtual-wallet";
 import { getPublicKey } from "react-native-blockchain-crypto-mpc";
-import { assignNewDepositAddress } from "bitcoin/controller/bitcoin-virtual-wallet";
+import { assignNewDepositAddress } from "bitcoin/controller/virtual/bitcoin-virtual-wallet";
 
 export const createAddress = async <T extends CoinTypeAccount>(
   user: User,
