@@ -22,6 +22,7 @@ export interface Address {
   address: string;
   publicKey: string;
   transactions: Transaction[];
+  balance: Balance;
 }
 
 export interface Balance {

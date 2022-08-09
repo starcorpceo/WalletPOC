@@ -1,24 +1,24 @@
+import { getBalanceFromAccount } from "bitcoin/controller/bitcoin-balance";
+import { SatoshisToBitcoin } from "bitcoin/controller/bitcoin-utils";
 import { BitcoinWallet } from "bitcoin/types/bitcoin";
-import React from "react";
+import React, { useState } from "react";
 import { Button, Text } from "react-native";
+import { Balance } from "wallet/types/wallet";
 
 type BitcoinBalanceProps = {
   wallet: BitcoinWallet;
-  updateBalance: () => void;
 };
 
-export const BitcoinBalance = ({
-  wallet,
-  updateBalance,
-}: BitcoinBalanceProps) => {
+export const BitcoinBalance = ({ wallet }: BitcoinBalanceProps) => {
+  const [balance, setBalance] = useState<Balance>();
+  const refreshBalance = async () => {
+    setBalance(await getBalanceFromAccount(wallet));
+  };
+
   return (
     <>
-      {wallet.balance && (
-        <Text>
-          Balance: {wallet.balance.incoming - wallet.balance.outgoing} BTC
-        </Text>
-      )}
-      <Button onPress={updateBalance} title="Fetch Balance" />
+      {balance && <Text>Balance: {SatoshisToBitcoin(balance.incoming - balance.outgoing)} BTC</Text>}
+      <Button onPress={refreshBalance} title="Refresh Balance"></Button>
     </>
   );
 };

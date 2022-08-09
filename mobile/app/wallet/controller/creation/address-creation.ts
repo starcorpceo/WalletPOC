@@ -40,7 +40,7 @@ const transformPublicKey = async (
 
   virtualAccount && assignVirtualAccount(virtualAccount, address);
 
-  return { keyShare: addressShare, publicKey, address, transactions: [] };
+  return { keyShare: addressShare, publicKey, address, transactions: [], balance: { incoming: 0, outgoing: 0 } };
 };
 
 const assignVirtualAccount = async (virtualAccount: VirtualAccount, address: string) => {

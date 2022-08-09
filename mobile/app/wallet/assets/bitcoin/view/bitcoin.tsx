@@ -11,6 +11,7 @@ import { getPurposeWallet } from "state/utils";
 import { useAddAddress } from "wallet/state/wallet-state-utils";
 import Wallets from "wallet/view/generic-wallet-view";
 import BitcoinWalletListView from "./list/bitcoin-wallet-list";
+import { BitcoinBalance } from "./list/item/bitcoin-wallet-balance";
 import { VirtualBalanceView } from "./virtual/virtual-balance";
 
 type Props = NativeStackScreenProps<NavigationRoutes, "Bitcoin">;
@@ -64,7 +65,7 @@ const Bitcoin = ({ navigation }: Props) => {
     <Wallets name="Bitcoin">
       {bitcoinState.accounts[0] && (
         <>
-          <VirtualBalanceView wallet={bitcoinState.accounts[0]} />
+          <BitcoinBalance wallet={bitcoinState.accounts[0]}></BitcoinBalance>
 
           <Button
             onPress={() =>
