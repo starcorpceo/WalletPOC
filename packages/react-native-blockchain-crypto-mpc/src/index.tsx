@@ -78,10 +78,27 @@ export function getXPubKey(share: string, network: 'main' | 'test'): Promise<str
   });
 }
 
-export function getSignature(context: string, format: 'DER' | 'BIN'): Promise<string> {
+export function getDerSignature(context: string): Promise<string> {
   return new Promise(async (res) => {
     await useContext(context);
-    const signature = await BlockchainCryptoMpc.getSignature(format === 'DER');
+    const signature = await BlockchainCryptoMpc.getDerSignature();
+    res(signature);
+
+    reset();
+  });
+}
+
+type BinSignature = {
+  signature: string;
+  recoveryCode: number;
+};
+
+export function getBinSignature(context: string, share: string): Promise<BinSignature> {
+  return new Promise(async (res) => {
+    await useContext(context);
+    await useShare(share);
+
+    const signature = await BlockchainCryptoMpc.getBinSignature();
     res(signature);
 
     reset();

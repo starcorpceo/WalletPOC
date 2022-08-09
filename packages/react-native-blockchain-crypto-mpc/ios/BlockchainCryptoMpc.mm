@@ -187,27 +187,52 @@ RCT_EXPORT_METHOD(step:(NSString*)messageIn
 }
 
 
-RCT_EXPORT_METHOD(getSignature: (nonnull NSNumber*)toDerNum
-                  withResolver:(RCTPromiseResolveBlock)resolve
+RCT_EXPORT_METHOD(getDerSignature:(RCTPromiseResolveBlock)resolve
                   withRejecter:(RCTPromiseRejectBlock)reject)
 {
     int rv = 0;
     
-    bool toDer = (bool) [toDerNum intValue];
 
     int sig_size = 0;
-    if ((rv = MPCCrypto_getResultEcdsaSign(context, nullptr, &sig_size, toDer)))
+    if ((rv = MPCCrypto_getDerResultEcdsaSign(context, nullptr, &sig_size)))
         resolve(@(&"Failure " [ rv ]));
     std::vector<uint8_t> sig(sig_size);
-    if ((rv = MPCCrypto_getResultEcdsaSign(context, sig.data(), &sig_size, toDer)))
+    if ((rv = MPCCrypto_getDerResultEcdsaSign(context, sig.data(), &sig_size)))
         resolve(@(&"Failure " [ rv ]));
-            
+    
+    
     NSString *signatureString;
     
     char_vector_to_react_string(sig, &signatureString);
     
     resolve(signatureString);
     
+    sig.clear();
+}
+
+RCT_EXPORT_METHOD(getBinSignature:(RCTPromiseResolveBlock)resolve
+                  withRejecter:(RCTPromiseRejectBlock)reject)
+{
+    int rv = 0;
+    int sig_size = 0;
+    int recovery_code = 0;
+    
+    if ((rv = MPCCrypto_getBinResultEcdsaSign(context, share, nullptr, &sig_size, &recovery_code)))
+        resolve(@(&"Failure " [ rv ]));
+    std::vector<uint8_t> sig(sig_size);
+    if ((rv = MPCCrypto_getBinResultEcdsaSign(context, share, sig.data(), &sig_size, &recovery_code)))
+        resolve(@(&"Failure " [ rv ]));
+    
+    
+    NSString *signatureString;
+    
+    char_vector_to_react_string(sig, &signatureString);
+    
+    resolve(@{
+        @"signature": signatureString,
+        @"recoveryCode": @(recovery_code)
+    });
+        
     sig.clear();
 }
 

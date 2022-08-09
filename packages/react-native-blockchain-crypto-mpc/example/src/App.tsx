@@ -2,9 +2,10 @@ import { Buffer } from 'buffer';
 import React, { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import {
+  getBinSignature,
+  getDerSignature,
   getPublicKey,
   getResultDeriveBIP32,
-  getSignature,
   getXPubKey,
   verifySignature,
 } from 'react-native-blockchain-crypto-mpc';
@@ -22,7 +23,7 @@ export default function App() {
   const [xPubTestKey, setXPubTestKey] = useState('');
 
   const [signature, setSignature] = useState('');
-  const [signatureBin, setSignatureBin] = useState('');
+  const [signatureBin, setSignatureBin] = useState({ signature: '', recoveryCode: -1000 });
 
   const [verifyLocal, setVerifyLocal] = useState<boolean>();
   const [verifyServer, setVerifyServer] = useState<any>();
@@ -43,12 +44,9 @@ export default function App() {
       // --- Start signing a message
       const signContext = await signEcdsa(messageToSign, generatedShare);
 
-      const signatureResult = await getSignature(signContext, 'DER');
+      const signatureResult = await getDerSignature(signContext);
 
-      console.log('der', Buffer.from(signatureResult, 'base64'));
-      const signatureBinResult = await getSignature(signContext, 'BIN');
-
-      console.log('bin', Buffer.from(signatureBinResult, 'base64'));
+      const signatureBinResult = await getBinSignature(signContext, generatedShare);
 
       setSignatureBin(signatureBinResult);
       setSignature(signatureResult);
@@ -113,7 +111,7 @@ export default function App() {
         <View style={groupStyle}>
           <Text>Message to sign: {messageToSign}</Text>
           <Text>Signature DER Format: {signature}</Text>
-          <Text>Signature BIN Format: {signature}</Text>
+          <Text>Signature BIN Format: {JSON.stringify(signatureBin)}</Text>
         </View>
 
         <View style={groupStyle}>
