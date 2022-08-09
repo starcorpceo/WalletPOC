@@ -63,7 +63,7 @@ const Bitcoin = ({ navigation }: Props) => {
           <Button
             onPress={() =>
               navigation.navigate("BitcoinTransactions", {
-                account: bitcoinState.accounts[0].virtualAccount,
+                account: bitcoinState.accounts[0],
               })
             }
             title="Show transactions"

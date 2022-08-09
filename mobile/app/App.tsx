@@ -11,15 +11,9 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Bitcoin from "bitcoin/view/bitcoin";
-import BitcoinTransactions from "bitcoin/view/transactions";
+import BitcoinTransactions from "bitcoin/view/transaction/transaction-overview";
 import React from "react";
-import {
-  SafeAreaView,
-  StatusBar,
-  StyleSheet,
-  useColorScheme,
-  View,
-} from "react-native";
+import { SafeAreaView, StatusBar, StyleSheet, useColorScheme, View } from "react-native";
 import { RecoilRoot } from "recoil";
 
 import Ethereum from "wallet/assets/ethereum/view/ethereum";
@@ -46,10 +40,7 @@ const App = () => {
               <Stack.Screen name="Home" component={Home} />
               <Stack.Screen name="Bitcoin" component={Bitcoin} />
               <Stack.Screen name="Ethereum" component={Ethereum} />
-              <Stack.Screen
-                name="BitcoinTransactions"
-                component={BitcoinTransactions}
-              />
+              <Stack.Screen name="BitcoinTransactions" component={BitcoinTransactions} />
             </Stack.Navigator>
           </View>
         </RecoilRoot>
