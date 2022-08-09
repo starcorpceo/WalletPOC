@@ -26,23 +26,14 @@ export function initGenerateGenericSecret(): Promise<boolean> {
 
 export function initImportGenericSecret(secret: string): Promise<boolean> {
   reset();
-  return BlockchainCryptoMpc.importGenericSecret([
-    ...Buffer.from(secret, 'hex'),
-  ]);
+  return BlockchainCryptoMpc.importGenericSecret([...Buffer.from(secret, 'hex')]);
 }
 
-export function initDeriveBIP32(
-  share: string,
-  index: number,
-  hardened: boolean
-): Promise<boolean> {
+export function initDeriveBIP32(share: string, index: number, hardened: boolean): Promise<boolean> {
   reset();
   return new Promise(async (res) => {
     await useShare(share);
-    const success = await BlockchainCryptoMpc.initDeriveBIP32(
-      index,
-      hardened ? 1 : 0
-    );
+    const success = await BlockchainCryptoMpc.initDeriveBIP32(index, hardened ? 1 : 0);
     res(success);
   });
 }
@@ -53,17 +44,12 @@ export function initGenerateEcdsaKey(): Promise<boolean> {
   return BlockchainCryptoMpc.initGenerateEcdsaKey();
 }
 
-export function initSignEcdsa(
-  message: Uint8Array,
-  share: string
-): Promise<boolean> {
+export function initSignEcdsa(message: Uint8Array, share: string): Promise<boolean> {
   reset();
 
   return new Promise(async (res) => {
     await useShare(share);
-    const success = await BlockchainCryptoMpc.initSignEcdsa(
-      Array.from(message)
-    );
+    const success = await BlockchainCryptoMpc.initSignEcdsa(Array.from(message));
     res(success);
   });
 }
@@ -82,10 +68,7 @@ export function getPublicKey(share: string): Promise<string> {
   });
 }
 
-export function getXPubKey(
-  share: string,
-  network: 'main' | 'test'
-): Promise<string> {
+export function getXPubKey(share: string, network: 'main' | 'test'): Promise<string> {
   return new Promise(async (res) => {
     await useShare(share);
     const key = await BlockchainCryptoMpc.getXPubKey(network === 'main');
@@ -95,27 +78,20 @@ export function getXPubKey(
   });
 }
 
-export function getSignature(context: string): Promise<string> {
+export function getSignature(context: string, format: 'DER' | 'BIN'): Promise<string> {
   return new Promise(async (res) => {
     await useContext(context);
-    const signature = await BlockchainCryptoMpc.getSignature();
+    const signature = await BlockchainCryptoMpc.getSignature(format === 'DER');
     res(signature);
 
     reset();
   });
 }
 
-export function verifySignature(
-  message: Uint8Array,
-  signature: Uint8Array,
-  share: string
-): Promise<boolean> {
+export function verifySignature(message: Uint8Array, signature: Uint8Array, share: string): Promise<boolean> {
   return new Promise(async (res) => {
     await useShare(share);
-    const ok = await BlockchainCryptoMpc.verifySignature(
-      Array.from(message),
-      Array.from(signature)
-    );
+    const ok = await BlockchainCryptoMpc.verifySignature(Array.from(message), Array.from(signature));
     res(ok);
 
     reset();

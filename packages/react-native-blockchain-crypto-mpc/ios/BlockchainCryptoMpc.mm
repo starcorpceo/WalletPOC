@@ -186,17 +186,20 @@ RCT_EXPORT_METHOD(step:(NSString*)messageIn
     });
 }
 
-RCT_EXPORT_METHOD(getSignature:(RCTPromiseResolveBlock)resolve
+
+RCT_EXPORT_METHOD(getSignature: (nonnull NSNumber*)toDerNum
+                  withResolver:(RCTPromiseResolveBlock)resolve
                   withRejecter:(RCTPromiseRejectBlock)reject)
 {
     int rv = 0;
     
-    
+    bool toDer = (bool) [toDerNum intValue];
+
     int sig_size = 0;
-    if ((rv = MPCCrypto_getResultEcdsaSign(context, nullptr, &sig_size)))
+    if ((rv = MPCCrypto_getResultEcdsaSign(context, nullptr, &sig_size, toDer)))
         resolve(@(&"Failure " [ rv ]));
     std::vector<uint8_t> sig(sig_size);
-    if ((rv = MPCCrypto_getResultEcdsaSign(context, sig.data(), &sig_size)))
+    if ((rv = MPCCrypto_getResultEcdsaSign(context, sig.data(), &sig_size, toDer)))
         resolve(@(&"Failure " [ rv ]));
             
     NSString *signatureString;
