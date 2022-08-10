@@ -1,3 +1,4 @@
+import { EthereumTransaction } from "packages/blockchain-api-client/src/blockchains/ethereum/types";
 import { AccountKeyShare, AddressKeyShare, ChangeKeyShare } from "shared/types/mpc";
 import { VirtualAccount } from "./virtual-wallet";
 
@@ -33,6 +34,8 @@ export interface BitcoinBalance {
   unconfirmedBalance?: number;
   confirmedBalance?: number;
 }
+
+export type Transaction = BitcoinTransaction | EthereumTransaction;
 
 export interface BitcoinTransaction {
   blockNumber: number;
