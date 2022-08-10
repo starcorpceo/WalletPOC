@@ -1,19 +1,10 @@
 import { Network } from '../../base/types';
-import { alchemyEndpoints } from '../../provider/alchemy/ethereum/alchemy-ethereum-endpoints';
+import { alchemyEthereumFetcher } from '../../provider/alchemy/ethereum/alchemy-ethereum-fetcher';
 import {
   mapAlchemyBalance,
   mapAlchemyResultToString,
   mapAlchemyTransactions,
 } from '../../provider/alchemy/ethereum/alchemy-ethereum-mapper';
-
-import {
-  AlchemyBalance,
-  AlchemyBroadCastTransactionResult,
-  AlchemyFees,
-  AlchemyTransaction,
-  AlchemyTransactionCount,
-} from '../../provider/alchemy/ethereum/alchemy-ethereum-types';
-import { fetchFromAlchemy, Method } from '../../provider/alchemy/http';
 import { EthereumProvider } from './types';
 
 export enum EthereumProviderEnum {
@@ -30,34 +21,12 @@ export class EthereumFactory {
   getProviderFunctions = (provider: EthereumProviderEnum) => {
     switch (provider) {
       default:
-        return this.alchemy;
+        return this.alchemy(this.network);
     }
   };
 
-  private alchemy: EthereumProvider = {
-    fetcher: {
-      fetchBalance: (address: string) =>
-        fetchFromAlchemy<AlchemyBalance>(alchemyEndpoints(this.network), Method.Balance, [address, 'latest']),
-      fetchTransactions: (address: string) =>
-        fetchFromAlchemy<AlchemyTransaction>(alchemyEndpoints(this.network), Method.Transactions, [
-          {
-            fromBlock: '0x0',
-            toAddress: address,
-            toBlock: 'latest',
-            category: ['external', 'internal', 'erc20', 'erc721', 'erc1155'],
-          },
-        ]),
-      sendRawTransaction: (transaction: string) =>
-        fetchFromAlchemy<AlchemyBroadCastTransactionResult>(alchemyEndpoints(this.network), Method.SendTransaction, [
-          transaction,
-        ]),
-      fetchFees: () => fetchFromAlchemy<AlchemyFees>(alchemyEndpoints(this.network), Method.GasPrice),
-      fetchTransactionCount: (address: string) =>
-        fetchFromAlchemy<AlchemyTransactionCount>(alchemyEndpoints(this.network), Method.TransactionCount, [
-          address,
-          'latest',
-        ]),
-    },
+  private alchemy = (network: Network): EthereumProvider => ({
+    fetcher: alchemyEthereumFetcher(network),
     mapper: {
       responseToBalance: mapAlchemyBalance,
       responseToTransactions: mapAlchemyTransactions,
@@ -65,5 +34,5 @@ export class EthereumFactory {
       responseToFees: mapAlchemyResultToString,
       responseToTransactionCount: mapAlchemyResultToString,
     },
-  };
+  });
 }

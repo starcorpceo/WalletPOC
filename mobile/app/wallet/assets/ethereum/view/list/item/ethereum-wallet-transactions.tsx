@@ -15,12 +15,12 @@ const EthereumTransactions = ({ wallet, updateTransactions }: EthereumTransactio
       <Button onPress={updateTransactions} title="Fetch Transactions" />
       <View style={{ flexDirection: "column", justifyContent: "space-between" }}>
         {transactions.map((transaction) => {
-          const isPlus = transaction.value > 0;
+          const isPlus = transaction.to === wallet.external.addresses[0].address;
 
-          const display = isPlus ? "+" + transaction.value : transaction.value;
+          const pre = isPlus ? "+" : "-";
           return (
             <Text key={transaction.hash} style={{ color: isPlus ? "green" : "red" }}>
-              {display} Gwei
+              {pre + transaction.value} Gwei
             </Text>
           );
         })}

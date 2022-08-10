@@ -39,26 +39,11 @@ const EthereumWalletView = ({ wallet, updateWallet, index }: EthereumWalletProps
     updateWallet(
       {
         ...wallet,
-        transactions: newTransactions
-          .filter(onlyUniqueTransactions)
-          .sort((a, b) => Number.parseInt(a.blockNum, 16) - Number.parseInt(b.blockNum, 16)),
+        transactions: newTransactions.filter(onlyUniqueTransactions),
       },
       index
     );
   }, [index, updateWallet, service]);
-
-  const addTransaction = useCallback(
-    async (transaction: EthereumTransaction) => {
-      updateWallet(
-        {
-          ...wallet,
-          transactions: [...wallet.transactions, transaction],
-        },
-        index
-      );
-    },
-    [index, updateWallet]
-  );
 
   return (
     <View
@@ -76,7 +61,7 @@ const EthereumWalletView = ({ wallet, updateWallet, index }: EthereumWalletProps
       ))}
       <EthereumBalance updateBalance={updateBalance} wallet={wallet} />
       <EthereumTransactions updateTransactions={updateTransactions} wallet={wallet} />
-      <SendEthereum user={user} wallet={wallet} service={service} addTransaction={addTransaction} />
+      <SendEthereum user={user} wallet={wallet} service={service} />
     </View>
   );
 };

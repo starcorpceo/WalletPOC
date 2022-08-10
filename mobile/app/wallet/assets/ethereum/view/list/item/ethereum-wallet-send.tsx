@@ -4,7 +4,6 @@ import { gWeiToWei } from "ethereum/controller/ethereum-utils";
 import { EthereumWallet } from "ethereum/types/ethereum";
 import { EthereumService } from "packages/blockchain-api-client/src";
 import { EthereumProviderEnum } from "packages/blockchain-api-client/src/blockchains/ethereum/ethereum-factory";
-import { EthereumTransaction } from "packages/blockchain-api-client/src/blockchains/ethereum/types";
 import React, { useCallback, useState } from "react";
 import { Button, Text, TextInput, View } from "react-native";
 import "shim";
@@ -13,10 +12,9 @@ type SendEthereumProps = {
   user: User;
   wallet: EthereumWallet;
   service: EthereumService;
-  addTransaction: (transaction: EthereumTransaction) => void;
 };
 
-const SendEthereum = ({ user, wallet, service, addTransaction }: SendEthereumProps) => {
+const SendEthereum = ({ user, wallet, service }: SendEthereumProps) => {
   const [gWeis, setGWeis] = useState<number>(500);
   const [toAddress, setToAddress] = useState<string>("0x49e749dc596ebb62b724262928d0657f8950a7d7");
 
@@ -41,26 +39,6 @@ const SendEthereum = ({ user, wallet, service, addTransaction }: SendEthereumPro
         "0x" + transaction.serialize().toString("hex"),
         EthereumProviderEnum.ALCHEMY
       );
-
-      const lastTransaction = wallet.transactions[wallet.transactions.length - 1] as EthereumTransaction;
-
-      addTransaction({
-        blockNum: (Number.parseInt(lastTransaction?.blockNum || "0x0", 16) + 1).toString(16),
-        hash: transaction.serialize().toString("hex"),
-        from: address.address,
-        to: toAddress,
-        value: -gWeis,
-        erc721TokenId: null,
-        erc1155Metadata: null,
-        tokenId: null,
-        asset: "",
-        category: "",
-        rawContract: {
-          address: null,
-          value: gWeis.toString(16),
-          decimal: "16",
-        },
-      });
 
       console.log(result);
     } catch (err) {

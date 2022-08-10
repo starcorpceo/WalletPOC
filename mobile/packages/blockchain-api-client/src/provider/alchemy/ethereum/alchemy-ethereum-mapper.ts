@@ -7,8 +7,12 @@ export const mapAlchemyBalance = (balance: AlchemyBalance): EthereumBalance => {
   };
 };
 
-export const mapAlchemyTransactions = (transaction: AlchemyTransaction): EthereumTransaction[] => {
-  return transaction.result.transfers.map(transaction => ({ ...transaction, value: ethToGwei(transaction.value) }));
+export const mapAlchemyTransactions = (transaction: AlchemyTransaction[]): EthereumTransaction[] => {
+  const transactions = transaction
+    .flatMap(apiResult => apiResult.result.transfers)
+    .sort((a, b) => Number.parseInt(a.blockNum, 16) - Number.parseInt(b.blockNum, 16));
+
+  return transactions.map(transaction => ({ ...transaction, value: ethToGwei(transaction.value) }));
 };
 
 export const mapAlchemyResultToString = (response: AlchemyResult<string>): string => {
