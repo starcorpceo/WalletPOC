@@ -1,4 +1,3 @@
-import { Factory, ProviderFunctions } from '../../base/factory';
 import { Network } from '../../base/types';
 import { alchemyEndpoints } from '../../provider/alchemy/ethereum/alchemy-ethereum-endpoints';
 import {
@@ -15,25 +14,27 @@ import {
   AlchemyTransactionCount,
 } from '../../provider/alchemy/ethereum/alchemy-ethereum-types';
 import { fetchFromAlchemy, Method } from '../../provider/alchemy/http';
+import { EthereumProvider } from './types';
 
-export enum EthereumProvider {
+export enum EthereumProviderEnum {
   ALCHEMY,
 }
 
-export class EthereumFactory implements Factory {
+export class EthereumFactory {
   private network: Network;
 
   constructor(network: Network) {
     this.network = network;
   }
-  getProviderFunctions = (provider: EthereumProvider): ProviderFunctions => {
+
+  getProviderFunctions = (provider: EthereumProviderEnum) => {
     switch (provider) {
       default:
         return this.alchemy;
     }
   };
 
-  private alchemy: ProviderFunctions = {
+  private alchemy: EthereumProvider = {
     fetcher: {
       fetchBalance: (address: string) =>
         fetchFromAlchemy<AlchemyBalance>(alchemyEndpoints(this.network), Method.Balance, [address, 'latest']),

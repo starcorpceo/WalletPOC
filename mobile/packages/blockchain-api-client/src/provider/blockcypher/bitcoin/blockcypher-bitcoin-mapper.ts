@@ -56,12 +56,12 @@ export const mapBlockCypherTransactions = (transaction: BlockCypherBalanceFull):
 };
 
 //TODO use blockcypher fee endpoint
-export const mapBlockCypherFees = (fees: BlockCyperFees): Fees => {
+export const mapBlockCypherFees = (_fees: BlockCyperFees): Fees => {
   return { fast: 0, medium: 0, slow: 0 };
 };
 
 export const mapBlockCypherBroadcastTransaction = (
-  broadcastTransaction: BlockCypherTransaction
+  _broadcastTransaction: BlockCypherTransaction
 ): BroadcastTransaction => {
   return { txId: '', failed: true };
 };

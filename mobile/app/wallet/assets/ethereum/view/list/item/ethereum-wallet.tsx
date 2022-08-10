@@ -1,6 +1,6 @@
 import { EthereumWallet } from "ethereum/types/Ethereum";
 import { EthereumService } from "packages/blockchain-api-client/src";
-import { EthereumProvider } from "packages/blockchain-api-client/src/blockchains/ethereum/ethereum-factory";
+import { EthereumProviderEnum } from "packages/blockchain-api-client/src/blockchains/ethereum/ethereum-factory";
 import React, { useCallback, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { useRecoilValue } from "recoil";
@@ -21,7 +21,7 @@ const EthereumWalletView = ({ wallet, updateWallet, index }: EthereumWalletProps
   const user = useRecoilValue(authState);
 
   const updateBalance = useCallback(async () => {
-    const balance = await service.getBalance(wallet.external.addresses[0].address, EthereumProvider.ALCHEMY);
+    const balance = await service.getBalance(wallet.external.addresses[0].address, EthereumProviderEnum.ALCHEMY);
 
     updateWallet({ ...wallet, ethBalance: balance.value }, index);
   }, [, service]);
@@ -29,8 +29,7 @@ const EthereumWalletView = ({ wallet, updateWallet, index }: EthereumWalletProps
   const updateTransactions = useCallback(async () => {
     const transactions = await service.getTransactions(
       wallet.external.addresses[0].address,
-      new URLSearchParams(),
-      EthereumProvider.ALCHEMY
+      EthereumProviderEnum.ALCHEMY
     );
 
     updateWallet({ ...wallet, ethTransactions: transactions }, index);

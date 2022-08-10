@@ -1,3 +1,6 @@
+import { EthereumFetcher } from './ethereum-fetcher';
+import { EthereumMapper } from './ethereum-mapper';
+
 export interface EthereumBalance {
   value: number;
 }
@@ -20,4 +23,9 @@ export interface RawContract {
   value: string;
   address: null;
   decimal: string;
+}
+
+export interface EthereumProvider {
+  fetcher: EthereumFetcher;
+  mapper: EthereumMapper;
 }

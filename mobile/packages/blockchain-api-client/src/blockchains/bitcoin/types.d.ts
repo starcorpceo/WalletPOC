@@ -21,3 +21,16 @@ export interface BitcoinTransaction {
   witnessHash: string;
   total: number | undefined;
 }
+
+export interface BitcoinProvider {
+  fetcher: BitcoinFetcher;
+  mapper: BitcoinMapper;
+}
+
+export interface BitcoinEndpoints {
+  balance: (...args: any) => string;
+  transactions: (...args: any) => string;
+  utxo: (...args: any) => string;
+  fees: (...args: any) => string;
+  broadcastTransaction: (...args: any) => string;
+}

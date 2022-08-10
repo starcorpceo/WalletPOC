@@ -2,7 +2,7 @@ import { User } from "api-types/user";
 import { buildRawTransaction } from "ethereum/controller/ethereum-transaction.utils";
 import { EthereumWallet } from "ethereum/types/ethereum";
 import { EthereumService } from "packages/blockchain-api-client/src";
-import { EthereumProvider } from "packages/blockchain-api-client/src/blockchains/ethereum/ethereum-factory";
+import { EthereumProviderEnum } from "packages/blockchain-api-client/src/blockchains/ethereum/ethereum-factory";
 import React, { useCallback, useState } from "react";
 import { Button, Text, TextInput, View } from "react-native";
 import "shim";
@@ -19,10 +19,10 @@ const SendEthereum = ({ user, wallet, service }: SendEthereumProps) => {
 
   const sendTransaction = useCallback(async () => {
     try {
-      const gasPrice = await service.getFees(EthereumProvider.ALCHEMY);
+      const gasPrice = await service.getFees(EthereumProviderEnum.ALCHEMY);
 
       const address = wallet.external.addresses[0];
-      const transactionCount = await service.getTransactionCount(address.address, EthereumProvider.ALCHEMY);
+      const transactionCount = await service.getTransactionCount(address.address, EthereumProviderEnum.ALCHEMY);
       const transaction = await buildRawTransaction(
         address,
         user,
@@ -36,7 +36,7 @@ const SendEthereum = ({ user, wallet, service }: SendEthereumProps) => {
 
       const result = await service.sendRawTransaction(
         "0x" + transaction.serialize().toString("hex"),
-        EthereumProvider.ALCHEMY
+        EthereumProviderEnum.ALCHEMY
       );
       console.log(result);
     } catch (err) {

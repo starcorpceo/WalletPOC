@@ -1,9 +1,9 @@
-import { Endpoints } from '../../../base/endpoints';
+import { BitcoinEndpoints } from '../../../blockchains/bitcoin/types';
 
 const url = 'https://api-eu1.tatum.io/v3';
 
 // TODO Deal with different Blockchains e.g. what if /btc/ should be /eth/
-export const tatumEndpoints: Endpoints = {
+export const tatumEndpoints: BitcoinEndpoints = {
   balance: function(address: string): string {
     return url + '/bitcoin/address/balance/' + address;
   },
