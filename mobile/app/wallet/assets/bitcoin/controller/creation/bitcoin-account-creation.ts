@@ -3,13 +3,13 @@ import { BitcoinWalletsState } from "bitcoin/state/atoms";
 import { SetterOrUpdater } from "recoil";
 import { CoinTypeKeyShare, PurposeKeyShare } from "shared/types/mpc";
 import { AccountBuilder } from "wallet/controller/creation/account-creation";
-import { publicKeyToBitcoinAddress } from "bitcoin/controller/adapter/bitcoin-adapter";
+import { publicKeyToBitcoinAddressP2PKH } from "bitcoin/controller/adapter/bitcoin-adapter";
 
 export class BitcoinAccountBuilder extends AccountBuilder {
   private setState: SetterOrUpdater<BitcoinWalletsState> = () => {};
 
   constructor(user: User) {
-    super(user, publicKeyToBitcoinAddress);
+    super(user, publicKeyToBitcoinAddressP2PKH);
   }
 
   public async useSetState(setState: SetterOrUpdater<BitcoinWalletsState>) {

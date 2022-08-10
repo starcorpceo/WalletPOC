@@ -5,4 +5,5 @@ type NavigationRoutes = {
   Bitcoin: undefined;
   Ethereum: undefined;
   BitcoinTransactions: { account: VirtualAccount | null };
+  SendTransaction: { account: VirtualAccount | null };
 };

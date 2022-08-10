@@ -2,16 +2,15 @@ import { BitcoinProvider } from './blockchains/bitcoin/bitcoin-factory';
 import {
   BlockCypherBalance,
   BlockCypherBalanceFull,
+  BlockCyperFees,
 } from './provider/blockcypher/bitcoin/blockcypher-bitcoin-types';
-import {
-  TatumBalance,
-  TatumTransaction,
-} from './provider/tatum/bitcoin/tatum-bitcoin-types';
+import { TatumBalance, TatumTransaction, TatumFees } from './provider/tatum/bitcoin/tatum-bitcoin-types';
 
 export type Provider = BitcoinProvider;
 
 export type ApiBalance<T = BlockCypherBalance | TatumBalance> = T;
 export type ApiTransaction<T = BlockCypherBalanceFull | TatumTransaction[]> = T;
+export type ApiFees<T = BlockCyperFees | TatumFees> = T;
 
 export interface TransactionRequest {}
 

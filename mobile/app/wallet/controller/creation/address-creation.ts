@@ -1,7 +1,7 @@
 import { AddressKeyShare, KeyShareType } from "shared/types/mpc";
 import { deriveMpcKeyShare } from "wallet/controller/creation/derived-share-creation";
 import { Address, CoinTypeAccount } from "wallet/types/wallet";
-import { getPublicKeyToAddressAdapter } from "../adapter/blockchain-adapter";
+import { AddressAndPublicKey, getPublicKeyToAddressAdapter } from "../adapter/blockchain-adapter";
 import { User } from "api-types/user";
 import { VirtualAccount } from "wallet/types/virtual-wallet";
 import { getPublicKey } from "react-native-blockchain-crypto-mpc";
@@ -28,17 +28,17 @@ export const createAddress = async <T extends CoinTypeAccount>(
   return newAddress;
 };
 
-type PublicKeyToAddress = (publicKey: string) => string;
+type PublicKeyToAddress = (publicKey: string) => AddressAndPublicKey;
 
 const transformPublicKey = async (
   addressShare: AddressKeyShare,
   publicKeyToAddress: PublicKeyToAddress,
   virtualAccount?: VirtualAccount
 ): Promise<Address> => {
-  const publicKey = await getPublicKey(addressShare.keyShare);
-  const address = await publicKeyToAddress(publicKey);
+  const publicKeyMPC = await getPublicKey(addressShare.keyShare);
+  const { address, publicKey } = await publicKeyToAddress(publicKeyMPC);
 
-  virtualAccount && assignVirtualAccount(virtualAccount, address);
+  //virtualAccount && assignVirtualAccount(virtualAccount, address);
 
   return { keyShare: addressShare, publicKey, address, transactions: [], balance: { incoming: 0, outgoing: 0 } };
 };

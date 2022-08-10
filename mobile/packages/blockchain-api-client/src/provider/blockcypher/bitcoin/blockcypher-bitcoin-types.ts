@@ -68,3 +68,5 @@ export interface BlockCypherOutput {
   script_type: string;
   spent_by?: string;
 }
+
+export interface BlockCyperFees {}

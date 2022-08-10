@@ -16,9 +16,10 @@ import {
 } from "shared/types/mpc";
 import { VirtualAccount } from "wallet/types/virtual-wallet";
 import { AccountChange, Address } from "wallet/types/wallet";
+import { AddressAndPublicKey } from "../adapter/blockchain-adapter";
 import { deriveMpcKeyShare } from "./derived-share-creation";
 
-type PublicKeyToAddress = (publicKey: string) => string;
+type PublicKeyToAddress = (publicKey: string) => AddressAndPublicKey;
 
 /**
  * Utilizes Builder pattern to take (or create) a CoinTypeKeyShare and creates the Account all the way down to the Address level
@@ -78,9 +79,9 @@ export class AccountBuilder {
 
     const xPub = await getXPubKey(accountKeyShare.keyShare, config.IsTestNet ? "test" : "main");
 
-    const virtualAccount = await connectVirtualAccount(accountKeyShare);
+    //const virtualAccount = await connectVirtualAccount(accountKeyShare);
 
-    this.virtualAccount = virtualAccount;
+    //this.virtualAccount = virtualAccount;
     this.accountKeyShare = accountKeyShare;
     this.xPub = xPub;
 

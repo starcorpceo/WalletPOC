@@ -69,6 +69,15 @@ const Bitcoin = ({ navigation }: Props) => {
             title="Show transactions"
           />
 
+          <Button
+            onPress={() =>
+              navigation.navigate("SendTransaction", {
+                account: bitcoinState.accounts[0],
+              })
+            }
+            title="New transaction"
+          />
+
           <BitcoinWalletListView
             wallets={bitcoinState.accounts}
             virtualAccount={bitcoinState.accounts[0]?.virtualAccount!}

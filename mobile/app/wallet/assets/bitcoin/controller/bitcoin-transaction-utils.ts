@@ -4,9 +4,10 @@ import * as bitcoin from "der-bitcoinjs-lib";
 import { fetchFromTatum, HttpMethod } from "lib/http";
 import { signEcdsa } from "lib/mpc";
 import "shim";
-import { Balance, CoinTypeAccount, Fees, Input, Output, Transaction, UTXO } from "wallet/types/wallet";
+import { Address, Balance, CoinTypeAccount, Fees, Input, Output, Transaction, UTXO } from "wallet/types/wallet";
 import endpoints from "../blockchain/endpoints";
 import { BitcoinWallet } from "../types/bitcoin";
+import { getAllTransactionsCache } from "./bitcoin-transaction";
 
 // TODO rework after now transactions have to be built from all external and internal addresses
 
@@ -82,17 +83,17 @@ const isTransactionSpent = (transaction: Transaction, allTransactions: Transacti
     searchTransaction.inputs.find((input: Input) => input.prevout.hash === transaction.hash)
   );
 
-const getChangeFromUTXO = (transaction: Transaction, address: string): number => {
-  const change = transaction.outputs.find((output: Output) => output.address === address);
+// const getChangeFromUTXO = (transaction: Transaction, address: string): number => {
+//   const change = transaction.outputs.find((output: Output) => output.address === address);
 
-  return change?.value || 0;
-};
+//   return change?.value || 0;
+// };
 
-const getChangeValueFromUTXOs = (transactions: Transaction[], address: string): number => {
-  return transactions.reduce((prev, curr) => {
-    return prev + getChangeFromUTXO(curr, address);
-  }, 0);
-};
+// const getChangeValueFromUTXOs = (transactions: Transaction[], address: string): number => {
+//   return transactions.reduce((prev, curr) => {
+//     return prev + getChangeFromUTXO(curr, address);
+//   }, 0);
+// };
 
 const estimateFeeFromUTXO = (from: Transaction[], to: Transaction[]): Promise<Fees> => {
   const fromUTXO = from.flatMap;
@@ -150,33 +151,68 @@ export const signTransaction = async (
   return transaction;
 };
 
-export const prepareSigner = (wallet: BitcoinWallet, user: User): bitcoin.SignerAsync => {
-  const ec: bitcoin.SignerAsync = {
-    publicKey: wallet.config.publicKey as Buffer,
-    sign: async (hash: Buffer) =>
-      Buffer.from([
-        ...Buffer.from(
-          await signEcdsa(
-            user.devicePublicKey,
-            user.id,
-            wallet.mpcWallet.id,
-            wallet.mpcWallet.keyShare,
-            hash.toString("base64"),
-            "base64"
-          ),
-          "base64"
-        ),
-        0x01,
-      ]),
-  };
-  return ec;
+// export const prepareSigner = (wallet: BitcoinWallet, user: User): bitcoin.SignerAsync => {
+//   const ec: bitcoin.SignerAsync = {
+//     publicKey: wallet.config.publicKey as Buffer,
+//     sign: async (hash: Buffer) =>
+//       Buffer.from([
+//         ...Buffer.from(
+//           await signEcdsa(
+//             user.devicePublicKey,
+//             user.id,
+//             wallet.mpcWallet.id,
+//             wallet.mpcWallet.keyShare,
+//             hash.toString("base64"),
+//             "base64"
+//           ),
+//           "base64"
+//         ),
+//         0x01,
+//       ]),
+//   };
+//   return ec;
+// };
+
+const getChangeIndexFromTransaction = (wallet: BitcoinWallet, transaction: Transaction): number => {
+  return transaction.outputs.findIndex((output) => output.address === wallet.config.address);
 };
 
-const getUTXOByValue = (
-  wallet: BitcoinWallet,
+//New adopted functions
+//---------------------------------------
+//---------------------------------------
+//---------------------------------------
+//---------------------------------------
+
+/**
+ * Returns all external UTXOS from account
+ * @param account
+ * @returns
+ */
+export const getUTXOsCache = (account: CoinTypeAccount): Transaction[] => {
+  const utxosExternal = account.external.addresses.flatMap((address: Address) =>
+    address.transactions.map((transaction: Transaction) => !isSTXO(transaction, account) && transaction)
+  );
+  const utxosInternal = account.internal.addresses.flatMap((address: Address) =>
+    address.transactions.map((transaction: Transaction) => !isSTXO(transaction, account) && transaction)
+  );
+  const utxos = [
+    ...utxosExternal.filter((transaction): transaction is Transaction => !!transaction),
+    ...utxosInternal.filter((transaction): transaction is Transaction => !!transaction),
+  ];
+  return utxos;
+};
+
+/**
+ * Get oldest UTXOS based on total value
+ * @param account
+ * @param value value to be able to spend in satoshis
+ * @returns
+ */
+export const getUTXOByValueCache = (
+  account: CoinTypeAccount,
   value: number //in satoshis
 ): Transaction[] => {
-  const allUTXOs = getUnspentTransactionsSync(wallet);
+  const allUTXOs = getUTXOsCache(account);
 
   allUTXOs.sort((a, b) => a.time - b.time);
 
@@ -184,7 +220,7 @@ const getUTXOByValue = (
     (acc, curr, _index, all) => {
       const { transactions, accumulatedValue } = acc;
 
-      const utxoValue = getChangeFromUTXO(curr, wallet);
+      const utxoValue = getChangeFromUTXO(curr, account);
 
       if (accumulatedValue >= value) {
         return acc;
@@ -201,6 +237,63 @@ const getUTXOByValue = (
   return transactions;
 };
 
-const getChangeIndexFromTransaction = (wallet: BitcoinWallet, transaction: Transaction): number => {
-  return transaction.outputs.findIndex((output) => output.address === wallet.config.address);
+/**
+ * check if transaction is spent transaction (STXO = Spent Transaction)
+ * @param transaction
+ * @param account
+ * @returns
+ */
+const isSTXO = (transaction: Transaction, account: CoinTypeAccount): boolean =>
+  getAllTransactionsCache(account).some((searchTransaction: Transaction) =>
+    searchTransaction.inputs.find((input: Input) => input.prevout.hash === transaction.hash)
+  );
+
+/**
+ * find change (value in satoshis) from utxo to use in new transaction
+ * @param utxo
+ * @param account
+ * @returns
+ */
+const getChangeFromUTXO = (utxo: Transaction, account: CoinTypeAccount): number => {
+  const change = utxo.outputs.find((output: Output) =>
+    account.external.addresses.map((address: Address) => address.address === output.address)
+  );
+  return change?.value || 0;
+};
+
+/**
+ * finds own address int utxo output
+ * @param utxo
+ * @param account
+ * @returns
+ */
+export const getAddressFromUTXOOutput = (utxo: Transaction, account: CoinTypeAccount): Address => {
+  const address = account.external.addresses.find((address: Address) =>
+    utxo.outputs.some((output: Output) => address.address === output.address)
+  );
+  return address!;
+};
+
+/**
+ * finds the index in outputs in utxo which can be spent again and is in our control (a address from account)
+ * @param utxo
+ * @param account
+ * @returns
+ */
+export const getChangeIndexFromUTXO = (utxo: Transaction, account: CoinTypeAccount): number => {
+  return utxo.outputs.findIndex((output: Output) =>
+    account.external.addresses.some((address: Address) => address.address === output.address)
+  );
+};
+
+/**
+ * find change (value in satoshis) from several utxos to use in new transaction - calls getChangeFromUTXO internally
+ * @param transactions
+ * @param account
+ * @returns
+ */
+export const getChangeFromUTXOs = (transactions: Transaction[], account: CoinTypeAccount): number => {
+  return transactions.reduce((prev, curr) => {
+    return prev + getChangeFromUTXO(curr, account);
+  }, 0);
 };

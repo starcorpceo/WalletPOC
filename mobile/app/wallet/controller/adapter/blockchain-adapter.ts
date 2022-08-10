@@ -1,13 +1,21 @@
 import { WalletConfig } from "wallet/types/wallet";
-import { publicKeyToBitcoinAddress } from "../../assets/bitcoin/controller/adapter/bitcoin-adapter";
+import {
+  publicKeyToBitcoinAddressP2PKH,
+  publicKeyToBitcoinAddressP2WPKH,
+} from "../../assets/bitcoin/controller/adapter/bitcoin-adapter";
 
-type PublicKeyToAddress = (publicKey: string) => string;
+export type AddressAndPublicKey = {
+  address: string;
+  publicKey: Buffer;
+};
+
+type PublicKeyToAddress = (publicKey: string) => AddressAndPublicKey;
 
 export const getPublicKeyToAddressAdapter = (config: WalletConfig): PublicKeyToAddress => {
   switch (config.chain) {
     case "BTC":
-      return publicKeyToBitcoinAddress;
+      return publicKeyToBitcoinAddressP2PKH;
     default:
-      return publicKeyToBitcoinAddress;
+      return publicKeyToBitcoinAddressP2PKH;
   }
 };

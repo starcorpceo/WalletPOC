@@ -19,3 +19,9 @@ export interface TatumTransaction {
   weight: number;
   witnessHash: string;
 }
+
+export interface TatumFees {
+  fast: number;
+  medium: number;
+  slow: number;
+}

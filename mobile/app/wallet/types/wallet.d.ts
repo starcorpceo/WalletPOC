@@ -20,7 +20,7 @@ export interface AccountChange {
 export interface Address {
   keyShare: AddressKeyShare;
   address: string;
-  publicKey: string;
+  publicKey: Buffer;
   transactions: Transaction[];
   balance: Balance;
 }

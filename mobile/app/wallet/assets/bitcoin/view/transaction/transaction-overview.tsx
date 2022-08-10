@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { Button, Text, View } from "react-native";
 import { VirtualAccount, VirtualTransaction } from "wallet/types/virtual-wallet";
 import { NavigationRoutes } from "shared/types/navigation";
-import { getAllTransactions } from "bitcoin/controller/bitcoin-transaction";
+import { getAllTransactionsCache } from "bitcoin/controller/bitcoin-transaction";
 import { Address, Transaction } from "wallet/types/wallet";
 import { getNextUnusedAddress } from "bitcoin/controller/bitcoin-address";
 import { useRecoilValue } from "recoil";
@@ -21,14 +21,14 @@ const BitcoinTransactions = ({ route }: Props) => {
   useEffect(() => {
     const onLoad = async () => {
       const { account } = route.params;
-      if (account) setTransactions(getAllTransactions(account!));
+      if (account) setTransactions(getAllTransactionsCache(account!));
     };
     onLoad();
   }, []);
 
   const showReceiveAddress = async () => {
     const { account } = route.params;
-    setReceiveAddress(await getNextUnusedAddress(user, account));
+    setReceiveAddress(await getNextUnusedAddress(user, account, "external"));
   };
 
   return (
