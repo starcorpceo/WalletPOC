@@ -1,9 +1,8 @@
-import { Service } from '../../base/service';
-import { Network } from '../../base/types';
+import { ApiBroadcastTransaction, Network } from '../../base/types';
 import { EthereumFactory, EthereumProvider } from './ethereum-factory';
 import { EthereumBalance, EthereumTransaction } from './types';
 
-export class EthereumService implements Service {
+export class EthereumService {
   private factory: EthereumFactory;
 
   constructor(network: Network) {
@@ -42,14 +41,30 @@ export class EthereumService implements Service {
 
     const apiTransactions = await fetcher.fetchTransactions(address, query);
 
-    console.log('whaa', apiTransactions);
-
     return mapper.responseToTransactions(apiTransactions);
   };
 
-  sendRawTransaction = async (transaction: string, provider: EthereumProvider): Promise<any> => {
-    const { fetcher } = this.factory.getProviderFunctions(provider);
+  getFees = async (provider: EthereumProvider): Promise<string> => {
+    const { mapper, fetcher } = this.factory.getProviderFunctions(provider);
 
-    return fetcher.sendRawTransaction && fetcher.sendRawTransaction(transaction);
+    const apiFees = fetcher.fetchFees && (await fetcher.fetchFees());
+
+    return mapper.responseToFees(apiFees);
+  };
+
+  sendRawTransaction = async (transaction: string, provider: EthereumProvider): Promise<string> => {
+    const { fetcher, mapper } = this.factory.getProviderFunctions(provider);
+
+    const apiResult = fetcher.sendRawTransaction && (await fetcher.sendRawTransaction(transaction));
+
+    return mapper.responseToBroadCastTransactionResult(apiResult as ApiBroadcastTransaction);
+  };
+
+  getTransactionCount = async (address: string, provider: EthereumProvider): Promise<string> => {
+    const { fetcher, mapper } = this.factory.getProviderFunctions(provider);
+
+    const apiResult = fetcher.fetchTransactionCount && (await fetcher.fetchTransactionCount(address));
+
+    return mapper.responseToTransactionCount(apiResult as ApiBroadcastTransaction);
   };
 }

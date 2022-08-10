@@ -9,6 +9,8 @@ export enum Method {
   Balance = 'eth_getBalance',
   Transactions = 'alchemy_getAssetTransfers',
   SendTransaction = 'eth_sendRawTransaction',
+  GasPrice = 'eth_gasPrice',
+  TransactionCount = 'eth_getTransactionCount',
 }
 
 const apiKey = 'ahl42ynne2Kd8FosnoYBtCW3ssoCtIu0';

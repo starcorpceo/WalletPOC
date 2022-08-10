@@ -12,21 +12,21 @@ export const buildRawTransaction = async (
   to: string,
   value: number,
   txCount: number,
-  gasPrice = 2000,
-  gasLimit = 21000
+  gasPrice: string
 ): Promise<Transaction> => {
   const txData: TxData = {
     nonce: ethers.utils.hexlify(txCount),
     to,
     value: value,
-    gasLimit: gasLimit,
-    gasPrice: gasPrice,
+    gasPrice: ethers.utils.hexlify(gasPrice),
     v: Buffer.from([]),
     r: Buffer.from([]),
     s: Buffer.from([]),
   };
+
   const tx = new Transaction(txData, { chain: "goerli" });
 
+  tx.gasLimit = tx.getBaseFee().toBuffer();
   const msgHash = tx.hash(false);
 
   const context = await signEcdsa(

@@ -1,17 +1,9 @@
-import {
-  ApiBalance,
-  ApiBroadcastTransaction,
-  ApiFees,
-  ApiTransaction,
-  Balance,
-  BroadcastTransaction,
-  Fees,
-  Transaction,
-} from './types';
+import { ApiBalance, ApiBroadcastTransaction, ApiFees, ApiTransaction, ApiTransactionCount } from './types';
 
 export interface Mapper {
-  responseToBalance: (input: ApiBalance) => Balance;
-  responseToTransactions: (input: ApiTransaction) => Transaction[];
-  responseToFees: (input: ApiFees) => Fees;
-  responseToBroadcastTransaction: (input: ApiBroadcastTransaction) => BroadcastTransaction;
+  responseToBalance: (input: ApiBalance) => any;
+  responseToTransactions: (input: ApiTransaction) => any;
+  responseToFees: (input: ApiFees) => any;
+  responseToBroadcastTransaction: (input: ApiBroadcastTransaction) => any;
+  responseToTransactionCount: (input: ApiTransactionCount) => any;
 }

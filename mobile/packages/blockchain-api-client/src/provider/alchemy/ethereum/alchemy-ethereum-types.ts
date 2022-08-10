@@ -1,14 +1,14 @@
-export interface AlchemyBalance {
+export type AlchemyResult<T> = {
   jsonrpc: string;
   id: number;
-  result: string;
-}
+  result: T;
+};
 
-export interface AlchemyTransaction {
-  jsonrpc: string;
-  id: number;
-  result: Result;
-}
+export type AlchemyBalance = AlchemyResult<string>;
+export type AlchemyTransaction = AlchemyResult<Result>;
+export type AlchemyFees = AlchemyResult<string>;
+export type AlchemyBroadCastTransactionResult = AlchemyResult<string>;
+export type AlchemyTransactionCount = AlchemyResult<string>;
 
 interface Result {
   transfers: Transfer[];

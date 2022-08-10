@@ -1,7 +1,11 @@
+import {
+  AlchemyBroadCastTransactionResult,
+  AlchemyTransactionCount,
+} from '../provider/alchemy/ethereum/alchemy-ethereum-types';
 import { BlockCypherTransaction } from '../provider/blockcypher/bitcoin/blockcypher-bitcoin-types';
 import { TatumBroadcastTransaction } from '../provider/tatum/bitcoin/tatum-bitcoin-types';
 import { BitcoinProvider } from './blockchains/bitcoin/bitcoin-factory';
-import { AlchemyBalance } from './provider/alchemy/ethereum/alchemy-ethereum-types';
+import { AlchemyBalance, AlchemyFees } from './provider/alchemy/ethereum/alchemy-ethereum-types';
 import {
   BlockCyperFees,
   BlockCypherBalance,
@@ -13,8 +17,11 @@ export type Provider = BitcoinProvider;
 
 export type ApiBalance<T = BlockCypherBalance | TatumBalance | AlchemyBalance> = T;
 export type ApiTransaction<T = BlockCypherBalanceFull | TatumTransaction[]> = T;
-export type ApiFees<T = BlockCyperFees | TatumFees> = T;
-export type ApiBroadcastTransaction<T = BlockCypherTransaction | TatumBroadcastTransaction> = T;
+export type ApiFees<T = BlockCyperFees | TatumFees | AlchemyFees> = T;
+export type ApiBroadcastTransaction<
+  T = BlockCypherTransaction | TatumBroadcastTransaction | AlchemyBroadCastTransactionResult
+> = T;
+export type ApiTransactionCount<T = AlchemyTransactionCount> = T;
 
 export interface TransactionRequest {}
 

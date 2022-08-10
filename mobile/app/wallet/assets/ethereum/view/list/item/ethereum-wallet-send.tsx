@@ -19,8 +19,18 @@ const SendEthereum = ({ user, wallet, service }: SendEthereumProps) => {
 
   const sendTransaction = useCallback(async () => {
     try {
+      const gasPrice = await service.getFees(EthereumProvider.ALCHEMY);
+
       const address = wallet.external.addresses[0];
-      const transaction = await buildRawTransaction(address, user, toAddress, weis, 2);
+      const transactionCount = await service.getTransactionCount(address.address, EthereumProvider.ALCHEMY);
+      const transaction = await buildRawTransaction(
+        address,
+        user,
+        toAddress,
+        weis,
+        Number.parseInt(transactionCount, 16),
+        gasPrice
+      );
 
       console.log("valid " + transaction.validate());
 
