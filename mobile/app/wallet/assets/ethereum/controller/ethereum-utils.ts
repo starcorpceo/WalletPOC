@@ -1,5 +1,4 @@
-import { importPublic } from "ethereumjs-util";
-import { pubToAddress } from "ethereumjs-util/dist/account";
+import { importPublic, pubToAddress } from "ethereumjs-util";
 import ec from "lib/elliptic";
 
 export const publicKeyToEthereumAddress = (publicKey: string) => {

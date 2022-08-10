@@ -6,6 +6,8 @@ import { StyleSheet, Text, View } from "react-native";
 import { useRecoilValue } from "recoil";
 import { authState } from "state/atoms";
 import { EthereumBalance } from "./ethereum-wallet-balance";
+import SendEthereum from "./ethereum-wallet-send";
+import EthereumTransactions from "./ethereum-wallet-transactions";
 
 type EthereumWalletProps = {
   wallet: EthereumWallet;
@@ -15,6 +17,7 @@ type EthereumWalletProps = {
 
 const EthereumWalletView = ({ wallet, updateWallet, index }: EthereumWalletProps) => {
   const [service] = useState(new EthereumService("TEST"));
+
   const user = useRecoilValue(authState);
 
   const updateBalance = useCallback(async () => {
@@ -43,16 +46,15 @@ const EthereumWalletView = ({ wallet, updateWallet, index }: EthereumWalletProps
     >
       <Text>Addresses</Text>
       {wallet.external.addresses.map((addr) => (
-        <View>
-          <Text key={addr.publicKey}>{addr.address}</Text>
+        <View key={addr.address}>
+          <Text>Addr: {addr.address}</Text>
         </View>
       ))}
       <EthereumBalance updateBalance={updateBalance} wallet={wallet} />
       <EthereumTransactions updateTransactions={updateTransactions} wallet={wallet} />
-      {/* <SendEthereum user={user} wallet={wallet} /> */}
+      <SendEthereum user={user} wallet={wallet} service={service} />
     </View>
   );
 };
 
 export default EthereumWalletView;
-BitcoinTransactionBitcoinTransaction;

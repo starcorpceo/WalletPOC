@@ -322,13 +322,12 @@ MPCCRYPTO_API int MPCCrypto_getDerResultEcdsaSign(MPCCryptoContext *context, uin
     return rv = ub::error(E_BADARG);
 
   int buf_size = *out_size;
-    
+
   crypto::ecdsa_signature_t sig = ctx->get_signature();
-    
-    
+
   buf_t der = sig.to_der();
   *out_size = der.size();
-    
+
   if (signature)
   {
     if (buf_size < der.size())
@@ -338,7 +337,6 @@ MPCCRYPTO_API int MPCCrypto_getDerResultEcdsaSign(MPCCryptoContext *context, uin
 
   return 0;
 }
-
 
 MPCCRYPTO_API int MPCCrypto_getBinResultEcdsaSign(MPCCryptoContext *context, MPCCryptoShare *share_ptr, uint8_t *signature, int *out_size, int *recoveryCode)
 {
@@ -351,17 +349,16 @@ MPCCRYPTO_API int MPCCrypto_getBinResultEcdsaSign(MPCCryptoContext *context, MPC
     return rv = ub::error(E_BADARG);
 
   int buf_size = *out_size;
-    
+
   crypto::ecdsa_signature_t sig = ctx->get_signature();
-    
-    
+
   buf_t bin = sig.to_bin();
   *out_size = bin.size();
-    
+
   mpc_ecdsa_share_t *share = dynamic_cast<mpc_ecdsa_share_t *>((mpc_crypto_share_t *)share_ptr);
-    
+
   *recoveryCode = sig.get_recovery_code(mem_t(bin.data(), *out_size), share->core.Q_full);
-    
+
   if (signature)
   {
     if (buf_size < bin.size())
@@ -371,7 +368,6 @@ MPCCRYPTO_API int MPCCrypto_getBinResultEcdsaSign(MPCCryptoContext *context, MPC
 
   return 0;
 }
-
 
 MPCCRYPTO_API int MPCCrypto_verifyEcdsa(const uint8_t *pub_key, int pub_key_size, const uint8_t *in, int in_size, const uint8_t *signature, int signature_size)
 {

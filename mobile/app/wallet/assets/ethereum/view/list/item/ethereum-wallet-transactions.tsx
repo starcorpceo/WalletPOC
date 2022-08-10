@@ -16,7 +16,7 @@ const EthereumTransactions = ({ wallet, updateTransactions }: EthereumTransactio
           const isPlus = transaction.value > 0;
           return (
             <Text key={transaction.hash} style={{ color: isPlus ? "green" : "red" }}>
-              {`${isPlus ? "+" : "-"} ${transaction.value}`} Weis
+              {`${isPlus ? "+" : "-"} ${transaction.value}`} Eth
             </Text>
           );
         })}

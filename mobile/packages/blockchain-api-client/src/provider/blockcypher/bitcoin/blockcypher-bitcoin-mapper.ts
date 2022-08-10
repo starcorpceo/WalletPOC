@@ -1,4 +1,5 @@
-import { Balance, BroadcastTransaction, Fees, Input, Output, Transaction } from '../../../base/types';
+import { BroadcastTransaction, Fees, Input, Output } from '../../../base/types';
+import { BitcoinBalance, BitcoinTransaction } from '../../../blockchains/bitcoin/types';
 import {
   BlockCyperFees,
   BlockCypherBalance,
@@ -6,7 +7,7 @@ import {
   BlockCypherTransaction,
 } from './blockcypher-bitcoin-types';
 
-export const mapBlockCypherBalance = (balance: BlockCypherBalance): Balance => {
+export const mapBlockCypherBalance = (balance: BlockCypherBalance): BitcoinBalance => {
   return {
     incoming: balance.total_received,
     outgoing: balance.total_sent,
@@ -15,14 +16,14 @@ export const mapBlockCypherBalance = (balance: BlockCypherBalance): Balance => {
   };
 };
 
-export const mapBlockCypherTransactions = (transaction: BlockCypherBalanceFull): Transaction[] => {
-  return transaction.txs.map<Transaction>((transaction, index) => ({
+export const mapBlockCypherTransactions = (transaction: BlockCypherBalanceFull): BitcoinTransaction[] => {
+  return transaction.txs.map<BitcoinTransaction>((transaction, index) => ({
     blockNumber: transaction.block_index,
     fee: transaction.fees,
     hash: transaction.hash,
     hex: transaction.hex || '',
     index,
-    inputs: transaction.inputs.map<Input>((input) => ({
+    inputs: transaction.inputs.map<Input>(input => ({
       prevout: {
         hash: input.prev_hash,
         index: input.output_index,
@@ -30,9 +31,17 @@ export const mapBlockCypherTransactions = (transaction: BlockCypherBalanceFull):
       sequence: input.sequence,
       script: input.script,
       scriptType: input.script_type,
+      coin: {
+        version: 0,
+        height: 0,
+        value: input.output_value,
+        script: input.script,
+        address: input.addresses[0],
+        coinbase: false,
+      },
     })),
     locktime: transaction.lock_time,
-    outputs: transaction.outputs.map<Output>((output) => ({
+    outputs: transaction.outputs.map<Output>(output => ({
       value: output.value,
       script: output.script,
       address: output.addresses[0],

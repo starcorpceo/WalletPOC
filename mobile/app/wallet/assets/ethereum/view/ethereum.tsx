@@ -1,6 +1,7 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { EthereumAccountBuilder } from "ethereum/controller/ethereum-account-creation";
-import { EthereumWalletsState, ethereumWalletsState } from "ethereum/state/atoms";
+import { EthereumWalletsState, ethereumWalletsState, initialEthereumState } from "ethereum/state/atoms";
+import { deepCompare } from "lib/util";
 import React, { useCallback, useEffect } from "react";
 import { Button } from "react-native";
 import { useRecoilState, useRecoilValue } from "recoil";
@@ -22,7 +23,7 @@ const Ethereum = ({ navigation }: Props) => {
 
   useEffect(() => {
     const onOpen = async () => {
-      if (ethereumState.accounts.length > 0) return;
+      if (ethereumState.accounts.length > 0 && deepCompare(ethereumState, initialEthereumState)) return;
 
       const accountBuilder = new EthereumAccountBuilder(user);
 

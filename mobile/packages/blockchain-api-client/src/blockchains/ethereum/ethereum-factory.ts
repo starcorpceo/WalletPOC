@@ -32,9 +32,12 @@ export class EthereumFactory implements Factory {
             fromBlock: '0x0',
             toAddress: address,
             toBlock: 'latest',
-            fromAddress: address,
             category: ['external', 'internal', 'erc20', 'erc721', 'erc1155'],
           },
+        ]),
+      sendRawTransaction: (transaction: string) =>
+        fetchFromAlchemy<any>(alchemyEndpoints(this.network).broadcastTransaction(), Method.SendTransaction, [
+          transaction,
         ]),
     },
     mapper: {

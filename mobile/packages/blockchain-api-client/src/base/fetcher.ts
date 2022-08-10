@@ -5,4 +5,5 @@ export interface Fetcher {
   fetchTransactions: (address: string, query: URLSearchParams) => Promise<ApiTransaction>;
   fetchFees: (chain: string, type: string, fromUTXO: any[], to: any[]) => Promise<ApiFees>;
   sendBroadcastTransaction: (txData: string) => Promise<ApiBroadcastTransaction>;
+  sendRawTransaction?: (transaction: string) => Promise<any>;
 }

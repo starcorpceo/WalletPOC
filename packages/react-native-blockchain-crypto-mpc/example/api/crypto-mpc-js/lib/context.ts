@@ -52,12 +52,7 @@ class Context {
     const flagsPtr = ref.alloc(native.UintPtr);
 
     native.checkAndThrowError(
-      native.MPCCrypto_step(
-        this.contextPtr,
-        input ? input.messagePtr : null,
-        outputPtrPtr,
-        flagsPtr
-      )
+      native.MPCCrypto_step(this.contextPtr, input ? input.messagePtr : null, outputPtrPtr, flagsPtr)
     );
     if (input) {
       input.free();
@@ -139,65 +134,45 @@ class Context {
 
   getResultDeriveBIP32() {
     const sharePtrPtr = ref.alloc(native.VoidPtrPtr);
-    native.checkAndThrowError(
-      native.MPCCrypto_getResultDeriveBIP32(this.contextPtr, sharePtrPtr)
-    );
+    native.checkAndThrowError(native.MPCCrypto_getResultDeriveBIP32(this.contextPtr, sharePtrPtr));
     return new Share(sharePtrPtr.deref());
   }
 
   getResultEcdsaSign() {
     const sizePtr = ref.alloc(native.IntPtr);
-    native.checkAndThrowError(
-      native.MPCCrypto_getResultEcdsaSign(this.contextPtr, null, sizePtr)
-    );
+    native.checkAndThrowError(native.MPCCrypto_getResultEcdsaSign(this.contextPtr, null, sizePtr));
     const buffer = Buffer.alloc(sizePtr.readInt32LE());
-    native.checkAndThrowError(
-      native.MPCCrypto_getResultEcdsaSign(this.contextPtr, buffer, sizePtr)
-    );
+    native.checkAndThrowError(native.MPCCrypto_getResultEcdsaSign(this.contextPtr, buffer, sizePtr));
     return buffer;
   }
 
   getResultBackupEcdsaKey() {
     const sizePtr = ref.alloc(native.IntPtr);
-    native.checkAndThrowError(
-      native.MPCCrypto_getResultBackupEcdsaKey(this.contextPtr, null, sizePtr)
-    );
+    native.checkAndThrowError(native.MPCCrypto_getResultBackupEcdsaKey(this.contextPtr, null, sizePtr));
     const buffer = Buffer.alloc(sizePtr.readInt32LE());
-    native.checkAndThrowError(
-      native.MPCCrypto_getResultBackupEcdsaKey(this.contextPtr, buffer, sizePtr)
-    );
+    native.checkAndThrowError(native.MPCCrypto_getResultBackupEcdsaKey(this.contextPtr, buffer, sizePtr));
     return buffer;
   }
 
   getResultEddsaSign() {
     const buffer = Buffer.alloc(64);
-    native.checkAndThrowError(
-      native.MPCCrypto_getResultEddsaSign(this.contextPtr, buffer)
-    );
+    native.checkAndThrowError(native.MPCCrypto_getResultEddsaSign(this.contextPtr, buffer));
     return buffer;
   }
 
   getResultBackupEddsaKey() {
     const sizePtr = ref.alloc(native.IntPtr);
-    native.checkAndThrowError(
-      native.MPCCrypto_getResultBackupEddsaKey(this.contextPtr, null, sizePtr)
-    );
+    native.checkAndThrowError(native.MPCCrypto_getResultBackupEddsaKey(this.contextPtr, null, sizePtr));
     const buffer = Buffer.alloc(sizePtr.readInt32LE());
-    native.checkAndThrowError(
-      native.MPCCrypto_getResultBackupEddsaKey(this.contextPtr, buffer, sizePtr)
-    );
+    native.checkAndThrowError(native.MPCCrypto_getResultBackupEddsaKey(this.contextPtr, buffer, sizePtr));
     return buffer;
   }
 
   toBuffer() {
     const sizePtr = ref.alloc(native.IntPtr);
-    native.checkAndThrowError(
-      native.MPCCrypto_contextToBuf(this.contextPtr, null, sizePtr)
-    );
+    native.checkAndThrowError(native.MPCCrypto_contextToBuf(this.contextPtr, null, sizePtr));
     const buffer = Buffer.alloc(sizePtr.readInt32LE());
-    native.checkAndThrowError(
-      native.MPCCrypto_contextToBuf(this.contextPtr, buffer, sizePtr)
-    );
+    native.checkAndThrowError(native.MPCCrypto_contextToBuf(this.contextPtr, buffer, sizePtr));
     const typeBuf = Buffer.alloc(1);
     typeBuf.writeUInt8(this.type);
     return Buffer.concat([typeBuf, buffer]);
@@ -213,33 +188,19 @@ class Context {
   static fromBuffer(buffer) {
     const contextPtrPtr = ref.alloc(native.VoidPtrPtr);
     const type = buffer.readUInt8();
-    native.checkAndThrowError(
-      native.MPCCrypto_contextFromBuf(
-        buffer.slice(1),
-        buffer.length - 1,
-        contextPtrPtr
-      )
-    );
+    native.checkAndThrowError(native.MPCCrypto_contextFromBuf(buffer.slice(1), buffer.length - 1, contextPtrPtr));
     return new Context(contextPtrPtr.deref(), type);
   }
 
   static createGenerateGenericSecretContext(peer, bits) {
     const contextPtrPtr = ref.alloc(native.VoidPtrPtr);
-    native.checkAndThrowError(
-      native.MPCCrypto_initGenerateGenericSecret(peer, bits, contextPtrPtr)
-    );
+    native.checkAndThrowError(native.MPCCrypto_initGenerateGenericSecret(peer, bits, contextPtrPtr));
     return new Context(contextPtrPtr.deref(), Types.GENERATE_GENERIC_SECRET);
   }
 
-  static createImportGenericSecretContext(
-    peer: number,
-    bits: number,
-    seed: ArrayBuffer | Buffer[]
-  ) {
+  static createImportGenericSecretContext(peer: number, bits: number, seed: ArrayBuffer | Buffer[]) {
     const contextPtrPtr = ref.alloc(native.VoidPtrPtr);
-    native.checkAndThrowError(
-      native.MPCCrypto_initImportGenericSecret(peer, seed, bits, contextPtrPtr)
-    );
+    native.checkAndThrowError(native.MPCCrypto_initImportGenericSecret(peer, seed, bits, contextPtrPtr));
     return new Context(contextPtrPtr.deref(), Types.GENERATE_GENERIC_SECRET);
   }
 
@@ -247,13 +208,7 @@ class Context {
     const share = Share.fromBuffer(shareBuf);
     const contextPtrPtr = ref.alloc(native.VoidPtrPtr);
     native.checkAndThrowError(
-      native.MPCCrypto_initDeriveBIP32(
-        peer,
-        share.sharePtr,
-        hardened ? 1 : 0,
-        index,
-        contextPtrPtr
-      )
+      native.MPCCrypto_initDeriveBIP32(peer, share.sharePtr, hardened ? 1 : 0, index, contextPtrPtr)
     );
     share.free();
     return new Context(contextPtrPtr.deref(), Types.DERIVE_BIP32);
@@ -263,14 +218,7 @@ class Context {
     const share = Share.fromBuffer(shareBuf);
     const contextPtrPtr = ref.alloc(native.VoidPtrPtr);
     native.checkAndThrowError(
-      native.MPCCrypto_initEcdsaSign(
-        peer,
-        share.sharePtr,
-        data,
-        data.length,
-        refresh ? 1 : 0,
-        contextPtrPtr
-      )
+      native.MPCCrypto_initEcdsaSign(peer, share.sharePtr, data, data.length, refresh ? 1 : 0, contextPtrPtr)
     );
     share.free();
     return new Context(contextPtrPtr.deref(), Types.ECDSA_SIGN);
@@ -278,9 +226,7 @@ class Context {
 
   static createGenerateEcdsaKey(peer) {
     const contextPtrPtr = ref.alloc(native.VoidPtrPtr);
-    native.checkAndThrowError(
-      native.MPCCrypto_initGenerateEcdsaKey(peer, contextPtrPtr)
-    );
+    native.checkAndThrowError(native.MPCCrypto_initGenerateEcdsaKey(peer, contextPtrPtr));
     return new Context(contextPtrPtr.deref(), Types.GENERATE_ECDSA_KEY);
   }
 
@@ -288,13 +234,7 @@ class Context {
     const share = Share.fromBuffer(shareBuf);
     const contextPtrPtr = ref.alloc(native.VoidPtrPtr);
     native.checkAndThrowError(
-      native.MPCCrypto_initBackupEcdsaKey(
-        peer,
-        share.sharePtr,
-        backupPublicKey,
-        backupPublicKey.length,
-        contextPtrPtr
-      )
+      native.MPCCrypto_initBackupEcdsaKey(peer, share.sharePtr, backupPublicKey, backupPublicKey.length, contextPtrPtr)
     );
     share.free();
     return new Context(contextPtrPtr.deref(), Types.BACKUP_ECDSA_KEY);
@@ -304,14 +244,7 @@ class Context {
     const share = Share.fromBuffer(shareBuf);
     const contextPtrPtr = ref.alloc(native.VoidPtrPtr);
     native.checkAndThrowError(
-      native.MPCCrypto_initEddsaSign(
-        peer,
-        share.sharePtr,
-        data,
-        data.length,
-        refresh ? 1 : 0,
-        contextPtrPtr
-      )
+      native.MPCCrypto_initEddsaSign(peer, share.sharePtr, data, data.length, refresh ? 1 : 0, contextPtrPtr)
     );
     share.free();
     return new Context(contextPtrPtr.deref(), Types.EDDSA_SIGN);
@@ -319,9 +252,7 @@ class Context {
 
   static createGenerateEddsaKey(peer) {
     const contextPtrPtr = ref.alloc(native.VoidPtrPtr);
-    native.checkAndThrowError(
-      native.MPCCrypto_initGenerateEddsaKey(peer, contextPtrPtr)
-    );
+    native.checkAndThrowError(native.MPCCrypto_initGenerateEddsaKey(peer, contextPtrPtr));
     return new Context(contextPtrPtr.deref(), Types.GENERATE_EDDSA_KEY);
   }
 
@@ -329,13 +260,7 @@ class Context {
     const share = Share.fromBuffer(shareBuf);
     const contextPtrPtr = ref.alloc(native.VoidPtrPtr);
     native.checkAndThrowError(
-      native.MPCCrypto_initBackupEddsaKey(
-        peer,
-        share.sharePtr,
-        backupPublicKey,
-        backupPublicKey.length,
-        contextPtrPtr
-      )
+      native.MPCCrypto_initBackupEddsaKey(peer, share.sharePtr, backupPublicKey, backupPublicKey.length, contextPtrPtr)
     );
     share.free();
     return new Context(contextPtrPtr.deref(), Types.BACKUP_EDDSA_KEY);
@@ -344,9 +269,7 @@ class Context {
   static createRefreshKey(peer, shareBuf) {
     const share = Share.fromBuffer(shareBuf);
     const contextPtrPtr = ref.alloc(native.VoidPtrPtr);
-    native.checkAndThrowError(
-      native.MPCCrypto_initRefreshKey(peer, share.sharePtr, contextPtrPtr)
-    );
+    native.checkAndThrowError(native.MPCCrypto_initRefreshKey(peer, share.sharePtr, contextPtrPtr));
     share.free();
     return new Context(contextPtrPtr.deref(), Types.REFRESH);
   }

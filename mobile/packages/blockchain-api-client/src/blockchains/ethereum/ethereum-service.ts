@@ -46,4 +46,10 @@ export class EthereumService implements Service {
 
     return mapper.responseToTransactions(apiTransactions);
   };
+
+  sendRawTransaction = async (transaction: string, provider: EthereumProvider): Promise<any> => {
+    const { fetcher } = this.factory.getProviderFunctions(provider);
+
+    return fetcher.sendRawTransaction && fetcher.sendRawTransaction(transaction);
+  };
 }

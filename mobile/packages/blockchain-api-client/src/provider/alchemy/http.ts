@@ -8,6 +8,7 @@ export const fetchFromAlchemy = async <T>(url: string, method: Method, params?: 
 export enum Method {
   Balance = 'eth_getBalance',
   Transactions = 'alchemy_getAssetTransfers',
+  SendTransaction = 'eth_sendRawTransaction',
 }
 
 const apiKey = 'ahl42ynne2Kd8FosnoYBtCW3ssoCtIu0';
