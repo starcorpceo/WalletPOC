@@ -15,6 +15,7 @@ import { BitcoinService } from "../../../../../packages/blockchain-api-client/sr
 import { BitcoinProvider } from "../../../../../packages/blockchain-api-client/src/blockchains/bitcoin/bitcoin-factory";
 import { BitcoinToSatoshis } from "./bitcoin-utils";
 import { prepareSingleSigner } from "./bitcoin-signer";
+import { BroadcastTransaction } from "../../../../../packages/blockchain-api-client/src/base/types";
 
 /**
  * Get all transactions from account, only from state
@@ -104,4 +105,19 @@ export const prepareTransactionP2PKH = async (
   });
 
   return { preparedTransactions: psbt, preparedSigners: signers };
+};
+
+/**
+ * Broadcasts a signed bitcoin transaction via TATUM
+ * @param transaction Signed transaction
+ * @returns
+ */
+export const broadcastTransaction = async (transaction: bitcoin.Psbt): Promise<BroadcastTransaction> => {
+  const bitcoinService = new BitcoinService("TEST");
+  const broadcastTransaction: BroadcastTransaction = await bitcoinService.sendBroadcastTransaction(
+    transaction.extractTransaction().toHex(),
+    BitcoinProvider.TATUM
+  );
+  if (broadcastTransaction.failed) throw new Error("Failed to broadcast transaction");
+  return broadcastTransaction;
 };

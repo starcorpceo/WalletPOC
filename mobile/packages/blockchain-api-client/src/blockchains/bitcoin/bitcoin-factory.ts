@@ -1,9 +1,10 @@
 import { Factory, ProviderFunctions } from '../../base/factory';
 import { HttpMethod } from '../../base/http';
-import { ApiBalance, ApiFees, ApiTransaction, Network } from '../../base/types';
+import { ApiBalance, ApiBroadcastTransaction, ApiFees, ApiTransaction, Network } from '../../base/types';
 import { blockCypherEndpoints } from '../../provider/blockcypher/bitcoin/blockcypher-bitcoin-endpoints';
 import {
   mapBlockCypherBalance,
+  mapBlockCypherBroadcastTransaction,
   mapBlockCypherFees,
   mapBlockCypherTransactions,
 } from '../../provider/blockcypher/bitcoin/blockcypher-bitcoin-mapper';
@@ -11,11 +12,22 @@ import {
   BlockCyperFees,
   BlockCypherBalance,
   BlockCypherBalanceFull,
+  BlockCypherTransaction,
 } from '../../provider/blockcypher/bitcoin/blockcypher-bitcoin-types';
 import { fetchFromBlockCypher } from '../../provider/blockcypher/http';
 import { tatumEndpoints } from '../../provider/tatum/bitcoin/tatum-bitcoin-endpoints';
-import { mapTatumBalance, mapTatumFees, mapTatumTransactions } from '../../provider/tatum/bitcoin/tatum-bitcoin-mapper';
-import { TatumBalance, TatumFees, TatumTransaction } from '../../provider/tatum/bitcoin/tatum-bitcoin-types';
+import {
+  mapTatumBalance,
+  mapTatumBroadcastTransaction,
+  mapTatumFees,
+  mapTatumTransactions,
+} from '../../provider/tatum/bitcoin/tatum-bitcoin-mapper';
+import {
+  TatumBalance,
+  TatumBroadcastTransaction,
+  TatumFees,
+  TatumTransaction,
+} from '../../provider/tatum/bitcoin/tatum-bitcoin-types';
 import { fetchFromTatum } from '../../provider/tatum/http';
 
 export enum BitcoinProvider {
@@ -53,11 +65,18 @@ export class BitcoinFactory implements Factory {
           method: HttpMethod.POST,
           body: { chain, type, fromUTXO, to },
         }),
+      sendBroadcastTransaction: (txData: string) =>
+        fetchFromBlockCypher<BlockCypherTransaction>(blockCypherEndpoints(this.network).broadcastTransaction(), {
+          method: HttpMethod.POST,
+          body: { tx: txData },
+        }),
     },
     mapper: {
       responseToBalance: (input: ApiBalance) => mapBlockCypherBalance(input as BlockCypherBalance),
       responseToTransactions: (input: ApiTransaction) => mapBlockCypherTransactions(input as BlockCypherBalanceFull),
       responseToFees: (input: ApiFees) => mapBlockCypherFees(input as BlockCyperFees),
+      responseToBroadcastTransaction: (input: ApiBroadcastTransaction) =>
+        mapBlockCypherBroadcastTransaction(input as BlockCypherTransaction),
     },
   };
 
@@ -71,11 +90,18 @@ export class BitcoinFactory implements Factory {
           method: HttpMethod.POST,
           body: { chain, type, fromUTXO, to },
         }),
+      sendBroadcastTransaction: (txData: string) =>
+        fetchFromTatum<TatumBroadcastTransaction>(tatumEndpoints.broadcastTransaction(), this.network, {
+          method: HttpMethod.POST,
+          body: { txData: txData },
+        }),
     },
     mapper: {
       responseToTransactions: (input: ApiTransaction) => mapTatumTransactions(input as TatumTransaction[]),
       responseToBalance: (input: ApiBalance) => mapTatumBalance(input as TatumBalance),
       responseToFees: (input: ApiFees) => mapTatumFees(input as TatumFees),
+      responseToBroadcastTransaction: (input: ApiBroadcastTransaction) =>
+        mapTatumBroadcastTransaction(input as TatumBroadcastTransaction),
     },
   };
 }

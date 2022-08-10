@@ -25,3 +25,8 @@ export interface TatumFees {
   medium: number;
   slow: number;
 }
+
+export interface TatumBroadcastTransaction {
+  txId: string;
+  failed: boolean;
+}

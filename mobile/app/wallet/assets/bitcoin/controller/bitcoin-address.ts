@@ -16,15 +16,14 @@ export const getNextUnusedAddress = async (
     offset: "0",
   });
 
-  let currentIndex = account[chainType].addresses.length - 2; // -2 because index will be increased before first api query
+  let currentIndex = account[chainType].addresses.length - 1; // -2 because index will be increased before first api query
   if (currentIndex < 0) currentIndex = 0;
   let isUsed = true;
   let address;
 
   while (isUsed) {
-    currentIndex++;
     if (currentIndex >= account[chainType].addresses.length) {
-      address = await createAddress(user, account, chainType);
+      address = await createAddress(user, account, chainType, currentIndex);
       const transactions = await bitcoinService.getTransactions(address.address, query, BitcoinProvider.TATUM);
       isUsed = transactions.length == 0 ? false : true;
     } else {
@@ -36,6 +35,7 @@ export const getNextUnusedAddress = async (
       address = account[chainType].addresses[currentIndex];
       isUsed = transactions.length == 0 ? false : true;
     }
+    currentIndex++;
   }
   return address as Address;
 };

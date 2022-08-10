@@ -23,7 +23,6 @@ export const getBalanceFromAccount = async (account: CoinTypeAccount, refresh?: 
 };
 
 export const getBalanceFromAddress = async (address: string): Promise<Balance> => {
-  console.log("fetch Balance from address: ", address);
   const bitcoinService = new BitcoinService("TEST");
   return bitcoinService.getBalance(address, BitcoinProvider.TATUM);
 };

@@ -1,5 +1,5 @@
 import { Service } from '../../base/service';
-import { Balance, Fees, Network, Transaction } from '../../base/types';
+import { Balance, BroadcastTransaction, Fees, Network, Transaction } from '../../base/types';
 import { BitcoinFactory, BitcoinProvider } from './bitcoin-factory';
 
 export class BitcoinService implements Service {
@@ -8,6 +8,20 @@ export class BitcoinService implements Service {
   constructor(network: Network) {
     this.factory = new BitcoinFactory(network);
   }
+
+  /**
+   *
+   * @param txData txData exported from signed bitcoin.PSBT
+   * @param provider Which API should be called
+   * @returns
+   */
+  sendBroadcastTransaction = async (txData: string, provider: BitcoinProvider): Promise<BroadcastTransaction> => {
+    const { mapper, fetcher } = this.factory.getProviderFunctions(provider);
+
+    const apiBroadcastTransaction = await fetcher.sendBroadcastTransaction(txData);
+
+    return mapper.responseToBroadcastTransaction(apiBroadcastTransaction);
+  };
 
   /**
    *

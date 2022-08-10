@@ -10,16 +10,17 @@ import { useRecoilValue } from "recoil";
 import { authState, AuthState } from "state/atoms";
 import { prepareTransactionP2PKH } from "bitcoin/controller/bitcoin-transaction";
 import { signAllInputs } from "bitcoin/controller/bitcoin-signer";
+import { broadcastTransaction } from "bitcoin/controller/bitcoin-transaction";
 
 type Props = NativeStackScreenProps<NavigationRoutes, "SendTransaction">;
 
 const SendTransactionView = ({ route }: Props) => {
   const user = useRecoilValue<AuthState>(authState);
 
-  const [receiverAddres, setReceiverAddres] = useState<string>("mkWwpKSPyQX7jW9jmLX3uuAtwH6etRz9cZ");
-  const [amount, setAmount] = useState<number>(15000);
+  const [receiverAddres, setReceiverAddres] = useState<string>("mysBpjwe1CTW57gYt292hCuJmviWh5GY1T");
+  const [amount, setAmount] = useState<number>(10000);
 
-  const prepareNewTransaction = async () => {
+  const newTransaction = async () => {
     const { account } = route.params;
     try {
       const { preparedTransactions, preparedSigners } = await prepareTransactionP2PKH(
@@ -28,10 +29,29 @@ const SendTransactionView = ({ route }: Props) => {
         receiverAddres,
         amount
       );
+      const finalizedTransaction = await signAllInputs(preparedTransactions, preparedSigners);
+
+      Alert.alert("For real send?", "", [
+        {
+          text: "Go",
+          onPress: () => broadcast(finalizedTransaction),
+        },
+        {
+          text: "Cancel",
+        },
+      ]);
     } catch (err) {
       Alert.alert("You aint got enough money");
     }
-    //const finalizedTransaction = await signAllInputs(preparedTransactions, preparedSigners);
+  };
+
+  const broadcast = async (signedTransaction: any) => {
+    try {
+      await broadcastTransaction(signedTransaction);
+      Alert.alert("Successfully sent.");
+    } catch (err) {
+      Alert.alert("Unable to broadcast transaction");
+    }
   };
 
   return (
@@ -50,7 +70,7 @@ const SendTransactionView = ({ route }: Props) => {
         placeholder="0 Satoshis"
         keyboardType="numeric"
       />
-      <Button onPress={prepareNewTransaction} title="Send" />
+      <Button onPress={newTransaction} title="Send" />
     </>
   );
 };

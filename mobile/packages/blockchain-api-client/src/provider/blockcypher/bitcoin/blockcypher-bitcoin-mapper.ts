@@ -1,5 +1,10 @@
-import { Balance, Fees, Input, Output, Transaction } from '../../../base/types';
-import { BlockCyperFees, BlockCypherBalance, BlockCypherBalanceFull } from './blockcypher-bitcoin-types';
+import { Balance, BroadcastTransaction, Fees, Input, Output, Transaction } from '../../../base/types';
+import {
+  BlockCyperFees,
+  BlockCypherBalance,
+  BlockCypherBalanceFull,
+  BlockCypherTransaction,
+} from './blockcypher-bitcoin-types';
 
 export const mapBlockCypherBalance = (balance: BlockCypherBalance): Balance => {
   return {
@@ -44,4 +49,10 @@ export const mapBlockCypherTransactions = (transaction: BlockCypherBalanceFull):
 //TODO use blockcypher fee endpoint
 export const mapBlockCypherFees = (fees: BlockCyperFees): Fees => {
   return { fast: 0, medium: 0, slow: 0 };
+};
+
+export const mapBlockCypherBroadcastTransaction = (
+  broadcastTransaction: BlockCypherTransaction
+): BroadcastTransaction => {
+  return { txId: '', failed: true };
 };
