@@ -56,6 +56,7 @@ export interface Input {
   sequence: number;
   script: string;
   scriptType: string;
+  coin: Coin;
 }
 
 export interface Coin {

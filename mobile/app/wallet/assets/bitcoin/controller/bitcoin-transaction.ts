@@ -24,10 +24,15 @@ import { BroadcastTransaction } from "../../../../../packages/blockchain-api-cli
  */
 export const getAllTransactionsCache = (account: CoinTypeAccount): Transaction[] => {
   let transactions: Transaction[] = [];
-  account.external.addresses.map((address) => {
-    transactions.push(...address.transactions);
-  });
-  return transactions;
+  account.external.addresses.map((address) =>
+    address.transactions.map((transaction) => {
+      transactions.push(transaction);
+    })
+  );
+  const uniqueTransaction: Transaction[] = [
+    ...new Map(transactions.map((transaction) => [transaction.hash, transaction])).values(),
+  ];
+  return uniqueTransaction;
 };
 
 type PreparedTransactions = {

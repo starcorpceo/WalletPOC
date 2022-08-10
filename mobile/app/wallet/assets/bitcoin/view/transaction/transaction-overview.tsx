@@ -9,6 +9,12 @@ import { Address, Transaction } from "wallet/types/wallet";
 import { getNextUnusedAddress } from "bitcoin/controller/bitcoin-address";
 import { useRecoilValue } from "recoil";
 import { authState, AuthState } from "state/atoms";
+import {
+  getChangeFromUTXOs,
+  getNetValueFromTransaction,
+  getOtherInputs,
+  getOtherOutputs,
+} from "bitcoin/controller/bitcoin-transaction-utils";
 
 type Props = NativeStackScreenProps<NavigationRoutes, "BitcoinTransactions">;
 
@@ -34,17 +40,50 @@ const BitcoinTransactions = ({ route }: Props) => {
   return (
     <>
       <Text>Transactions</Text>
-      {transactions?.map((transaction) => {
-        return (
-          <View>
-            <Text>From: {transaction.outputs[1].address}</Text>
-            <Text>Amount: {transaction.outputs[0].value} Satoshis</Text>
-          </View>
-        );
-      })}
 
       <Button title="Show Address to Receive" onPress={showReceiveAddress} />
       {receiveAddress && <Text>{receiveAddress.address}</Text>}
+
+      <Text></Text>
+      {transactions?.map((transaction) => {
+        const netvalue = getNetValueFromTransaction(transaction, route.params.account);
+        const otherInputs = getOtherInputs(transaction, route.params.account);
+        const otherOutputs = getOtherOutputs(transaction, route.params.account);
+        return (
+          <View style={{ backgroundColor: "lightgrey", marginBottom: 20 }}>
+            {netvalue < 0 ? (
+              otherOutputs.length <= 0 ? (
+                <>
+                  <Text>Sent to yourself stupid</Text>
+                </>
+              ) : (
+                <>
+                  <Text>To:</Text>
+                  <Text>
+                    {otherOutputs.map((otherOutput) => {
+                      return otherOutput.address;
+                    })}
+                  </Text>
+                </>
+              )
+            ) : (
+              otherInputs.length > 0 && (
+                <>
+                  <Text>From:</Text>
+                  <Text>
+                    {otherInputs.map((otherInput) => {
+                      return otherInput.coin.address;
+                    })}
+                  </Text>
+                </>
+              )
+            )}
+            <Text></Text>
+            <Text style={{ color: netvalue < 0 ? "red" : "green" }}>Amount: {netvalue} Satoshis</Text>
+            <Text></Text>
+          </View>
+        );
+      })}
     </>
   );
 };

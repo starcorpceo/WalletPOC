@@ -9,174 +9,6 @@ import endpoints from "../blockchain/endpoints";
 import { BitcoinWallet } from "../types/bitcoin";
 import { getAllTransactionsCache } from "./bitcoin-transaction";
 
-// TODO rework after now transactions have to be built from all external and internal addresses
-
-// export const getBalance = (address: string): Promise<Balance> => {
-//   return fetchFromTatum<Balance>(endpoints.bitcoin.balance(address));
-// };
-
-export const broadcastTransaction = (hex: string): Promise<any> => {
-  return fetchFromTatum<any>(endpoints.bitcoin.broadcastTransaction(), {
-    method: HttpMethod.POST,
-    body: { txData: hex },
-  });
-};
-
-export const getLatestTransactions = (
-  address: string,
-  pageSize: number = 10,
-  offset: number = 0
-): Promise<Transaction[]> => {
-  const query = new URLSearchParams({
-    pageSize: pageSize.toString(),
-    offset: offset.toString(),
-  });
-
-  return fetchFromTatum<Transaction[]>(endpoints.bitcoin.transaction(address, query));
-};
-
-// export const getNetValue = (address: string, transaction: Transaction): number => {
-//   var fullValueInput = 0;
-//   var fullValueReturn = 0;
-
-//   transaction.inputs.forEach((input) => {
-//     if (input.coin.address == address) {
-//       fullValueInput += input.coin.value;
-//     }
-//   });
-
-//   transaction.outputs.forEach((output) => {
-//     if (output.address == address) {
-//       fullValueReturn += output.value;
-//     }
-//   });
-
-//   return -fullValueInput + fullValueReturn;
-// };
-
-export const getUnspentTransactions = async (transactions: Transaction[], address: string): Promise<UTXO[]> => {
-  const unspent = Promise.all(
-    transactions.flatMap((transaction: Transaction) =>
-      transaction.outputs.map(async (output: Output, index) => {
-        if (!isTransactionSpent(transaction, wallet) && output.address === address)
-          return fetchFromTatum<UTXO>(endpoints.bitcoin.utxo(transaction.hash, index));
-      })
-    )
-  );
-
-  return (await unspent).filter((out): out is UTXO => !!out);
-};
-
-export const getUnspentTransactionsSync = (wallet: CoinTypeAccount) => {
-  const unspent = wallet.transactions.flatMap((transaction: Transaction) =>
-    transaction.outputs.map(
-      (output: Output) =>
-        !isTransactionSpent(transaction, wallet) && output.address === wallet.config.address && transaction
-    )
-  );
-
-  return unspent.filter((transaction): transaction is Transaction => !!transaction);
-};
-
-const isTransactionSpent = (transaction: Transaction, allTransactions: Transaction[]): boolean =>
-  allTransactions.some((searchTransaction: Transaction) =>
-    searchTransaction.inputs.find((input: Input) => input.prevout.hash === transaction.hash)
-  );
-
-// const getChangeFromUTXO = (transaction: Transaction, address: string): number => {
-//   const change = transaction.outputs.find((output: Output) => output.address === address);
-
-//   return change?.value || 0;
-// };
-
-// const getChangeValueFromUTXOs = (transactions: Transaction[], address: string): number => {
-//   return transactions.reduce((prev, curr) => {
-//     return prev + getChangeFromUTXO(curr, address);
-//   }, 0);
-// };
-
-const estimateFeeFromUTXO = (from: Transaction[], to: Transaction[]): Promise<Fees> => {
-  const fromUTXO = from.flatMap;
-  return fetchFromTatum<Fees>(endpoints.bitcoin.fees(), {
-    method: HttpMethod.POST,
-    body: { chain: "BTC", type: "TRANSFER", fromUTXO: [], to: [] },
-  });
-};
-
-export const prepareTransaction = (
-  wallet: BitcoinWallet,
-  user: User,
-  toAddress: string,
-  value: number
-): bitcoin.Psbt => {
-  const fee = 500; //TODO satoshis fee, should be loaded from api
-  const from = getUTXOByValue(wallet, value); //working
-
-  const psbt = new bitcoin.Psbt({ network: config.BCNetwork });
-
-  //add transaction input - oldest utxos with enough value
-  from.map((transaction) => {
-    psbt.addInput({
-      hash: transaction.hash,
-      index: getChangeIndexFromTransaction(wallet, transaction),
-      nonWitnessUtxo: Buffer.from(transaction.hex, "hex"),
-    });
-  });
-
-  //output reciever address
-  psbt.addOutput({
-    address: toAddress,
-    value: value,
-  });
-
-  //change
-  //TODO derive change address
-  psbt.addOutput({
-    address: wallet.config.address,
-    value: getChangeValueFromUTXOs(from, wallet) - value - fee,
-  });
-
-  return psbt;
-};
-
-export const signTransaction = async (
-  transaction: bitcoin.Psbt,
-  signer: bitcoin.SignerAsync
-): Promise<bitcoin.Psbt> => {
-  await transaction.signAllInputsAsync(signer);
-  const validated = transaction.validateSignaturesOfAllInputs();
-  console.log("Input signatures look ok: ", validated);
-  transaction.finalizeAllInputs();
-
-  return transaction;
-};
-
-// export const prepareSigner = (wallet: BitcoinWallet, user: User): bitcoin.SignerAsync => {
-//   const ec: bitcoin.SignerAsync = {
-//     publicKey: wallet.config.publicKey as Buffer,
-//     sign: async (hash: Buffer) =>
-//       Buffer.from([
-//         ...Buffer.from(
-//           await signEcdsa(
-//             user.devicePublicKey,
-//             user.id,
-//             wallet.mpcWallet.id,
-//             wallet.mpcWallet.keyShare,
-//             hash.toString("base64"),
-//             "base64"
-//           ),
-//           "base64"
-//         ),
-//         0x01,
-//       ]),
-//   };
-//   return ec;
-// };
-
-const getChangeIndexFromTransaction = (wallet: BitcoinWallet, transaction: Transaction): number => {
-  return transaction.outputs.findIndex((output) => output.address === wallet.config.address);
-};
-
 //New adopted functions
 //---------------------------------------
 //---------------------------------------
@@ -305,4 +137,78 @@ export const getChangeFromUTXOs = (transactions: Transaction[], account: CoinTyp
   return transactions.reduce((prev, curr) => {
     return prev + getChangeFromUTXO(curr, account);
   }, 0);
+};
+
+/**
+ * Get all inputs which are from other addresses than own account
+ * @param transaction
+ * @param account
+ * @returns
+ */
+export const getOtherInputs = (transaction: Transaction, account: CoinTypeAccount): Input[] => {
+  const otherInputs = transaction.inputs.filter(
+    (input: Input) =>
+      !(
+        account.external.addresses.some((address: Address) => address.address === input.coin.address) ||
+        account.internal.addresses.some((address: Address) => address.address === input.coin.address)
+      )
+  );
+  return otherInputs;
+};
+
+/**
+ * Get all outputs which are from other addresses than own account
+ * @param transaction
+ * @param account
+ * @returns
+ */
+export const getOtherOutputs = (transaction: Transaction, account: CoinTypeAccount): Output[] => {
+  const otherOutputs = transaction.outputs.filter(
+    (output: Output) =>
+      !(
+        account.external.addresses.some((address: Address) => address.address === output.address) ||
+        account.internal.addresses.some((address: Address) => address.address === output.address)
+      )
+  );
+  return otherOutputs;
+};
+
+/**
+ * Calculates net value of a transaction
+ * @param transaction
+ * @param account
+ * @returns
+ */
+export const getNetValueFromTransaction = (transaction: Transaction, account: CoinTypeAccount): number => {
+  const ownInputs = transaction.inputs.filter(
+    (input: Input) =>
+      account.external.addresses.some((address: Address) => address.address === input.coin.address) ||
+      account.internal.addresses.some((address: Address) => address.address === input.coin.address)
+  );
+  const otherInputs = getOtherInputs(transaction, account);
+
+  const ownOutputs = transaction.outputs.filter(
+    (output: Output) =>
+      account.external.addresses.some((address: Address) => address.address === output.address) ||
+      account.internal.addresses.some((address: Address) => address.address === output.address)
+  );
+  const otherOutputs = getOtherOutputs(transaction, account);
+
+  const ownInputValue = ownInputs.reduce((prev, curr) => {
+    return prev + curr.coin.value;
+  }, 0);
+
+  const otherInputValue = otherInputs.reduce((prev, curr) => {
+    return prev + curr.coin.value;
+  }, 0);
+
+  const ownOutputValue = ownOutputs.reduce((prev, curr) => {
+    return prev + curr.value;
+  }, 0);
+
+  const otherOutputValue = ownOutputs.reduce((prev, curr) => {
+    return prev + curr.value;
+  }, 0);
+
+  return ownOutputValue - ownInputValue;
 };
