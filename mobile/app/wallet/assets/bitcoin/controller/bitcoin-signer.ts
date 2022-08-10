@@ -34,6 +34,7 @@ export const signAllInputs = async (
     await preparedTransaction.signInputAsync(i, preparedSigners[i]);
   }
   const validated = preparedTransaction.validateSignaturesOfAllInputs();
+  console.log("Transaction valid: ", validated);
   preparedTransaction.finalizeAllInputs();
   return preparedTransaction;
 };

@@ -1,7 +1,7 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { getTransactions } from "bitcoin/controller/virtual/bitcoin-virtual-wallet";
 import React, { useEffect, useState } from "react";
-import { Button, StyleSheet, Text, TextInput, View } from "react-native";
+import { Alert, Button, StyleSheet, Text, TextInput, View } from "react-native";
 import { VirtualAccount, VirtualTransaction } from "wallet/types/virtual-wallet";
 import { NavigationRoutes } from "shared/types/navigation";
 import { Address, Transaction } from "wallet/types/wallet";
@@ -21,13 +21,17 @@ const SendTransactionView = ({ route }: Props) => {
 
   const prepareNewTransaction = async () => {
     const { account } = route.params;
-    const { preparedTransactions, preparedSigners } = await prepareTransactionP2PKH(
-      user,
-      account,
-      receiverAddres,
-      amount
-    );
-    const finalizedTransaction = await signAllInputs(preparedTransactions, preparedSigners);
+    try {
+      const { preparedTransactions, preparedSigners } = await prepareTransactionP2PKH(
+        user,
+        account,
+        receiverAddres,
+        amount
+      );
+    } catch (err) {
+      Alert.alert("You aint got enough money");
+    }
+    //const finalizedTransaction = await signAllInputs(preparedTransactions, preparedSigners);
   };
 
   return (

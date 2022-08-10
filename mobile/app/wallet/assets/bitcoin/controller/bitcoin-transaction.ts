@@ -74,6 +74,10 @@ export const prepareTransactionP2PKH = async (
   //generate own unused internal change address
   const unusedAddress: Address = await getNextUnusedAddress(user, account, "internal");
 
+  //change value without fees
+  let changeValue = getChangeFromUTXOs(utxos, account) - amount;
+  if (changeValue < 0) throw new Error("Insufficient funds before fees");
+
   //calculate fees for transaction
   const bitcoinService = new BitcoinService("TEST");
   const fees: Fees = await bitcoinService.getFees(
@@ -84,15 +88,19 @@ export const prepareTransactionP2PKH = async (
     }),
     [
       { address: address, value: amount },
-      { address: unusedAddress.address, value: getChangeFromUTXOs(utxos, account) - amount },
+      { address: unusedAddress.address, value: changeValue },
     ],
     BitcoinProvider.TATUM
   );
 
+  //check if user have sufficient funds
+  changeValue = changeValue - BitcoinToSatoshis(fees.medium);
+  if (changeValue < 0) throw new Error("Insufficient funds after medium fees - could lower fees");
+
   //add change address and calculated return value to output
   psbt.addOutput({
     address: unusedAddress.address,
-    value: getChangeFromUTXOs(utxos, account) - amount - BitcoinToSatoshis(fees.medium),
+    value: changeValue,
   });
 
   return { preparedTransactions: psbt, preparedSigners: signers };

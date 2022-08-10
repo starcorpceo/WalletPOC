@@ -233,7 +233,6 @@ export const getUTXOByValueCache = (
     },
     { transactions: [] as Transaction[], accumulatedValue: 0 }
   );
-
   return transactions;
 };
 
@@ -248,6 +247,8 @@ const isSTXO = (transaction: Transaction, account: CoinTypeAccount): boolean =>
     searchTransaction.inputs.find((input: Input) => input.prevout.hash === transaction.hash)
   );
 
+//TODO check if code to check also internal can not cause problems
+
 /**
  * find change (value in satoshis) from utxo to use in new transaction
  * @param utxo
@@ -255,8 +256,10 @@ const isSTXO = (transaction: Transaction, account: CoinTypeAccount): boolean =>
  * @returns
  */
 const getChangeFromUTXO = (utxo: Transaction, account: CoinTypeAccount): number => {
-  const change = utxo.outputs.find((output: Output) =>
-    account.external.addresses.map((address: Address) => address.address === output.address)
+  const change = utxo.outputs.find(
+    (output: Output) =>
+      account.external.addresses.some((address: Address) => address.address === output.address) ||
+      account.internal.addresses.some((address: Address) => address.address === output.address)
   );
   return change?.value || 0;
 };
@@ -268,9 +271,13 @@ const getChangeFromUTXO = (utxo: Transaction, account: CoinTypeAccount): number 
  * @returns
  */
 export const getAddressFromUTXOOutput = (utxo: Transaction, account: CoinTypeAccount): Address => {
-  const address = account.external.addresses.find((address: Address) =>
+  let address = account.external.addresses.find((address: Address) =>
     utxo.outputs.some((output: Output) => address.address === output.address)
   );
+  if (!address)
+    account.internal.addresses.find((address: Address) =>
+      utxo.outputs.some((output: Output) => address.address === output.address)
+    );
   return address!;
 };
 
@@ -281,8 +288,10 @@ export const getAddressFromUTXOOutput = (utxo: Transaction, account: CoinTypeAcc
  * @returns
  */
 export const getChangeIndexFromUTXO = (utxo: Transaction, account: CoinTypeAccount): number => {
-  return utxo.outputs.findIndex((output: Output) =>
-    account.external.addresses.some((address: Address) => address.address === output.address)
+  return utxo.outputs.findIndex(
+    (output: Output) =>
+      account.external.addresses.some((address: Address) => address.address === output.address) ||
+      account.internal.addresses.some((address: Address) => address.address === output.address)
   );
 };
 
