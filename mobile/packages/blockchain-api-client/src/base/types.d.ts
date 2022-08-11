@@ -1,17 +1,19 @@
+import { BlockCypherTransaction } from '../provider/blockcypher/bitcoin/blockcypher-bitcoin-types';
+import { TatumBroadcastTransaction } from '../provider/tatum/bitcoin/tatum-bitcoin-types';
 import { BitcoinProvider } from './blockchains/bitcoin/bitcoin-factory';
 import {
   BlockCypherBalance,
   BlockCypherBalanceFull,
+  BlockCyperFees,
 } from './provider/blockcypher/bitcoin/blockcypher-bitcoin-types';
-import {
-  TatumBalance,
-  TatumTransaction,
-} from './provider/tatum/bitcoin/tatum-bitcoin-types';
+import { TatumBalance, TatumTransaction, TatumFees } from './provider/tatum/bitcoin/tatum-bitcoin-types';
 
 export type Provider = BitcoinProvider;
 
 export type ApiBalance<T = BlockCypherBalance | TatumBalance> = T;
 export type ApiTransaction<T = BlockCypherBalanceFull | TatumTransaction[]> = T;
+export type ApiFees<T = BlockCyperFees | TatumFees> = T;
+export type ApiBroadcastTransaction<T = BlockCypherTransaction | TatumBroadcastTransaction> = T;
 
 export interface TransactionRequest {}
 
@@ -48,6 +50,7 @@ export interface Input {
   sequence: number;
   script: string;
   scriptType: string;
+  coin: Coin;
 }
 
 export interface Coin {
@@ -92,4 +95,9 @@ export interface Fees {
   fast: number;
   medium: number;
   slow: number;
+}
+
+export interface BroadcastTransaction {
+  txId: string;
+  failed: boolean;
 }

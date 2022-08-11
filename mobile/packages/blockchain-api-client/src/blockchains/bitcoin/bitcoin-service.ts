@@ -1,5 +1,5 @@
 import { Service } from '../../base/service';
-import { Balance, Network, Transaction } from '../../base/types';
+import { Balance, BroadcastTransaction, Fees, Network, Transaction } from '../../base/types';
 import { BitcoinFactory, BitcoinProvider } from './bitcoin-factory';
 
 export class BitcoinService implements Service {
@@ -11,14 +11,25 @@ export class BitcoinService implements Service {
 
   /**
    *
+   * @param txData txData exported from signed bitcoin.PSBT
+   * @param provider Which API should be called
+   * @returns
+   */
+  sendBroadcastTransaction = async (txData: string, provider: BitcoinProvider): Promise<BroadcastTransaction> => {
+    const { mapper, fetcher } = this.factory.getProviderFunctions(provider);
+
+    const apiBroadcastTransaction = await fetcher.sendBroadcastTransaction(txData);
+
+    return mapper.responseToBroadcastTransaction(apiBroadcastTransaction);
+  };
+
+  /**
+   *
    * @param address Address of the KeyPair of which we want to know the balance from
    * @param provider Which API should be called
    * @returns
    */
-  getBalance = async (
-    address: string,
-    provider: BitcoinProvider
-  ): Promise<Balance> => {
+  getBalance = async (address: string, provider: BitcoinProvider): Promise<Balance> => {
     const { mapper, fetcher } = this.factory.getProviderFunctions(provider);
 
     const apiBalance = await fetcher.fetchBalance(address);
@@ -45,5 +56,29 @@ export class BitcoinService implements Service {
     const apiTransactions = await fetcher.fetchTransactions(address, query);
 
     return mapper.responseToTransactions(apiTransactions);
+  };
+
+  /**
+   *
+   * @param chain Chain to lookup fees ex.: BTC
+   * @param type Type what the transaction will do ex.: TRANSFER
+   * @param fromUTXO UTXOs in input (txHash and index)
+   * @param to Addresses and value in output
+   * TATUM: https://apidoc.tatum.io/tag/Blockchain-fees#operation/EstimateFeeBlockchain
+   * @param provider Which API should be called
+   * @returns
+   */
+  getFees = async (
+    chain: string,
+    type: string,
+    fromUTXO: any[],
+    to: any[],
+    provider: BitcoinProvider
+  ): Promise<Fees> => {
+    const { mapper, fetcher } = this.factory.getProviderFunctions(provider);
+
+    const apiFees = await fetcher.fetchFees(chain, type, fromUTXO, to);
+
+    return mapper.responseToFees(apiFees);
   };
 }

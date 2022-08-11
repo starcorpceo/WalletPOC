@@ -1,7 +1,7 @@
 import * as bitcoin from "der-bitcoinjs-lib";
 import "shim";
 
-const Network: "TEST" | "Main" = "TEST";
+const Network: "TEST" | "MAIN" = "TEST";
 
 const isTestNet = Network === "TEST";
 

@@ -4,14 +4,10 @@ import { signWithDeviceKey } from "lib/auth";
 import { fetchFromApi, HttpMethod } from "lib/http";
 import React, { useCallback, useEffect } from "react";
 import { Button, Text, View } from "react-native";
-import {
-  deleteKeyPair,
-  generateKeyPair,
-  getKey,
-} from "react-native-secure-encryption-module";
+import { deleteKeyPair, generateKeyPair, getKey } from "react-native-secure-encryption-module";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { AuthState, authState, initialAuthState } from "state/atoms";
-import { getAllWallets, useResetWalletState } from "state/utils";
+import { getAllWallets, useResetWalletState } from "wallet/state/wallet-state-utils";
 import constants, { emptyKeyPair } from "../config/constants";
 import { KeyShareType } from "./types/mpc";
 
@@ -29,14 +25,10 @@ const Header = () => {
   const initUser = useCallback(async () => {
     getKey(constants.deviceKeyName)
       .then((devicePublicKey) => {
-        console.log(
-          "Key already exists it is assumed this phone already has a user in store"
-        );
+        console.log("Key already exists it is assumed this phone already has a user in store");
       })
       .catch(async () => {
-        const newDevicePublicKey = await generateKeyPair(
-          constants.deviceKeyName
-        );
+        const newDevicePublicKey = await generateKeyPair(constants.deviceKeyName);
 
         createProfile(newDevicePublicKey);
       });
@@ -78,14 +70,11 @@ const Header = () => {
 };
 
 const createNewProfile = async (devicePublicKey: string): Promise<User> => {
-  const { nonce, userId } = await fetchFromApi<CreateUserResponse>(
-    "/user/create",
-    {
-      body: {
-        devicePublicKey,
-      },
-    }
-  );
+  const { nonce, userId } = await fetchFromApi<CreateUserResponse>("/user/create", {
+    body: {
+      devicePublicKey,
+    },
+  });
 
   const deviceSignature = await signWithDeviceKey(nonce);
 

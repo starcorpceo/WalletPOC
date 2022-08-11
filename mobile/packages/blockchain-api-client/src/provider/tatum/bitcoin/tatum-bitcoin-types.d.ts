@@ -19,3 +19,14 @@ export interface TatumTransaction {
   weight: number;
   witnessHash: string;
 }
+
+export interface TatumFees {
+  fast: number;
+  medium: number;
+  slow: number;
+}
+
+export interface TatumBroadcastTransaction {
+  txId: string;
+  failed: boolean;
+}

@@ -1,63 +1,24 @@
-import { mpcPublicKeyToBitcoinAddress } from "bitcoin/controller/bitcoinjs-adapter";
 import { BitcoinWalletsState, bitcoinWalletsState } from "bitcoin/state/atoms";
-import React, { useCallback } from "react";
+import { BitcoinWallet } from "bitcoin/types/bitcoin";
+import React from "react";
 import { Button, StyleSheet, Text, View } from "react-native";
 import { useRecoilValue, useSetRecoilState } from "recoil";
-import { KeyShareType } from "shared/types/mpc";
 import { AuthState, authState } from "state/atoms";
-import { createAddress } from "wallet/controller/creation/account-creation";
-import { deriveMpcKeyShare } from "wallet/controller/creation/derived-share-creation";
-import { VirtualAccount } from "wallet/types/virtual-wallet";
-import { AccountChange } from "wallet/types/wallet";
+import { createAddress } from "wallet/controller/creation/address-creation";
+import { useAddAddress } from "wallet/state/wallet-state-utils";
 
 type CreateBitcoinWalletProps = {
-  external: AccountChange;
-  index: number;
-  virtualAccount: VirtualAccount;
+  wallet: BitcoinWallet;
 };
 
-const CreateBitcoinAdress = ({
-  external,
-  index,
-  virtualAccount,
-}: CreateBitcoinWalletProps) => {
+const CreateBitcoinAdress = ({ wallet }: CreateBitcoinWalletProps) => {
   const user = useRecoilValue<AuthState>(authState);
-  const setBitcoin =
-    useSetRecoilState<BitcoinWalletsState>(bitcoinWalletsState);
+  const setAddAddress = useAddAddress(bitcoinWalletsState);
 
-  const startGenerate = useCallback(async () => {
-    const newAddressShare = await deriveMpcKeyShare(
-      external.keyShare,
-      user,
-      external.addresses.length.toString(),
-      false,
-      KeyShareType.ADDRESS
-    );
-
-    const newAddress = await createAddress(
-      newAddressShare,
-      virtualAccount,
-      mpcPublicKeyToBitcoinAddress
-    );
-
-    setBitcoin((current) => {
-      return {
-        ...current,
-        accounts: [
-          {
-            ...current.accounts[index],
-            external: {
-              ...current.accounts[index].external,
-              addresses: [
-                ...current.accounts[index].external.addresses,
-                newAddress,
-              ],
-            },
-          },
-        ],
-      };
-    });
-  }, [user, setBitcoin, external]);
+  const startGenerate = async () => {
+    const address = await createAddress(user, wallet, "external");
+    setAddAddress([address], wallet, "external");
+  };
 
   return (
     <View

@@ -20,7 +20,9 @@ export interface AccountChange {
 export interface Address {
   keyShare: AddressKeyShare;
   address: string;
-  publicKey: string;
+  publicKey: Buffer;
+  transactions: Transaction[];
+  balance: Balance;
 }
 
 export interface Balance {
@@ -54,6 +56,7 @@ export interface Input {
   sequence: number;
   script: string;
   scriptType: string;
+  coin: Coin;
 }
 
 export interface Coin {

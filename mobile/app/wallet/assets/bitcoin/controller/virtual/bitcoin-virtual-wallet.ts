@@ -10,12 +10,12 @@ import {
   VirtualBalance,
   VirtualTransaction,
 } from "wallet/types/virtual-wallet";
-import endpoints from "../blockchain/endpoints";
-import { mpcPublicKeyToBitcoinAddress } from "./bitcoinjs-adapter";
+import endpoints from "../../blockchain/endpoints";
+import { publicKeyToBitcoinAddressP2PKH } from "bitcoin/controller/adapter/bitcoin-adapter";
 
 export const connectVirtualAccount = async (keyShare: MPCEcdsaKeyShare): Promise<VirtualAccount> => {
   const onlyTatumConnectionUsedPublicKey = await getPublicKey(keyShare.keyShare);
-  const tatumConnectionAddress = mpcPublicKeyToBitcoinAddress(onlyTatumConnectionUsedPublicKey);
+  const tatumConnectionAddress = publicKeyToBitcoinAddressP2PKH(onlyTatumConnectionUsedPublicKey);
 
   const { tatumId } = await fetchFromApi<GetTatumConnectionResponse>(
     "/tatum/connection/get?accountAddress=" + tatumConnectionAddress
