@@ -39,7 +39,7 @@ const Bitcoin = ({ navigation }: Props) => {
         .then((builder) => builder.createChange("external"))
         .then((builder) => builder.build());
 
-      setBitcoin(() => newState);
+      setBitcoin(() => newState as BitcoinWalletsState);
       await loadUsedAddresses(newState);
       //TODO also load balances here
     };

@@ -31,11 +31,10 @@ const Ethereum = ({ navigation }: Props) => {
         .init()
         .then((builder) => builder.useCoinTypeShare(purposeKeyShare, ethereumState.coinTypeKeyShare))
         .then((builder) => builder.createAccount(false))
-        .then((builder) => builder.createChange("internal"))
         .then((builder) => builder.createChange("external"))
         .then((builder) => builder.build());
 
-      setEthereum(() => newState as EthereumWalletsState);
+      setEthereum(() => newState);
     };
 
     onOpen();

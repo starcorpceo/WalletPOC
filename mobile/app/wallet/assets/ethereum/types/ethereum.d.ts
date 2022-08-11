@@ -1,5 +1,3 @@
 import { CoinTypeAccount } from "wallet/types/wallet";
 
-export interface EthereumWallet extends CoinTypeAccount {
-  ethBalance: number;
-}
+export interface EthereumWallet extends CoinTypeAccount {}

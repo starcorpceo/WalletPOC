@@ -26,13 +26,6 @@ const BitcoinWalletView = ({ wallet, index }: BitcoinWalletProps) => {
           </>
         ))}
       </View>
-      {/* <BitcoinBalance updateBalance={updateBalance} wallet={wallet} /> */}
-      {/*  <BitcoinTransactions
-    //     updateTransactions={updateTransactions}
-    //     wallet={wallet}
-    //   />
-    //   <SendBitcoin user={auth} wallet={wallet} />
-    //   <BitcoinVirtualAccount wallet={wallet} /> */}
     </View>
   );
 };

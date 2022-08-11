@@ -8,7 +8,7 @@ import { Address } from "wallet/types/wallet";
 
 export const prepareSingleSigner = (user: User, address: Address): bitcoin.SignerAsync => {
   const ec: bitcoin.SignerAsync = {
-    publicKey: address.publicKey as Buffer,
+    publicKey: Buffer.from(address.publicKey, "base64"),
     sign: async (hash: Buffer) =>
       Buffer.from([
         ...Buffer.from(

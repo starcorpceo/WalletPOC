@@ -1,5 +1,6 @@
+import { BitcoinTransaction, Input, Output } from "packages/blockchain-api-client/src/blockchains/bitcoin/types";
 import "shim";
-import { Address, BitcoinTransaction, CoinTypeAccount, Input, Output } from "wallet/types/wallet";
+import { Address, CoinTypeAccount } from "wallet/types/wallet";
 import { getAllTransactionsCache } from "./bitcoin-transaction";
 
 /**
@@ -18,7 +19,9 @@ export const getUTXOsCache = (account: CoinTypeAccount): BitcoinTransaction[] =>
     ...utxosExternal.filter((transaction): transaction is BitcoinTransaction => !!transaction),
     ...utxosInternal.filter((transaction): transaction is BitcoinTransaction => !!transaction),
   ];
-  return utxos;
+
+  const uniqueUtxos: BitcoinTransaction[] = [...new Map(utxos.map((utxo) => [utxo.hash, utxo])).values()];
+  return uniqueUtxos;
 };
 
 /**

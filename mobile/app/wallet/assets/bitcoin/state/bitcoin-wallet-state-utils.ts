@@ -1,6 +1,7 @@
+import { BitcoinBalance } from "packages/blockchain-api-client/src/blockchains/bitcoin/types";
 import { useSetRecoilState } from "recoil";
 import { getAccountIndex } from "wallet/state/wallet-state-utils";
-import { BitcoinBalance, CoinTypeAccount } from "wallet/types/wallet";
+import { CoinTypeAccount } from "wallet/types/wallet";
 
 export const useUpdateAccountBalance = (state: any) => {
   const setCoinState = useSetRecoilState(state);

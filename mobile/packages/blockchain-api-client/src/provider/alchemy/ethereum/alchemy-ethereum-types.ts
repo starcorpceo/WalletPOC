@@ -2,6 +2,7 @@ export type AlchemyResult<T> = {
   jsonrpc: string;
   id: number;
   result: T;
+  error?: string;
 };
 
 export type AlchemyBalance = AlchemyResult<string>;

@@ -1,6 +1,7 @@
-import { Address, Balance, CoinTypeAccount } from "wallet/types/wallet";
-import { BitcoinService } from "../../../../../packages/blockchain-api-client/src";
-import { BitcoinProvider } from "../../../../../packages/blockchain-api-client/src/blockchains/bitcoin/bitcoin-factory";
+import { BitcoinService } from "packages/blockchain-api-client/src";
+import { BitcoinProviderEnum } from "packages/blockchain-api-client/src/blockchains/bitcoin/bitcoin-factory";
+import { BitcoinBalance } from "packages/blockchain-api-client/src/blockchains/bitcoin/types";
+import { Address, CoinTypeAccount } from "wallet/types/wallet";
 import { BitcoinToSatoshis } from "./bitcoin-utils";
 
 /**
@@ -10,8 +11,8 @@ import { BitcoinToSatoshis } from "./bitcoin-utils";
  * @param refresh
  * @returns
  */
-export const getBalanceFromAccount = async (account: CoinTypeAccount, refresh?: boolean): Promise<Balance> => {
-  let balance: Balance = { incoming: 0, outgoing: 0 };
+export const getBalanceFromAccount = async (account: CoinTypeAccount, refresh?: boolean): Promise<BitcoinBalance> => {
+  let balance: BitcoinBalance = { incoming: 0, outgoing: 0 };
   for (const address of account.external.addresses) {
     balance = await addToBalance(address, balance);
   }
@@ -26,9 +27,9 @@ export const getBalanceFromAccount = async (account: CoinTypeAccount, refresh?: 
  * @param address
  * @returns
  */
-export const getBalanceFromAddress = async (address: string): Promise<Balance> => {
+export const getBalanceFromAddress = async (address: string): Promise<BitcoinBalance> => {
   const bitcoinService = new BitcoinService("TEST");
-  return bitcoinService.getBalance(address, BitcoinProvider.TATUM);
+  return bitcoinService.getBalance(address, BitcoinProviderEnum.TATUM);
 };
 
 /**
@@ -37,8 +38,8 @@ export const getBalanceFromAddress = async (address: string): Promise<Balance> =
  * @param balance
  * @returns
  */
-const addToBalance = async (address: Address, balance: Balance): Promise<Balance> => {
-  const newBalance: Balance = { incoming: 0, outgoing: 0 };
+const addToBalance = async (address: Address, balance: BitcoinBalance): Promise<BitcoinBalance> => {
+  const newBalance: BitcoinBalance = { incoming: 0, outgoing: 0 };
   const addressBalance = await getBalanceFromAddress(address.address);
   newBalance.incoming = Number(balance.incoming) + Number(BitcoinToSatoshis(addressBalance.incoming));
   newBalance.outgoing = Number(balance.outgoing) + Number(BitcoinToSatoshis(addressBalance.outgoing));

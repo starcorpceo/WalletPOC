@@ -25,7 +25,13 @@ const EthereumWalletView = ({ wallet, updateWallet, index }: EthereumWalletProps
   const updateBalance = useCallback(async () => {
     const balance = await service.getBalance(wallet.external.addresses[0].address, EthereumProviderEnum.ALCHEMY);
 
-    updateWallet({ ...wallet, ethBalance: balance.value }, index);
+    updateWallet(
+      {
+        ...wallet,
+        external: { ...wallet.external, addresses: [{ ...wallet.external.addresses[0], balance: balance.value }] },
+      },
+      index
+    );
   }, [index, updateWallet, service]);
 
   const updateTransactions = useCallback(async () => {
@@ -59,7 +65,7 @@ const EthereumWalletView = ({ wallet, updateWallet, index }: EthereumWalletProps
           <Text>Addr: {addr.address}</Text>
         </View>
       ))}
-      <EthereumBalance updateBalance={updateBalance} wallet={wallet} />
+      <EthereumBalance updateBalance={updateBalance} address={wallet.external.addresses[0]} />
       <EthereumTransactions updateTransactions={updateTransactions} wallet={wallet} />
       <SendEthereum user={user} wallet={wallet} service={service} />
     </View>

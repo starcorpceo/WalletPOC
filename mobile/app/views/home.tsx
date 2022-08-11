@@ -9,7 +9,7 @@ import { KeyShareType } from "shared/types/mpc";
 import { NavigationRoutes } from "shared/types/navigation";
 import "shim";
 import { AuthState, authState } from "state/atoms";
-import { useResetWalletState } from "state/utils";
+import { useResetWalletState } from "wallet/state/wallet-state-utils";
 import GenerateMasterAndPurpose from "wallet/view/create/generate-master-and-purpose";
 import ImportMasterAndPurpose from "wallet/view/create/import-master-and-purpose";
 

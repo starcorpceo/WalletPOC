@@ -16,7 +16,7 @@ type SendEthereumProps = {
 };
 
 const SendEthereum = ({ user, wallet, service }: SendEthereumProps) => {
-  const [gWeis, setGWeis] = useState<number>(500);
+  const [gWeis, setGWeis] = useState<string>("500");
   const [toAddress, setToAddress] = useState<string>("0x49e749dc596ebb62b724262928d0657f8950a7d7");
 
   const sendTransaction = useCallback(async () => {
@@ -26,7 +26,12 @@ const SendEthereum = ({ user, wallet, service }: SendEthereumProps) => {
       const address = wallet.external.addresses[0];
       const transactionCount = await service.getTransactionCount(address.address, EthereumProviderEnum.ALCHEMY);
 
-      const transaction = await buildRawTransaction(toAddress, gWeiToWei(gWeis), transactionCount, gasPrice);
+      const transaction = await buildRawTransaction(
+        toAddress,
+        gWeiToWei(Number.parseFloat(gWeis)),
+        transactionCount,
+        gasPrice
+      );
       const finalRawTransaction = await getSignedRawTransaction(user, address, transaction);
 
       console.log("valid " + transaction.validate());
@@ -52,7 +57,7 @@ const SendEthereum = ({ user, wallet, service }: SendEthereumProps) => {
           <TextInput placeholder="to" onChangeText={setToAddress} value={toAddress}></TextInput>
           <TextInput
             placeholder="0 Wei"
-            onChangeText={(value) => setGWeis(Number(value))}
+            onChangeText={(value) => setGWeis(value)}
             value={gWeis?.toString()}
           ></TextInput>
           <Text>GWeis</Text>

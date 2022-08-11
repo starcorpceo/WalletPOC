@@ -6,12 +6,13 @@ import {
   getOtherInputs,
   getOtherOutputs,
 } from "bitcoin/controller/bitcoin-transaction-utils";
+import { BitcoinTransaction } from "packages/blockchain-api-client/src/blockchains/bitcoin/types";
 import React, { useEffect, useState } from "react";
 import { Button, Text, View } from "react-native";
 import { useRecoilValue } from "recoil";
 import { NavigationRoutes } from "shared/types/navigation";
 import { authState, AuthState } from "state/atoms";
-import { Address, BitcoinTransaction } from "wallet/types/wallet";
+import { Address } from "wallet/types/wallet";
 
 type Props = NativeStackScreenProps<NavigationRoutes, "BitcoinTransactions">;
 

@@ -5,6 +5,7 @@ import { EthereumWallet } from "ethereum/types/ethereum";
 import { SetterOrUpdater } from "recoil";
 import { CoinTypeKeyShare, PurposeKeyShare } from "shared/types/mpc";
 import { AccountBuilder } from "wallet/controller/creation/account-creation";
+import { createAddress } from "wallet/controller/creation/address-creation";
 import { publicKeyToEthereumAddress } from "./ethereum-adapter";
 
 export class EthereumAccountBuilder extends AccountBuilder<EthereumWallet> {
@@ -38,5 +39,22 @@ export class EthereumAccountBuilder extends AccountBuilder<EthereumWallet> {
     }));
 
     return this;
+  }
+
+  public async build(): Promise<EthereumWalletsState> {
+    const newState = await super.build();
+
+    const createdAccount = newState.accounts[0];
+
+    const address = await createAddress(this.user, createdAccount, "external", 0);
+
+    const stateWithAccount: EthereumWalletsState = {
+      ...newState,
+      accounts: [
+        { ...createdAccount, external: { ...createdAccount.external, addresses: [{ ...address, balance: 0 }] } },
+      ],
+    };
+
+    return stateWithAccount;
   }
 }

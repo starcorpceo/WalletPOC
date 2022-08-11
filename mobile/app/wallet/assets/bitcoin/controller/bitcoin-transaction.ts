@@ -1,11 +1,12 @@
 import { User } from "api-types/user";
 import { config } from "bitcoin/config/bitcoin-config";
 import * as bitcoin from "der-bitcoinjs-lib";
+import { BitcoinService } from "packages/blockchain-api-client/src";
+import { BroadcastTransaction } from "packages/blockchain-api-client/src/base/types";
+import { BitcoinProviderEnum } from "packages/blockchain-api-client/src/blockchains/bitcoin/bitcoin-factory";
+import { BitcoinTransaction } from "packages/blockchain-api-client/src/blockchains/bitcoin/types";
 import "shim";
-import { Address, BitcoinTransaction, CoinTypeAccount, Fees } from "wallet/types/wallet";
-import { BitcoinService } from "../../../../../packages/blockchain-api-client/src";
-import { BroadcastTransaction } from "../../../../../packages/blockchain-api-client/src/base/types";
-import { BitcoinProvider } from "../../../../../packages/blockchain-api-client/src/blockchains/bitcoin/bitcoin-factory";
+import { Address, CoinTypeAccount, Fees } from "wallet/types/wallet";
 import { getNextUnusedAddress } from "./bitcoin-address";
 import { prepareSingleSigner } from "./bitcoin-signer";
 import {
@@ -50,7 +51,7 @@ type PreparedTransactions = {
  * @param address
  * @param amount
  */
-//TODO delete user dependency
+//TODO function can only use one output address in next transaction - iterate outputs for all addresses owned by user and be able to use it
 export const prepareTransactionP2PKH = async (
   user: User,
   account: CoinTypeAccount,
@@ -71,6 +72,7 @@ export const prepareTransactionP2PKH = async (
       index: getChangeIndexFromUTXO(utxo, account),
       nonWitnessUtxo: Buffer.from(utxo.hex, "hex"),
     });
+
     //add prepared signer to signers array
     signers.push(prepareSingleSigner(user, getAddressFromUTXOOutput(utxo, account)));
   });
@@ -86,7 +88,7 @@ export const prepareTransactionP2PKH = async (
 
   //change value without fees
   let changeValue = getChangeFromUTXOs(utxos, account) - amount;
-  if (changeValue < 0) throw new Error("Insufficient funds before fees");
+  if (changeValue < 0) throw new Error("Insufficient funds before fees"); //TODO if amount is exactly amount of used utxo then it will fail after fees
 
   //calculate fees for transaction
   const bitcoinService = new BitcoinService("TEST");
@@ -100,7 +102,7 @@ export const prepareTransactionP2PKH = async (
       { address: address, value: amount },
       { address: unusedAddress.address, value: changeValue },
     ],
-    BitcoinProvider.TATUM
+    BitcoinProviderEnum.TATUM
   );
 
   //check if user have sufficient funds
@@ -125,7 +127,7 @@ export const broadcastTransaction = async (transaction: bitcoin.Psbt): Promise<B
   const bitcoinService = new BitcoinService("TEST");
   const broadcastTransaction: BroadcastTransaction = await bitcoinService.sendBroadcastTransaction(
     transaction.extractTransaction().toHex(),
-    BitcoinProvider.TATUM
+    BitcoinProviderEnum.TATUM
   );
   if (broadcastTransaction.failed) throw new Error("Failed to broadcast transaction");
   return broadcastTransaction;
