@@ -30,11 +30,7 @@ export const useAddAddress = (state: any) => {
   const setCoinState = useSetRecoilState(state);
 
   return function ToCoinState(address: Address[], account: CoinTypeAccount, changeType: "internal" | "external") {
-    const index =
-      account.mpcKeyShare.path.slice(-1) === "'"
-        ? Number(account.mpcKeyShare.path.slice(-2).slice(0, 1))
-        : Number(account.mpcKeyShare.path.slice(-1));
-
+    const index = getAccountIndex(account);
     setCoinState((current: any) => {
       return {
         ...current,
@@ -56,11 +52,7 @@ export const useUpdateAccountBalance = (state: any) => {
   const setCoinState = useSetRecoilState(state);
 
   return function ToCoinState(balance: Balance, account: CoinTypeAccount) {
-    const index =
-      account.mpcKeyShare.path.slice(-1) === "'"
-        ? Number(account.mpcKeyShare.path.slice(-2).slice(0, 1))
-        : Number(account.mpcKeyShare.path.slice(-1));
-
+    const index = getAccountIndex(account);
     setCoinState((current: any) => {
       return {
         ...current,
@@ -73,4 +65,15 @@ export const useUpdateAccountBalance = (state: any) => {
       };
     });
   };
+};
+
+/**
+ * Get the index of account - index is the bip44 path - account part
+ * @param account
+ * @returns
+ */
+const getAccountIndex = (account: CoinTypeAccount): number => {
+  return account.mpcKeyShare.path.slice(-1) === "'"
+    ? Number(account.mpcKeyShare.path.slice(-2).slice(0, 1))
+    : Number(account.mpcKeyShare.path.slice(-1));
 };

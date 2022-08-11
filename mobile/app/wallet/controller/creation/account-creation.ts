@@ -88,7 +88,6 @@ export class AccountBuilder {
     return this;
   }
 
-  //TODO derive as many addresses as there are already in use - but in bitcoin specific file
   /**
    * Builds Change KeyShares for a given changeType (internal or external)
    * @param changeType Defines if derivation index will be 0 or 1 e.g. if it is an internal or external Address Holder
@@ -128,22 +127,4 @@ export class AccountBuilder {
       ],
     };
   }
-
-  // private async createAccountChange(
-  //   changeShare: ChangeKeyShare,
-  //   addressShare: AddressKeyShare,
-  //   virtualAccount: VirtualAccount,
-  //   publicKeyToAddress: PublicKeyToAddress
-  // ): Promise<AccountChange> {
-  //   const address = await createAddress(
-  //     addressShare,
-  //     virtualAccount,
-  //     publicKeyToAddress
-  //   );
-
-  //   return {
-  //     keyShare: changeShare,
-  //     addresses: [address],
-  //   };
-  // }
 }

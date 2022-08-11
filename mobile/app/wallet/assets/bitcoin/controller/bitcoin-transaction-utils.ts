@@ -1,19 +1,6 @@
-import { User } from "api-types/user";
-import { config } from "bitcoin/config/bitcoin-config";
-import * as bitcoin from "der-bitcoinjs-lib";
-import { fetchFromTatum, HttpMethod } from "lib/http";
-import { signEcdsa } from "lib/mpc";
 import "shim";
 import { Address, Balance, CoinTypeAccount, Fees, Input, Output, Transaction, UTXO } from "wallet/types/wallet";
-import endpoints from "../blockchain/endpoints";
-import { BitcoinWallet } from "../types/bitcoin";
 import { getAllTransactionsCache } from "./bitcoin-transaction";
-
-//New adopted functions
-//---------------------------------------
-//---------------------------------------
-//---------------------------------------
-//---------------------------------------
 
 /**
  * Returns all external UTXOS from account
@@ -79,8 +66,6 @@ const isSTXO = (transaction: Transaction, account: CoinTypeAccount): boolean =>
     searchTransaction.inputs.find((input: Input) => input.prevout.hash === transaction.hash)
   );
 
-//TODO check if code to check also internal can not cause problems
-
 /**
  * find change (value in satoshis) from utxo to use in new transaction
  * @param utxo
@@ -88,12 +73,34 @@ const isSTXO = (transaction: Transaction, account: CoinTypeAccount): boolean =>
  * @returns
  */
 const getChangeFromUTXO = (utxo: Transaction, account: CoinTypeAccount): number => {
-  const change = utxo.outputs.find(
-    (output: Output) =>
-      account.external.addresses.some((address: Address) => address.address === output.address) ||
-      account.internal.addresses.some((address: Address) => address.address === output.address)
-  );
+  const change = utxo.outputs.find((output: Output) => hasOwnAddress(output.address, account));
   return change?.value || 0;
+};
+
+/**
+ * checks if address is one of users addresses
+ * @param address
+ * @param account
+ * @returns
+ */
+const hasOwnAddress = (address: string, account: CoinTypeAccount): boolean => {
+  return (
+    account.external.addresses.some((externalAddress: Address) => externalAddress.address === address) ||
+    account.internal.addresses.some((internalAddress: Address) => internalAddress.address === address)
+  );
+};
+
+/**
+ * checks if address is not users address
+ * @param address
+ * @param account
+ * @returns
+ */
+const hasOtherAddress = (address: string, account: CoinTypeAccount): boolean => {
+  return !(
+    account.external.addresses.some((externalAddress: Address) => externalAddress.address === address) ||
+    account.internal.addresses.some((internalAddress: Address) => internalAddress.address === address)
+  );
 };
 
 /**
@@ -120,11 +127,7 @@ export const getAddressFromUTXOOutput = (utxo: Transaction, account: CoinTypeAcc
  * @returns
  */
 export const getChangeIndexFromUTXO = (utxo: Transaction, account: CoinTypeAccount): number => {
-  return utxo.outputs.findIndex(
-    (output: Output) =>
-      account.external.addresses.some((address: Address) => address.address === output.address) ||
-      account.internal.addresses.some((address: Address) => address.address === output.address)
-  );
+  return utxo.outputs.findIndex((output: Output) => hasOwnAddress(output.address, account));
 };
 
 /**
@@ -140,20 +143,36 @@ export const getChangeFromUTXOs = (transactions: Transaction[], account: CoinTyp
 };
 
 /**
+ * Get all inputs which are from addresses from own account
+ * @param transaction
+ * @param account
+ * @returns
+ */
+export const getOwnInputs = (transaction: Transaction, account: CoinTypeAccount): Input[] => {
+  const ownInputs = transaction.inputs.filter((input: Input) => hasOwnAddress(input.coin.address, account));
+  return ownInputs;
+};
+
+/**
  * Get all inputs which are from other addresses than own account
  * @param transaction
  * @param account
  * @returns
  */
 export const getOtherInputs = (transaction: Transaction, account: CoinTypeAccount): Input[] => {
-  const otherInputs = transaction.inputs.filter(
-    (input: Input) =>
-      !(
-        account.external.addresses.some((address: Address) => address.address === input.coin.address) ||
-        account.internal.addresses.some((address: Address) => address.address === input.coin.address)
-      )
-  );
+  const otherInputs = transaction.inputs.filter((input: Input) => hasOtherAddress(input.coin.address, account));
   return otherInputs;
+};
+
+/**
+ * Get all outputs which are from addresses from own account
+ * @param transaction
+ * @param account
+ * @returns
+ */
+export const getOwnOutputs = (transaction: Transaction, account: CoinTypeAccount): Output[] => {
+  const ownOutputs = transaction.outputs.filter((output: Output) => hasOwnAddress(output.address, account));
+  return ownOutputs;
 };
 
 /**
@@ -163,13 +182,7 @@ export const getOtherInputs = (transaction: Transaction, account: CoinTypeAccoun
  * @returns
  */
 export const getOtherOutputs = (transaction: Transaction, account: CoinTypeAccount): Output[] => {
-  const otherOutputs = transaction.outputs.filter(
-    (output: Output) =>
-      !(
-        account.external.addresses.some((address: Address) => address.address === output.address) ||
-        account.internal.addresses.some((address: Address) => address.address === output.address)
-      )
-  );
+  const otherOutputs = transaction.outputs.filter((output: Output) => hasOtherAddress(output.address, account));
   return otherOutputs;
 };
 
@@ -180,33 +193,15 @@ export const getOtherOutputs = (transaction: Transaction, account: CoinTypeAccou
  * @returns
  */
 export const getNetValueFromTransaction = (transaction: Transaction, account: CoinTypeAccount): number => {
-  const ownInputs = transaction.inputs.filter(
-    (input: Input) =>
-      account.external.addresses.some((address: Address) => address.address === input.coin.address) ||
-      account.internal.addresses.some((address: Address) => address.address === input.coin.address)
-  );
-  const otherInputs = getOtherInputs(transaction, account);
+  const ownInputs = transaction.inputs.filter((input: Input) => hasOwnAddress(input.coin.address, account));
 
-  const ownOutputs = transaction.outputs.filter(
-    (output: Output) =>
-      account.external.addresses.some((address: Address) => address.address === output.address) ||
-      account.internal.addresses.some((address: Address) => address.address === output.address)
-  );
-  const otherOutputs = getOtherOutputs(transaction, account);
+  const ownOutputs = transaction.outputs.filter((output: Output) => hasOwnAddress(output.address, account));
 
   const ownInputValue = ownInputs.reduce((prev, curr) => {
     return prev + curr.coin.value;
   }, 0);
 
-  const otherInputValue = otherInputs.reduce((prev, curr) => {
-    return prev + curr.coin.value;
-  }, 0);
-
   const ownOutputValue = ownOutputs.reduce((prev, curr) => {
-    return prev + curr.value;
-  }, 0);
-
-  const otherOutputValue = ownOutputs.reduce((prev, curr) => {
     return prev + curr.value;
   }, 0);
 

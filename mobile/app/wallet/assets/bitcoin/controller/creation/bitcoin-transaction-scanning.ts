@@ -1,4 +1,5 @@
 import { User } from "api-types/user";
+import { config } from "bitcoin/config/bitcoin-config";
 import { createAddress } from "wallet/controller/creation/address-creation";
 import { Address, CoinTypeAccount, Transaction } from "wallet/types/wallet";
 import { BitcoinService } from "../../../../../../packages/blockchain-api-client/src";
@@ -21,7 +22,7 @@ export const getUsedAddresses = async <T extends CoinTypeAccount>(
   while (!isUnused) {
     const newAddress = await createAddress(user, account, changeType, derivationIndex);
 
-    const bitcoinService = new BitcoinService("TEST");
+    const bitcoinService = new BitcoinService(config.IsTestNet ? "TEST" : "MAIN");
     const query = new URLSearchParams({
       pageSize: "10",
       offset: "0",

@@ -29,6 +29,11 @@ export const getAllTransactionsCache = (account: CoinTypeAccount): Transaction[]
       transactions.push(transaction);
     })
   );
+  account.internal.addresses.map((address) =>
+    address.transactions.map((transaction) => {
+      transactions.push(transaction);
+    })
+  );
   const uniqueTransaction: Transaction[] = [
     ...new Map(transactions.map((transaction) => [transaction.hash, transaction])).values(),
   ];

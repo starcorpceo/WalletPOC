@@ -16,7 +16,7 @@ export const getNextUnusedAddress = async (
     offset: "0",
   });
 
-  let currentIndex = account[chainType].addresses.length - 1; // -2 because index will be increased before first api query
+  let currentIndex = account[chainType].addresses.length - 1;
   if (currentIndex < 0) currentIndex = 0;
   let isUsed = true;
   let address;
