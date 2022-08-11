@@ -28,7 +28,7 @@ export const publicKeyToBitcoinAddressP2PKH = (publicKey: string): AddressAndPub
     console.error("Not able to transform MPC Public Key to Bitcoin address, fool");
   }
 
-  return { address: address || "", publicKey: pubkeyECPair.publicKey };
+  return { address: address || "", publicKey: pubkeyECPair.publicKey.toString("base64") };
 };
 
 /**
@@ -53,5 +53,5 @@ export const publicKeyToBitcoinAddressP2WPKH = (publicKey: string): AddressAndPu
     console.error("Not able to transform MPC Public Key to Bitcoin address, fool");
   }
 
-  return { address: address || "", publicKey: pubkeyECPair.publicKey };
+  return { address: address || "", publicKey: pubkeyECPair.publicKey.toString("base64") };
 };

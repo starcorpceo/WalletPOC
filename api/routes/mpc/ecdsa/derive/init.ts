@@ -2,11 +2,7 @@ import { SocketStream } from "@fastify/websocket";
 import logger from "@lib/logger";
 import { RawData } from "ws";
 import Context from "../../../../crypto-mpc-js/lib/context";
-import {
-  deleteWallet,
-  getWallet,
-  getWalletByPath,
-} from "../../../user/wallet.repository";
+import { deleteWallet, getWallet, getWalletByPath } from "../../../user/wallet.repository";
 import { buildPath } from "../../step/share";
 import { DeriveConfig, DeriveContext } from "./deriveBIP32";
 
@@ -18,16 +14,10 @@ export const initDerive = async (
   const deriveConfig = JSON.parse(message.toString()) as DeriveConfig;
 
   try {
-    const existingWallet = await getWalletByPath(
-      buildPath(deriveConfig),
-      userId
-    );
+    const existingWallet = await getWalletByPath(buildPath(deriveConfig), userId);
     existingWallet && (await deleteWallet(existingWallet));
   } catch (err) {
-    logger.error(
-      { err },
-      "Error while checking if keyshare has already been derived by user"
-    );
+    logger.error({ err }, "Error while checking if keyshare has already been derived by user");
   }
 
   return setupContext(deriveConfig, connection, userId);
@@ -40,6 +30,8 @@ const setupContext = async (
 ): Promise<DeriveContext> => {
   try {
     const parent = await getWallet(deriveConfig.serverShareId, userId);
+
+    logger.info("INIT DERIVE");
 
     const context = Context.createDeriveBIP32Context(
       2,

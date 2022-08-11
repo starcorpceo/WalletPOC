@@ -3,16 +3,14 @@ import { atom } from "recoil";
 import { recoilPersist } from "recoil-persist";
 import { CoinTypeKeyShare, KeyShareType } from "shared/types/mpc";
 import { CustomStorage } from "state/storage";
+import { CoinTypeState } from "state/types";
 
 const { persistAtom } = recoilPersist({
   storage: CustomStorage,
   key: "BitcoinWalletsStatePersist",
 });
 
-export type BitcoinWalletsState = {
-  coinTypeKeyShare: CoinTypeKeyShare;
-  accounts: BitcoinWallet[];
-};
+export type BitcoinWalletsState = CoinTypeState<BitcoinWallet>;
 
 const emptyCoinTypeShare: CoinTypeKeyShare = {
   id: "",
@@ -32,27 +30,3 @@ export const bitcoinWalletsState = atom({
   default: initialBitcoinState,
   effects_UNSTABLE: [persistAtom],
 });
-
-// export const useUpdateBitcoinAccountWallet = (
-//   updater: () => Promise<BitcoinWallet>
-// ) => {
-//   const [bitcoinState, setBitcoinState] =
-//     useRecoilState<BitcoinWalletsState>(bitcoinWalletsState);
-
-//   return async function WithBitcoinState() {
-//     const updatedWallet = await updater();
-
-//     const index = bitcoinState.accounts.findIndex(
-//       (findWallet) => findWallet.mpcWallet.id === updatedWallet.mpcWallet.id
-//     );
-
-//     setBitcoinState((currentState) => ({
-//       ...currentState,
-//       accounts: [
-//         ...currentState.accounts.slice(0, index),
-//         updatedWallet,
-//         ...currentState.accounts.slice(index + 1),
-//       ],
-//     }));
-//   };
-// };

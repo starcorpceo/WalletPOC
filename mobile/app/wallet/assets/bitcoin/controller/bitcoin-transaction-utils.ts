@@ -1,5 +1,6 @@
+import { BitcoinTransaction, Input, Output } from "packages/blockchain-api-client/src/blockchains/bitcoin/types";
 import "shim";
-import { Address, Balance, CoinTypeAccount, Fees, Input, Output, Transaction, UTXO } from "wallet/types/wallet";
+import { Address, CoinTypeAccount } from "wallet/types/wallet";
 import { getAllTransactionsCache } from "./bitcoin-transaction";
 
 /**
@@ -7,18 +8,20 @@ import { getAllTransactionsCache } from "./bitcoin-transaction";
  * @param account
  * @returns
  */
-export const getUTXOsCache = (account: CoinTypeAccount): Transaction[] => {
+export const getUTXOsCache = (account: CoinTypeAccount): BitcoinTransaction[] => {
   const utxosExternal = account.external.addresses.flatMap((address: Address) =>
-    address.transactions.map((transaction: Transaction) => !isSTXO(transaction, account) && transaction)
+    address.transactions.map((transaction: BitcoinTransaction) => !isSTXO(transaction, account) && transaction)
   );
   const utxosInternal = account.internal.addresses.flatMap((address: Address) =>
-    address.transactions.map((transaction: Transaction) => !isSTXO(transaction, account) && transaction)
+    address.transactions.map((transaction: BitcoinTransaction) => !isSTXO(transaction, account) && transaction)
   );
   const utxos = [
-    ...utxosExternal.filter((transaction): transaction is Transaction => !!transaction),
-    ...utxosInternal.filter((transaction): transaction is Transaction => !!transaction),
+    ...utxosExternal.filter((transaction): transaction is BitcoinTransaction => !!transaction),
+    ...utxosInternal.filter((transaction): transaction is BitcoinTransaction => !!transaction),
   ];
-  return utxos;
+
+  const uniqueUtxos: BitcoinTransaction[] = [...new Map(utxos.map((utxo) => [utxo.hash, utxo])).values()];
+  return uniqueUtxos;
 };
 
 /**
@@ -30,7 +33,7 @@ export const getUTXOsCache = (account: CoinTypeAccount): Transaction[] => {
 export const getUTXOByValueCache = (
   account: CoinTypeAccount,
   value: number //in satoshis
-): Transaction[] => {
+): BitcoinTransaction[] => {
   const allUTXOs = getUTXOsCache(account);
 
   allUTXOs.sort((a, b) => a.time - b.time);
@@ -50,7 +53,7 @@ export const getUTXOByValueCache = (
         accumulatedValue: accumulatedValue + utxoValue,
       };
     },
-    { transactions: [] as Transaction[], accumulatedValue: 0 }
+    { transactions: [] as BitcoinTransaction[], accumulatedValue: 0 }
   );
   return transactions;
 };
@@ -61,8 +64,8 @@ export const getUTXOByValueCache = (
  * @param account
  * @returns
  */
-const isSTXO = (transaction: Transaction, account: CoinTypeAccount): boolean =>
-  getAllTransactionsCache(account).some((searchTransaction: Transaction) =>
+const isSTXO = (transaction: BitcoinTransaction, account: CoinTypeAccount): boolean =>
+  getAllTransactionsCache(account).some((searchTransaction: BitcoinTransaction) =>
     searchTransaction.inputs.find((input: Input) => input.prevout.hash === transaction.hash)
   );
 
@@ -72,7 +75,7 @@ const isSTXO = (transaction: Transaction, account: CoinTypeAccount): boolean =>
  * @param account
  * @returns
  */
-const getChangeFromUTXO = (utxo: Transaction, account: CoinTypeAccount): number => {
+const getChangeFromUTXO = (utxo: BitcoinTransaction, account: CoinTypeAccount): number => {
   const change = utxo.outputs.find((output: Output) => hasOwnAddress(output.address, account));
   return change?.value || 0;
 };
@@ -109,7 +112,7 @@ const hasOtherAddress = (address: string, account: CoinTypeAccount): boolean => 
  * @param account
  * @returns
  */
-export const getAddressFromUTXOOutput = (utxo: Transaction, account: CoinTypeAccount): Address => {
+export const getAddressFromUTXOOutput = (utxo: BitcoinTransaction, account: CoinTypeAccount): Address => {
   let address = account.external.addresses.find((address: Address) =>
     utxo.outputs.some((output: Output) => address.address === output.address)
   );
@@ -126,7 +129,7 @@ export const getAddressFromUTXOOutput = (utxo: Transaction, account: CoinTypeAcc
  * @param account
  * @returns
  */
-export const getChangeIndexFromUTXO = (utxo: Transaction, account: CoinTypeAccount): number => {
+export const getChangeIndexFromUTXO = (utxo: BitcoinTransaction, account: CoinTypeAccount): number => {
   return utxo.outputs.findIndex((output: Output) => hasOwnAddress(output.address, account));
 };
 
@@ -136,7 +139,7 @@ export const getChangeIndexFromUTXO = (utxo: Transaction, account: CoinTypeAccou
  * @param account
  * @returns
  */
-export const getChangeFromUTXOs = (transactions: Transaction[], account: CoinTypeAccount): number => {
+export const getChangeFromUTXOs = (transactions: BitcoinTransaction[], account: CoinTypeAccount): number => {
   return transactions.reduce((prev, curr) => {
     return prev + getChangeFromUTXO(curr, account);
   }, 0);
@@ -148,7 +151,7 @@ export const getChangeFromUTXOs = (transactions: Transaction[], account: CoinTyp
  * @param account
  * @returns
  */
-export const getOwnInputs = (transaction: Transaction, account: CoinTypeAccount): Input[] => {
+export const getOwnInputs = (transaction: BitcoinTransaction, account: CoinTypeAccount): Input[] => {
   const ownInputs = transaction.inputs.filter((input: Input) => hasOwnAddress(input.coin.address, account));
   return ownInputs;
 };
@@ -159,7 +162,7 @@ export const getOwnInputs = (transaction: Transaction, account: CoinTypeAccount)
  * @param account
  * @returns
  */
-export const getOtherInputs = (transaction: Transaction, account: CoinTypeAccount): Input[] => {
+export const getOtherInputs = (transaction: BitcoinTransaction, account: CoinTypeAccount): Input[] => {
   const otherInputs = transaction.inputs.filter((input: Input) => hasOtherAddress(input.coin.address, account));
   return otherInputs;
 };
@@ -170,7 +173,7 @@ export const getOtherInputs = (transaction: Transaction, account: CoinTypeAccoun
  * @param account
  * @returns
  */
-export const getOwnOutputs = (transaction: Transaction, account: CoinTypeAccount): Output[] => {
+export const getOwnOutputs = (transaction: BitcoinTransaction, account: CoinTypeAccount): Output[] => {
   const ownOutputs = transaction.outputs.filter((output: Output) => hasOwnAddress(output.address, account));
   return ownOutputs;
 };
@@ -181,7 +184,7 @@ export const getOwnOutputs = (transaction: Transaction, account: CoinTypeAccount
  * @param account
  * @returns
  */
-export const getOtherOutputs = (transaction: Transaction, account: CoinTypeAccount): Output[] => {
+export const getOtherOutputs = (transaction: BitcoinTransaction, account: CoinTypeAccount): Output[] => {
   const otherOutputs = transaction.outputs.filter((output: Output) => hasOtherAddress(output.address, account));
   return otherOutputs;
 };
@@ -192,7 +195,7 @@ export const getOtherOutputs = (transaction: Transaction, account: CoinTypeAccou
  * @param account
  * @returns
  */
-export const getNetValueFromTransaction = (transaction: Transaction, account: CoinTypeAccount): number => {
+export const getNetValueFromTransaction = (transaction: BitcoinTransaction, account: CoinTypeAccount): number => {
   const ownInputs = transaction.inputs.filter((input: Input) => hasOwnAddress(input.coin.address, account));
 
   const ownOutputs = transaction.outputs.filter((output: Output) => hasOwnAddress(output.address, account));

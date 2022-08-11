@@ -1,8 +1,8 @@
 import { User } from "api-types/user";
+import { BitcoinService } from "packages/blockchain-api-client/src";
+import { BitcoinProviderEnum } from "packages/blockchain-api-client/src/blockchains/bitcoin/bitcoin-factory";
 import { createAddress } from "wallet/controller/creation/address-creation";
-import { Address, CoinTypeAccount, Transaction } from "wallet/types/wallet";
-import { BitcoinService } from "../../../../../packages/blockchain-api-client/src";
-import { BitcoinProvider } from "../../../../../packages/blockchain-api-client/src/blockchains/bitcoin/bitcoin-factory";
+import { Address, CoinTypeAccount } from "wallet/types/wallet";
 
 //TODO also check if index-1 is used
 export const getNextUnusedAddress = async (
@@ -24,13 +24,13 @@ export const getNextUnusedAddress = async (
   while (isUsed) {
     if (currentIndex >= account[chainType].addresses.length) {
       address = await createAddress(user, account, chainType, currentIndex);
-      const transactions = await bitcoinService.getTransactions(address.address, query, BitcoinProvider.TATUM);
+      const transactions = await bitcoinService.getTransactions(address.address, query, BitcoinProviderEnum.TATUM);
       isUsed = transactions.length == 0 ? false : true;
     } else {
       const transactions = await bitcoinService.getTransactions(
         account[chainType].addresses[currentIndex].address,
         query,
-        BitcoinProvider.TATUM
+        BitcoinProviderEnum.TATUM
       );
       address = account[chainType].addresses[currentIndex];
       isUsed = transactions.length == 0 ? false : true;

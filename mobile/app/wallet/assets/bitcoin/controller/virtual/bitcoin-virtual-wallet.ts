@@ -1,4 +1,5 @@
 import { CreateTatumConnectionResponse, GetTatumConnectionResponse } from "api-types/tatum";
+import { publicKeyToBitcoinAddressP2PKH } from "bitcoin/controller/adapter/bitcoin-adapter";
 import { fetchFromApi, fetchFromTatum, HttpMethod } from "lib/http";
 import { getPublicKey } from "react-native-blockchain-crypto-mpc";
 import { MPCEcdsaKeyShare } from "shared/types/mpc";
@@ -11,7 +12,6 @@ import {
   VirtualTransaction,
 } from "wallet/types/virtual-wallet";
 import endpoints from "../../blockchain/endpoints";
-import { publicKeyToBitcoinAddressP2PKH } from "bitcoin/controller/adapter/bitcoin-adapter";
 
 export const connectVirtualAccount = async (keyShare: MPCEcdsaKeyShare): Promise<VirtualAccount> => {
   const onlyTatumConnectionUsedPublicKey = await getPublicKey(keyShare.keyShare);

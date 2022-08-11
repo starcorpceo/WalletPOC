@@ -5,6 +5,6 @@ type NavigationRoutes = {
   Home: undefined;
   Bitcoin: undefined;
   Ethereum: undefined;
-  BitcoinTransactions: { account: CoinTypeAccount | null };
-  SendTransaction: { account: CoinTypeAccount | null };
+  BitcoinTransactions: { account: CoinTypeAccount };
+  SendTransaction: { account: CoinTypeAccount };
 };

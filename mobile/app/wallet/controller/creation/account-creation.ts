@@ -1,21 +1,14 @@
 import { User } from "api-types/user";
 import { config } from "bitcoin/config/bitcoin-config";
-import { defaultBitcoinAccountConfig } from "bitcoin/config/bitcoin-constants";
-import { assignNewDepositAddress, connectVirtualAccount } from "bitcoin/controller/virtual/bitcoin-virtual-wallet";
-import { BitcoinWalletsState, initialBitcoinState } from "bitcoin/state/atoms";
+import { connectVirtualAccount } from "bitcoin/controller/virtual/bitcoin-virtual-wallet";
+import { initialBitcoinState } from "bitcoin/state/atoms";
 import { emptyKeyPair } from "config/constants";
 import { deepCompare } from "lib/util";
-import { getPublicKey, getXPubKey } from "react-native-blockchain-crypto-mpc";
-import {
-  AccountKeyShare,
-  AddressKeyShare,
-  ChangeKeyShare,
-  CoinTypeKeyShare,
-  KeyShareType,
-  PurposeKeyShare,
-} from "shared/types/mpc";
+import { getXPubKey } from "react-native-blockchain-crypto-mpc";
+import { AccountKeyShare, CoinTypeKeyShare, KeyShareType, PurposeKeyShare } from "shared/types/mpc";
+import { CoinTypeState } from "state/types";
 import { VirtualAccount } from "wallet/types/virtual-wallet";
-import { AccountChange, Address } from "wallet/types/wallet";
+import { AccountChange, CoinTypeAccount, WalletConfig } from "wallet/types/wallet";
 import { AddressAndPublicKey } from "../adapter/blockchain-adapter";
 import { deriveMpcKeyShare } from "./derived-share-creation";
 
@@ -24,12 +17,13 @@ type PublicKeyToAddress = (publicKey: string) => AddressAndPublicKey;
 /**
  * Utilizes Builder pattern to take (or create) a CoinTypeKeyShare and creates the Account all the way down to the Address level
  */
-export class AccountBuilder {
+export class AccountBuilder<T extends CoinTypeAccount> {
   private xPub = "";
 
   private internal: AccountChange = { keyShare: emptyKeyPair, addresses: [] };
   private external: AccountChange = { keyShare: emptyKeyPair, addresses: [] };
   private publicKeyToAddress: PublicKeyToAddress;
+  private config: WalletConfig;
 
   protected user: User;
   protected coinTypeKeyShare: CoinTypeKeyShare = emptyKeyPair;
@@ -41,9 +35,10 @@ export class AccountBuilder {
    *
    * @param user which is the owner of the new Account
    */
-  constructor(user: User, publicKeyToAddress: PublicKeyToAddress) {
+  constructor(user: User, publicKeyToAddress: PublicKeyToAddress, config: WalletConfig) {
     this.user = user;
     this.publicKeyToAddress = publicKeyToAddress;
+    this.config = config;
   }
 
   /**
@@ -62,26 +57,29 @@ export class AccountBuilder {
    */
   protected async buildCoinTypeShare(
     purposeShare: PurposeKeyShare,
-    coinTypeShareFromState: CoinTypeKeyShare
+    coinTypeShareFromState: CoinTypeKeyShare,
+    index: string
   ): Promise<CoinTypeKeyShare> {
     const noCoinTypeWalletExists = deepCompare(coinTypeShareFromState, initialBitcoinState.coinTypeKeyShare);
 
     return noCoinTypeWalletExists
-      ? await deriveMpcKeyShare(purposeShare, this.user, config.bip44BitcoinCoinType, true, KeyShareType.COINTYPE)
+      ? await deriveMpcKeyShare(purposeShare, this.user, index, true, KeyShareType.COINTYPE)
       : coinTypeShareFromState;
   }
 
   /**
    * Creates Account Level KeyShare and xPub Key
    */
-  public async createAccount(): Promise<AccountBuilder> {
+  public async createAccount(createVirtual: boolean): Promise<AccountBuilder<T>> {
     const accountKeyShare = await deriveMpcKeyShare(this.coinTypeKeyShare, this.user, "0", true, KeyShareType.ACCOUNT);
 
     const xPub = await getXPubKey(accountKeyShare.keyShare, config.IsTestNet ? "test" : "main");
 
-    //const virtualAccount = await connectVirtualAccount(accountKeyShare);
+    if (createVirtual) {
+      const virtualAccount = await connectVirtualAccount(accountKeyShare);
+      this.virtualAccount = virtualAccount;
+    }
 
-    //this.virtualAccount = virtualAccount;
     this.accountKeyShare = accountKeyShare;
     this.xPub = xPub;
 
@@ -93,7 +91,7 @@ export class AccountBuilder {
    * @param changeType Defines if derivation index will be 0 or 1 e.g. if it is an internal or external Address Holder
    * @returns
    */
-  public async createChange(changeType: "internal" | "external"): Promise<AccountBuilder> {
+  public async createChange(changeType: "internal" | "external"): Promise<AccountBuilder<T>> {
     const index = changeType === "external" ? "0" : "1";
 
     const changeKeyShare = await deriveMpcKeyShare(this.accountKeyShare, this.user, index, false, KeyShareType.CHANGE);
@@ -110,21 +108,21 @@ export class AccountBuilder {
    *
    * @returns A BitcoinWalletState with a newly Set up Account
    */
-  public async build(): Promise<BitcoinWalletsState> {
+  public async build(): Promise<CoinTypeState<CoinTypeAccount>> {
+    const account = {
+      mpcKeyShare: this.accountKeyShare,
+      virtualAccount: this.virtualAccount,
+      xPub: this.xPub,
+      internal: this.internal,
+      external: this.external,
+      config: this.config,
+      balance: { incoming: 0, outgoing: 0 },
+      transactions: [],
+    };
+
     return {
       coinTypeKeyShare: this.coinTypeKeyShare,
-      accounts: [
-        {
-          mpcKeyShare: this.accountKeyShare,
-          virtualAccount: this.virtualAccount as VirtualAccount,
-          xPub: this.xPub,
-          internal: this.internal,
-          external: this.external,
-          config: defaultBitcoinAccountConfig,
-          balance: { incoming: 0, outgoing: 0 },
-          transactions: [],
-        },
-      ],
+      accounts: [account],
     };
   }
 }

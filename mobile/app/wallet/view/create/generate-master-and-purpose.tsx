@@ -5,16 +5,13 @@ import { Button } from "react-native";
 import { useSetRecoilState } from "recoil";
 import { KeyShareType } from "shared/types/mpc";
 import { AuthState, authState } from "state/atoms";
-import {
-  createMPCKeyShare,
-  deriveMpcKeyShare,
-} from "wallet/controller/creation/derived-share-creation";
+import { createMPCKeyShare, deriveMpcKeyShare } from "wallet/controller/creation/derived-share-creation";
 
 type GenerateWalletProps = {
   user: User;
 };
 
-const GenerateWallet = ({ user }: GenerateWalletProps) => {
+const GenerateMasterAndPurpose = ({ user }: GenerateWalletProps) => {
   const setAuth = useSetRecoilState<AuthState>(authState);
 
   const startGenerate = useCallback(async () => {
@@ -40,4 +37,4 @@ const GenerateWallet = ({ user }: GenerateWalletProps) => {
   return <Button onPress={startGenerate} title="Generate Wallet" />;
 };
 
-export default GenerateWallet;
+export default GenerateMasterAndPurpose;

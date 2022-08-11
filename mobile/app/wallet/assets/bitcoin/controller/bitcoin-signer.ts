@@ -1,23 +1,26 @@
 import { User } from "api-types/user";
-import * as LocalAuthentication from "expo-local-authentication";
-import { Address } from "wallet/types/wallet";
 import * as bitcoin from "der-bitcoinjs-lib";
-import "shim";
+import * as LocalAuthentication from "expo-local-authentication";
 import { signEcdsa } from "lib/mpc";
+import { getDerSignature } from "react-native-blockchain-crypto-mpc";
+import "shim";
+import { Address } from "wallet/types/wallet";
 
 export const prepareSingleSigner = (user: User, address: Address): bitcoin.SignerAsync => {
   const ec: bitcoin.SignerAsync = {
-    publicKey: address.publicKey as Buffer,
+    publicKey: Buffer.from(address.publicKey, "base64"),
     sign: async (hash: Buffer) =>
       Buffer.from([
         ...Buffer.from(
-          await signEcdsa(
-            user.devicePublicKey,
-            user.id,
-            address.keyShare.id,
-            address.keyShare.keyShare,
-            hash.toString("base64"),
-            "base64"
+          await getDerSignature(
+            await signEcdsa(
+              user.devicePublicKey,
+              user.id,
+              address.keyShare.id,
+              address.keyShare.keyShare,
+              hash.toString("base64"),
+              "base64"
+            )
           ),
           "base64"
         ),

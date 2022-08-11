@@ -1,4 +1,3 @@
-import { Factory, ProviderFunctions } from '../../base/factory';
 import { HttpMethod } from '../../base/http';
 import { ApiBalance, ApiBroadcastTransaction, ApiFees, ApiTransaction, Network } from '../../base/types';
 import { blockCypherEndpoints } from '../../provider/blockcypher/bitcoin/blockcypher-bitcoin-endpoints';
@@ -29,24 +28,25 @@ import {
   TatumTransaction,
 } from '../../provider/tatum/bitcoin/tatum-bitcoin-types';
 import { fetchFromTatum } from '../../provider/tatum/http';
+import { BitcoinProvider } from './types';
 
-export enum BitcoinProvider {
+export enum BitcoinProviderEnum {
   TATUM,
   BLOCKCYPHER,
 }
 
-export class BitcoinFactory implements Factory {
+export class BitcoinFactory {
   private network: Network;
 
   constructor(network: Network) {
     this.network = network;
   }
-  getProviderFunctions = (provider: BitcoinProvider): ProviderFunctions => {
+  getProviderFunctions = (provider: BitcoinProviderEnum): BitcoinProvider => {
     switch (provider) {
-      case BitcoinProvider.TATUM:
+      case BitcoinProviderEnum.TATUM:
         return this.tatum;
 
-      case BitcoinProvider.BLOCKCYPHER:
+      case BitcoinProviderEnum.BLOCKCYPHER:
         return this.blockCypher;
 
       default:
@@ -54,7 +54,7 @@ export class BitcoinFactory implements Factory {
     }
   };
 
-  private blockCypher: ProviderFunctions = {
+  private blockCypher: BitcoinProvider = {
     fetcher: {
       fetchBalance: (address: string) =>
         fetchFromBlockCypher<BlockCypherBalance>(blockCypherEndpoints(this.network).balance(address)),
@@ -80,7 +80,7 @@ export class BitcoinFactory implements Factory {
     },
   };
 
-  private tatum: ProviderFunctions = {
+  private tatum: BitcoinProvider = {
     fetcher: {
       fetchBalance: (address: string) => fetchFromTatum<TatumBalance>(tatumEndpoints.balance(address), this.network),
       fetchTransactions: (address: string, query: URLSearchParams) =>

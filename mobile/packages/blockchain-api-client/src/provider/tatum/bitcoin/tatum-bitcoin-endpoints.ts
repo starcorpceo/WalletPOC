@@ -1,20 +1,22 @@
-import { Endpoints } from "../../../base/endpoints";
+import { BitcoinEndpoints } from '../../../blockchains/bitcoin/types';
+
+const url = 'https://api-eu1.tatum.io/v3';
 
 // TODO Deal with different Blockchains e.g. what if /btc/ should be /eth/
-export const tatumEndpoints: Endpoints = {
-  balance: function (address: string): string {
-    return "https://api-eu1.tatum.io/v3/bitcoin/address/balance/" + address;
+export const tatumEndpoints: BitcoinEndpoints = {
+  balance: function(address: string): string {
+    return url + '/bitcoin/address/balance/' + address;
   },
-  transactions: function (address: string, query: URLSearchParams): string {
-    return `https://api-eu1.tatum.io/v3/bitcoin/transaction/address/${address}?${query.toString()}`;
+  transactions: function(address: string, query: URLSearchParams): string {
+    return `${url}/bitcoin/transaction/address/${address}?${query.toString()}`;
   },
-  utxo: function (transactionHash: string, index: number): string {
-    return "https://api-eu1.tatum.io/v3/bitcoin/utxo/" + transactionHash + "/" + index;
+  utxo: function(transactionHash: string, index: number): string {
+    return url + '/bitcoin/utxo/' + transactionHash + '/' + index;
   },
-  fees: function (): string {
-    return "https://api-eu1.tatum.io/v3/blockchain/estimate";
+  fees: function(): string {
+    return url + '/blockchain/estimate';
   },
-  broadcastTransaction: function (): string {
-    return "https://api-eu1.tatum.io/v3/bitcoin/broadcast";
+  broadcastTransaction: function(): string {
+    return url + '/bitcoin/broadcast';
   },
 };

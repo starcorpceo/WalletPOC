@@ -1,7 +1,9 @@
 import { bitcoinWalletsState, BitcoinWalletsState, initialBitcoinState } from "bitcoin/state/atoms";
-import { selector, useSetRecoilState } from "recoil";
+import { EthereumWalletsState, ethereumWalletsState, initialEthereumState } from "ethereum/state/atoms";
+import { RecoilState, selector, useSetRecoilState } from "recoil";
 import { authState, AuthState } from "state/atoms";
-import { Address, Balance, CoinTypeAccount } from "wallet/types/wallet";
+import { CoinTypeState } from "state/types";
+import { Address, CoinTypeAccount } from "wallet/types/wallet";
 
 type AllWallets = {
   account: AuthState;
@@ -10,9 +12,11 @@ type AllWallets = {
 
 export const useResetWalletState = () => {
   const setBitcoinState = useSetRecoilState<BitcoinWalletsState>(bitcoinWalletsState);
+  const setEthereumState = useSetRecoilState<EthereumWalletsState>(ethereumWalletsState);
 
   return function WithAllCoinStates() {
     setBitcoinState((_) => ({ ...initialBitcoinState, accounts: [] }));
+    setEthereumState((_) => ({ ...initialEthereumState, accounts: [] }));
   };
 };
 
@@ -26,12 +30,12 @@ export const getAllWallets = selector({
   },
 });
 
-export const useAddAddress = (state: any) => {
+export const useAddAddress = <T extends CoinTypeAccount>(state: RecoilState<CoinTypeState<T>>) => {
   const setCoinState = useSetRecoilState(state);
 
   return function ToCoinState(address: Address[], account: CoinTypeAccount, changeType: "internal" | "external") {
     const index = getAccountIndex(account);
-    setCoinState((current: any) => {
+    setCoinState((current) => {
       return {
         ...current,
         accounts: [
@@ -48,32 +52,24 @@ export const useAddAddress = (state: any) => {
   };
 };
 
-export const useUpdateAccountBalance = (state: any) => {
-  const setCoinState = useSetRecoilState(state);
-
-  return function ToCoinState(balance: Balance, account: CoinTypeAccount) {
-    const index = getAccountIndex(account);
-    setCoinState((current: any) => {
-      return {
-        ...current,
-        accounts: [
-          {
-            ...current.accounts[index],
-            balance,
-          },
-        ],
-      };
-    });
-  };
-};
-
 /**
  * Get the index of account - index is the bip44 path - account part
  * @param account
  * @returns
  */
-const getAccountIndex = (account: CoinTypeAccount): number => {
+export const getAccountIndex = (account: CoinTypeAccount): number => {
   return account.mpcKeyShare.path.slice(-1) === "'"
     ? Number(account.mpcKeyShare.path.slice(-2).slice(0, 1))
     : Number(account.mpcKeyShare.path.slice(-1));
+};
+
+export const useUpdateAccount = <T extends CoinTypeAccount>(state: RecoilState<CoinTypeState<T>>) => {
+  const setCoin = useSetRecoilState<CoinTypeState<T>>(state);
+
+  return function WithSetCoinState(newAccount: T, index: number) {
+    setCoin((current) => ({
+      ...current,
+      accounts: [...current.accounts.slice(0, index), newAccount, ...current.accounts.slice(index + 1)],
+    }));
+  };
 };

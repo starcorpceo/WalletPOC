@@ -3,28 +3,22 @@ import { User } from "api-types/user";
 import { emptyKeyPair } from "config/constants";
 import { deepCompare } from "lib/util";
 import React from "react";
-import {
-  Button,
-  ScrollView,
-  StyleProp,
-  Text,
-  TextStyle,
-  useColorScheme,
-  View,
-} from "react-native";
+import { Button, ScrollView, StyleProp, Text, TextStyle, useColorScheme, View } from "react-native";
 import { useRecoilValue } from "recoil";
 import { KeyShareType } from "shared/types/mpc";
 import { NavigationRoutes } from "shared/types/navigation";
 import "shim";
 import { AuthState, authState } from "state/atoms";
-import GenerateWallet from "wallet/view/create/generate-wallet";
-import ImportWallet from "wallet/view/create/import-wallet";
+import { useResetWalletState } from "wallet/state/wallet-state-utils";
+import GenerateMasterAndPurpose from "wallet/view/create/generate-master-and-purpose";
+import ImportMasterAndPurpose from "wallet/view/create/import-master-and-purpose";
 
 type Props = NativeStackScreenProps<NavigationRoutes, "Home">;
 
 const Home = ({ navigation }: Props) => {
   const isDarkMode = useColorScheme() === "dark";
   const user = useRecoilValue<AuthState>(authState);
+  const resetWallets = useResetWalletState();
 
   const textStyle: StyleProp<TextStyle> = {
     color: isDarkMode ? "#fff" : "#000",
@@ -39,23 +33,17 @@ const Home = ({ navigation }: Props) => {
 
         {isWalletReadyForAccountsView(user) ? (
           <>
-            <Button
-              onPress={() => navigation.navigate("Bitcoin")}
-              title="Bitcoin"
-            />
-            <Button
-              onPress={() => navigation.navigate("Ethereum")}
-              title="Ethereum"
-            />
+            <Button onPress={() => navigation.navigate("Bitcoin")} title="Bitcoin" />
+            <Button onPress={() => navigation.navigate("Ethereum")} title="Ethereum" />
+            <Button onPress={resetWallets} title="Reset Coins Locally" />
           </>
         ) : (
           <>
             <Text>
-              You dont have an Account with Corresponding Wallets yet. Import or
-              derive a Master Key (BIP44 root)
+              You dont have an Account with Corresponding Wallets yet. Import or derive a Master Key (BIP44 root)
             </Text>
-            <GenerateWallet user={user} />
-            <ImportWallet user={user} />
+            <GenerateMasterAndPurpose user={user} />
+            <ImportMasterAndPurpose user={user} />
           </>
         )}
       </ScrollView>

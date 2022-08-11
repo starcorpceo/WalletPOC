@@ -1,9 +1,9 @@
 import { User } from "api-types/user";
 import { config } from "bitcoin/config/bitcoin-config";
+import { BitcoinService } from "packages/blockchain-api-client/src";
+import { BitcoinProviderEnum } from "packages/blockchain-api-client/src/blockchains/bitcoin/bitcoin-factory";
 import { createAddress } from "wallet/controller/creation/address-creation";
-import { Address, CoinTypeAccount, Transaction } from "wallet/types/wallet";
-import { BitcoinService } from "../../../../../../packages/blockchain-api-client/src";
-import { BitcoinProvider } from "../../../../../../packages/blockchain-api-client/src/blockchains/bitcoin/bitcoin-factory";
+import { Address, CoinTypeAccount } from "wallet/types/wallet";
 
 /**
  * Loads all addresses which were already used in a transaction
@@ -27,7 +27,11 @@ export const getUsedAddresses = async <T extends CoinTypeAccount>(
       pageSize: "10",
       offset: "0",
     });
-    newAddress.transactions = await bitcoinService.getTransactions(newAddress.address, query, BitcoinProvider.TATUM);
+    newAddress.transactions = await bitcoinService.getTransactions(
+      newAddress.address,
+      query,
+      BitcoinProviderEnum.TATUM
+    );
 
     addresses.push(newAddress);
 

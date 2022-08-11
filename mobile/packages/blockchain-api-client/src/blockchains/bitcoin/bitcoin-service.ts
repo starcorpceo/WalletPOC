@@ -1,8 +1,8 @@
-import { Service } from '../../base/service';
-import { Balance, BroadcastTransaction, Fees, Network, Transaction } from '../../base/types';
-import { BitcoinFactory, BitcoinProvider } from './bitcoin-factory';
+import { BroadcastTransaction, Fees, Network } from '../../base/types';
+import { BitcoinFactory, BitcoinProviderEnum } from './bitcoin-factory';
+import { BitcoinBalance, BitcoinTransaction } from './types';
 
-export class BitcoinService implements Service {
+export class BitcoinService {
   private factory: BitcoinFactory;
 
   constructor(network: Network) {
@@ -15,7 +15,7 @@ export class BitcoinService implements Service {
    * @param provider Which API should be called
    * @returns
    */
-  sendBroadcastTransaction = async (txData: string, provider: BitcoinProvider): Promise<BroadcastTransaction> => {
+  sendBroadcastTransaction = async (txData: string, provider: BitcoinProviderEnum): Promise<BroadcastTransaction> => {
     const { mapper, fetcher } = this.factory.getProviderFunctions(provider);
 
     const apiBroadcastTransaction = await fetcher.sendBroadcastTransaction(txData);
@@ -29,7 +29,7 @@ export class BitcoinService implements Service {
    * @param provider Which API should be called
    * @returns
    */
-  getBalance = async (address: string, provider: BitcoinProvider): Promise<Balance> => {
+  getBalance = async (address: string, provider: BitcoinProviderEnum): Promise<BitcoinBalance> => {
     const { mapper, fetcher } = this.factory.getProviderFunctions(provider);
 
     const apiBalance = await fetcher.fetchBalance(address);
@@ -49,8 +49,8 @@ export class BitcoinService implements Service {
   getTransactions = async (
     address: string,
     query: URLSearchParams,
-    provider: BitcoinProvider
-  ): Promise<Transaction[]> => {
+    provider: BitcoinProviderEnum
+  ): Promise<BitcoinTransaction[]> => {
     const { mapper, fetcher } = this.factory.getProviderFunctions(provider);
 
     const apiTransactions = await fetcher.fetchTransactions(address, query);
@@ -73,7 +73,7 @@ export class BitcoinService implements Service {
     type: string,
     fromUTXO: any[],
     to: any[],
-    provider: BitcoinProvider
+    provider: BitcoinProviderEnum
   ): Promise<Fees> => {
     const { mapper, fetcher } = this.factory.getProviderFunctions(provider);
 

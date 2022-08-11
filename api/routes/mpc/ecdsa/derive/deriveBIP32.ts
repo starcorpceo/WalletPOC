@@ -24,18 +24,9 @@ export const deriveBIP32 = async (connection: SocketStream, user: User) => {
           const input = message.toString();
 
           if (input === "nonhardened") {
-            const share = deriveContext.context
-              .getResultDeriveBIP32()
-              .toBuffer()
-              .toString("base64");
+            const share = deriveContext.context.getResultDeriveBIP32().toBuffer().toString("base64");
 
-            processDerivedShare(
-              user,
-              share,
-              deriveContext.parent,
-              connection,
-              deriveContext.deriveConfig
-            );
+            processDerivedShare(user, share, deriveContext.parent, connection, deriveContext.deriveConfig);
 
             return;
           }
@@ -52,40 +43,28 @@ export const deriveBIP32 = async (connection: SocketStream, user: User) => {
   });
 
   connection.socket.on("close", (code, reason) => {
-    logger.info(
-      { code, reason: reason?.toString() },
-      "Closed Derive BIP32 Connection"
-    );
+    logger.info({ code, reason: reason?.toString() }, "Closed Derive BIP32 Connection");
     deriveContext?.context?.free();
   });
 };
 
-const deriveStep = async (
-  message: RawData,
-  deriveContext: DeriveContext,
-  user: User,
-  connection: SocketStream
-) => {
+const deriveStep = async (message: RawData, deriveContext: DeriveContext, user: User, connection: SocketStream) => {
   try {
     const { context, parent, deriveConfig } = deriveContext;
 
     if (!context || context.contextPtr == null) {
-      connection.socket.close(
-        undefined,
-        "Context undefined during Stepping, closing connection"
-      );
+      connection.socket.close(undefined, "Context undefined during Stepping, closing connection");
       return;
     }
 
     const stepInput = message.toString();
 
     if (!stepInput || stepInput === "") {
-      connection.socket.close(
-        undefined,
-        "Invalid Step Message, closing connection"
-      );
+      connection.socket.close(undefined, "Invalid Step Message, closing connection");
       return;
     }
+
+    logger.info("DERIVE STEP");
 
     const stepOutput = step(stepInput, context);
 

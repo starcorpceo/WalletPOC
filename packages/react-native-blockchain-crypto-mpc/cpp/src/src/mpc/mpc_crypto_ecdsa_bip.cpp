@@ -1011,7 +1011,7 @@ MPCCRYPTO_API int MPCCrypto_serializePubBIP32(MPCCryptoShare *share_ptr, char *o
 
   bip32_info_t bip_key_info;
   share->get_bip_info(bip_key_info);
-
+    
   ecc_point_t Q = share->core.Q_full;
 
   if (bip_key_info.hardened)
