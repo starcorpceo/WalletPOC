@@ -13,12 +13,10 @@ export const alchemyEthereumFetcher = (network: Network) => ({
   fetchBalance: (address: string) =>
     fetchFromAlchemy<AlchemyBalance>(alchemyEndpoints(network), Method.Balance, [address, 'latest']),
   fetchTransactions: async (address: string) =>
-    (
-      await Promise.all([
-        fetchAlchemyTransactions('from', network, address),
-        fetchAlchemyTransactions('to', network, address),
-      ])
-    ).flat(),
+    await Promise.all([
+      fetchAlchemyTransactions('from', network, address),
+      fetchAlchemyTransactions('to', network, address),
+    ]),
   sendRawTransaction: (transaction: string) =>
     fetchFromAlchemy<AlchemyBroadCastTransactionResult>(alchemyEndpoints(network), Method.SendTransaction, [
       transaction,

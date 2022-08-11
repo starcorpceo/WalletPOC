@@ -10,7 +10,7 @@ type EthereumBalanceProps = {
 export const EthereumBalance = ({ wallet, updateBalance }: EthereumBalanceProps) => {
   return (
     <>
-      {wallet.balance && <Text>Balance: {wallet.ethBalance} Wei</Text>}
+      {wallet.balance && <Text>Balance: {wallet.ethBalance} Gwei</Text>}
       <Button onPress={updateBalance} title="Fetch Balance" />
     </>
   );

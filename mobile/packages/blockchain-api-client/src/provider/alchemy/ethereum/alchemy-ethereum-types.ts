@@ -5,16 +5,16 @@ export type AlchemyResult<T> = {
 };
 
 export type AlchemyBalance = AlchemyResult<string>;
-export type AlchemyTransaction = AlchemyResult<Result>;
+export type AlchemyTransaction = AlchemyResult<AlchemyTransactionResult>;
 export type AlchemyFees = AlchemyResult<string>;
 export type AlchemyBroadCastTransactionResult = AlchemyResult<string>;
 export type AlchemyTransactionCount = AlchemyResult<string>;
 
-interface Result {
-  transfers: Transfer[];
+export interface AlchemyTransactionResult {
+  transfers: Transaction[];
 }
 
-interface Transfer {
+interface Transaction {
   blockNum: string;
   hash: string;
   from: string;

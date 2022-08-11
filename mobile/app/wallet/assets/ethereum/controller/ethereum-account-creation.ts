@@ -5,7 +5,7 @@ import { EthereumWallet } from "ethereum/types/ethereum";
 import { SetterOrUpdater } from "recoil";
 import { CoinTypeKeyShare, PurposeKeyShare } from "shared/types/mpc";
 import { AccountBuilder } from "wallet/controller/creation/account-creation";
-import { publicKeyToEthereumAddress } from "./ethereum-utils";
+import { publicKeyToEthereumAddress } from "./ethereum-adapter";
 
 export class EthereumAccountBuilder extends AccountBuilder<EthereumWallet> {
   private setState: SetterOrUpdater<EthereumWalletsState> = () => {};

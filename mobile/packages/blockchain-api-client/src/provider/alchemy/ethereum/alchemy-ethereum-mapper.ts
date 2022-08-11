@@ -3,7 +3,7 @@ import { AlchemyBalance, AlchemyResult, AlchemyTransaction } from './alchemy-eth
 
 export const mapAlchemyBalance = (balance: AlchemyBalance): EthereumBalance => {
   return {
-    value: Number.parseInt(balance.result, 16),
+    value: weiToGwei(Number.parseInt(balance.result, 16)),
   };
 };
 
@@ -20,3 +20,4 @@ export const mapAlchemyResultToString = (response: AlchemyResult<string>): strin
 };
 
 export const ethToGwei = (eth: number): number => eth * 1000000000;
+export const weiToGwei = (wei: number): number => wei / 1000000000;

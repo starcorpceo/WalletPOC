@@ -1,5 +1,6 @@
 import { User } from "api-types/user";
-import { buildRawTransaction } from "ethereum/controller/ethereum-transaction.utils";
+import { getSignedRawTransaction } from "ethereum/controller/ethereum-signer";
+import { buildRawTransaction } from "ethereum/controller/ethereum-transaction-utils";
 import { gWeiToWei } from "ethereum/controller/ethereum-utils";
 import { EthereumWallet } from "ethereum/types/ethereum";
 import { EthereumService } from "packages/blockchain-api-client/src";
@@ -24,21 +25,13 @@ const SendEthereum = ({ user, wallet, service }: SendEthereumProps) => {
 
       const address = wallet.external.addresses[0];
       const transactionCount = await service.getTransactionCount(address.address, EthereumProviderEnum.ALCHEMY);
-      const transaction = await buildRawTransaction(
-        address,
-        user,
-        toAddress,
-        gWeiToWei(gWeis),
-        Number.parseInt(transactionCount, 16),
-        gasPrice
-      );
+
+      const transaction = await buildRawTransaction(toAddress, gWeiToWei(gWeis), transactionCount, gasPrice);
+      const finalRawTransaction = await getSignedRawTransaction(user, address, transaction);
 
       console.log("valid " + transaction.validate());
 
-      const result = await service.sendRawTransaction(
-        "0x" + transaction.serialize().toString("hex"),
-        EthereumProviderEnum.ALCHEMY
-      );
+      const result = await service.sendRawTransaction(finalRawTransaction, EthereumProviderEnum.ALCHEMY);
 
       console.log(result);
     } catch (err) {
