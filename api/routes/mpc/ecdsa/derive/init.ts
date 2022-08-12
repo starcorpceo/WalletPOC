@@ -14,7 +14,9 @@ export const initDerive = async (
   const deriveConfig = JSON.parse(message.toString()) as DeriveConfig;
 
   try {
-    const existingWallet = await getWalletByPath(buildPath(deriveConfig), userId);
+    const path = buildPath(deriveConfig);
+    const existingWallet = await getWalletByPath(path, userId);
+
     existingWallet && (await deleteWallet(existingWallet));
   } catch (err) {
     logger.error({ err }, "Error while checking if keyshare has already been derived by user");
@@ -31,7 +33,7 @@ const setupContext = async (
   try {
     const parent = await getWallet(deriveConfig.serverShareId, userId);
 
-    logger.info("INIT DERIVE");
+    logger.info({ parent: { id: parent.id, path: parent.path }, deriveConfig }, "INIT DERIVE");
 
     const context = Context.createDeriveBIP32Context(
       2,

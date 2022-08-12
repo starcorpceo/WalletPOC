@@ -32,6 +32,7 @@ export const signWithEcdsaShare = (connection: SocketStream, user: User) => {
       case "InitMessage":
         try {
           const { messageToSign, encoding } = JSON.parse(message.toString());
+          logger.info({ parent: { id: share.id, path: share.path }, messageToSign, encoding }, "INIT SIGN");
 
           context =
             context ||
@@ -53,15 +54,15 @@ export const signWithEcdsaShare = (connection: SocketStream, user: User) => {
         break;
       case "Stepping":
         try {
+          const stepInput = message.toString();
+          logger.info({ input: stepInput.slice(0, 23), contextPtr: context.contextPtr }, "SIGN STEP");
+
           const stepOutput = step(message.toString(), context);
 
           if (stepOutput === true) {
             logger.info("Completed Signature, closing connection");
             context.free();
-            connection.socket.close(
-              undefined,
-              "Completed Signature, closing connection"
-            );
+            connection.socket.close(undefined, "Completed Signature, closing connection");
             return;
           }
 

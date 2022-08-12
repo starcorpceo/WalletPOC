@@ -64,7 +64,7 @@ const deriveStep = async (message: RawData, deriveContext: DeriveContext, user: 
       return;
     }
 
-    logger.info("DERIVE STEP");
+    logger.info({ input: stepInput.slice(0, 23), contextPtr: context.contextPtr }, "DERIVE STEP");
 
     const stepOutput = step(stepInput, context);
 
