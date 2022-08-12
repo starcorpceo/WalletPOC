@@ -1,12 +1,12 @@
 import { User } from "api-types/user";
 import { config } from "bitcoin/config/bitcoin-config";
 import { connectVirtualAccount } from "bitcoin/controller/virtual/bitcoin-virtual-wallet";
-import { initialBitcoinState } from "bitcoin/state/atoms";
 import { emptyKeyPair } from "config/constants";
 import { deepCompare } from "lib/util";
 import { getXPubKey } from "react-native-blockchain-crypto-mpc";
 import { AccountKeyShare, CoinTypeKeyShare, KeyShareType, PurposeKeyShare } from "shared/types/mpc";
 import { CoinTypeState } from "state/types";
+import { initialCoinState } from "wallet/state/wallet-state-utils";
 import { VirtualAccount } from "wallet/types/virtual-wallet";
 import { AccountChange, CoinTypeAccount, WalletConfig } from "wallet/types/wallet";
 import { AddressAndPublicKey } from "../adapter/blockchain-adapter";
@@ -60,7 +60,7 @@ export class AccountBuilder<T extends CoinTypeAccount> {
     coinTypeShareFromState: CoinTypeKeyShare,
     index: string
   ): Promise<CoinTypeKeyShare> {
-    const noCoinTypeWalletExists = deepCompare(coinTypeShareFromState, initialBitcoinState.coinTypeKeyShare);
+    const noCoinTypeWalletExists = deepCompare(coinTypeShareFromState, initialCoinState.coinTypeKeyShare);
 
     return noCoinTypeWalletExists
       ? await deriveMpcKeyShare(purposeShare, this.user, index, true, KeyShareType.COINTYPE)

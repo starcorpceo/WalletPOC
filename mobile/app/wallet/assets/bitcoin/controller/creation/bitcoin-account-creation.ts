@@ -2,7 +2,7 @@ import { User } from "api-types/user";
 import { config } from "bitcoin/config/bitcoin-config";
 import { defaultBitcoinAccountConfig } from "bitcoin/config/bitcoin-constants";
 import { publicKeyToBitcoinAddressP2PKH } from "bitcoin/controller/adapter/bitcoin-adapter";
-import { BitcoinWalletsState } from "bitcoin/state/atoms";
+import { BitcoinWalletsState } from "bitcoin/state/bitcoin-atoms";
 import { BitcoinWallet } from "bitcoin/types/bitcoin";
 import { SetterOrUpdater } from "recoil";
 import { CoinTypeKeyShare, PurposeKeyShare } from "shared/types/mpc";

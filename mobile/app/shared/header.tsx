@@ -13,12 +13,8 @@ import { KeyShareType } from "./types/mpc";
 
 const Header = () => {
   const [auth, setAuth] = useRecoilState<AuthState>(authState);
-
   const navigation = useNavigation();
-
   const resetWallets = useResetWalletState();
-
-  console.log("Auth updated", { auth });
 
   const initUser = useCallback(async () => {
     getKey(constants.deviceKeyName)

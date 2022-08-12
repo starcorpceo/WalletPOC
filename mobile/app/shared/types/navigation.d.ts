@@ -1,10 +1,10 @@
+import { User } from "api-types/user";
 import { CoinTypeAccount } from "wallet/types/wallet";
-import { VirtualAccount } from "wallet/virtual-wallet";
 
 type NavigationRoutes = {
   Home: undefined;
-  Bitcoin: undefined;
-  Ethereum: undefined;
+  Bitcoin: { isStateEmpty: boolean; user: User };
+  Ethereum: { isStateEmpty: boolean; user: User };
   BitcoinTransactions: { account: CoinTypeAccount };
   SendTransaction: { account: CoinTypeAccount };
 };

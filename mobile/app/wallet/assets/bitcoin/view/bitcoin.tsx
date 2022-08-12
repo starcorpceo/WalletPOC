@@ -1,12 +1,11 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { BitcoinAccountBuilder } from "bitcoin/controller/creation/bitcoin-account-creation";
 import { getUsedAddresses } from "bitcoin/controller/creation/bitcoin-transaction-scanning";
-import { BitcoinWalletsState, bitcoinWalletsState } from "bitcoin/state/atoms";
+import { BitcoinWalletsState, bitcoinWalletsState } from "bitcoin/state/bitcoin-atoms";
 import React, { useCallback, useEffect } from "react";
 import { Button } from "react-native";
-import { useRecoilValue, useSetRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import { NavigationRoutes } from "shared/types/navigation";
-import { AuthState, authState } from "state/atoms";
 import { getPurposeWallet } from "state/utils";
 import { useAddAddress } from "wallet/state/wallet-state-utils";
 import Wallets from "wallet/view/generic-wallet-view";
@@ -15,19 +14,16 @@ import { BitcoinBalance } from "./list/item/bitcoin-wallet-balance";
 
 type Props = NativeStackScreenProps<NavigationRoutes, "Bitcoin">;
 
-const Bitcoin = ({ navigation }: Props) => {
-  const bitcoinState = useRecoilValue<BitcoinWalletsState>(bitcoinWalletsState);
-  const user = useRecoilValue<AuthState>(authState);
-  const setBitcoin = useSetRecoilState<BitcoinWalletsState>(bitcoinWalletsState);
+const Bitcoin = ({ route, navigation }: Props) => {
+  const [bitcoinState, setBitcoin] = useRecoilState<BitcoinWalletsState>(bitcoinWalletsState);
   const setAddAddress = useAddAddress(bitcoinWalletsState);
-
   const purposeKeyShare = useRecoilValue(getPurposeWallet);
 
-  console.log("Bitcoin updated", { bitcoinState });
+  const { isStateEmpty, user } = route.params;
 
   useEffect(() => {
     const onOpen = async () => {
-      if (bitcoinState.accounts.length > 0) return;
+      if (bitcoinState.accounts.length > 0 || !isStateEmpty) return;
 
       const accountBuilder = new BitcoinAccountBuilder(user);
 

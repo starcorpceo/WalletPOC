@@ -1,6 +1,8 @@
-import { bitcoinWalletsState, BitcoinWalletsState, initialBitcoinState } from "bitcoin/state/atoms";
-import { EthereumWalletsState, ethereumWalletsState, initialEthereumState } from "ethereum/state/atoms";
+import { bitcoinWalletsState, BitcoinWalletsState } from "bitcoin/state/bitcoin-atoms";
+import { EthereumWalletsState, ethereumWalletsState } from "ethereum/state/ethereum-atoms";
+import { deepCompare } from "lib/util";
 import { RecoilState, selector, useSetRecoilState } from "recoil";
+import { CoinTypeKeyShare, KeyShareType } from "shared/types/mpc";
 import { authState, AuthState } from "state/atoms";
 import { CoinTypeState } from "state/types";
 import { Address, CoinTypeAccount } from "wallet/types/wallet";
@@ -8,6 +10,20 @@ import { Address, CoinTypeAccount } from "wallet/types/wallet";
 type AllWallets = {
   account: AuthState;
   bitcoin: BitcoinWalletsState;
+  ethereum: EthereumWalletsState;
+};
+
+const emptyCoinTypeShare: CoinTypeKeyShare = {
+  id: "",
+  keyShare: "",
+  path: "",
+  parentWalletId: "",
+  type: KeyShareType.COINTYPE,
+};
+
+export const initialCoinState: CoinTypeState<CoinTypeAccount> = {
+  accounts: [],
+  coinTypeKeyShare: emptyCoinTypeShare,
 };
 
 export const useResetWalletState = () => {
@@ -15,8 +31,8 @@ export const useResetWalletState = () => {
   const setEthereumState = useSetRecoilState<EthereumWalletsState>(ethereumWalletsState);
 
   return function WithAllCoinStates() {
-    setBitcoinState((_) => ({ ...initialBitcoinState, accounts: [] }));
-    setEthereumState((_) => ({ ...initialEthereumState, accounts: [] }));
+    setBitcoinState((_) => ({ ...initialCoinState, accounts: [] }));
+    setEthereumState((_) => ({ ...initialCoinState, accounts: [] }));
   };
 };
 
@@ -25,6 +41,7 @@ export const getAllWallets = selector({
   get: ({ get }): AllWallets => {
     return {
       bitcoin: get<BitcoinWalletsState>(bitcoinWalletsState),
+      ethereum: get<EthereumWalletsState>(ethereumWalletsState),
       account: get<AuthState>(authState),
     };
   },
@@ -73,3 +90,6 @@ export const useUpdateAccount = <T extends CoinTypeAccount>(state: RecoilState<C
     }));
   };
 };
+
+export const isStateEmpty = <T extends CoinTypeAccount>(state: CoinTypeState<T>) =>
+  deepCompare(state, initialCoinState);

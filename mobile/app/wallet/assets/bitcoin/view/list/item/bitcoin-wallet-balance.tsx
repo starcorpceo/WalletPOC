@@ -1,6 +1,6 @@
 import { getBalanceFromAccount } from "bitcoin/controller/bitcoin-balance";
 import { SatoshisToBitcoin } from "bitcoin/controller/bitcoin-utils";
-import { bitcoinWalletsState } from "bitcoin/state/atoms";
+import { bitcoinWalletsState } from "bitcoin/state/bitcoin-atoms";
 import { useUpdateAccountBalance } from "bitcoin/state/bitcoin-wallet-state-utils";
 import { BitcoinWallet } from "bitcoin/types/bitcoin";
 import React from "react";

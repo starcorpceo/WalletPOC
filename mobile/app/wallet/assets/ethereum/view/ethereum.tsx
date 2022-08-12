@@ -1,29 +1,26 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { EthereumAccountBuilder } from "ethereum/controller/ethereum-account-creation";
-import { EthereumWalletsState, ethereumWalletsState, initialEthereumState } from "ethereum/state/atoms";
-import { deepCompare } from "lib/util";
+import { EthereumWalletsState, ethereumWalletsState } from "ethereum/state/ethereum-atoms";
 import React, { useCallback, useEffect } from "react";
 import { Button } from "react-native";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { NavigationRoutes } from "shared/types/navigation";
-import { AuthState, authState } from "state/atoms";
 import { getPurposeWallet } from "state/utils";
+import { initialCoinState } from "wallet/state/wallet-state-utils";
 import Wallets from "wallet/view/generic-wallet-view";
 import EthereumWalletListView from "./list/ethereum-wallet-list";
 
 type Props = NativeStackScreenProps<NavigationRoutes, "Ethereum">;
 
-const Ethereum = ({ navigation }: Props) => {
+const Ethereum = ({ route }: Props) => {
   const [ethereumState, setEthereum] = useRecoilState<EthereumWalletsState>(ethereumWalletsState);
-  const user = useRecoilValue<AuthState>(authState);
-
   const purposeKeyShare = useRecoilValue(getPurposeWallet);
 
-  console.log("Ethereum updated", { ethereumState });
+  const { isStateEmpty, user } = route.params;
 
   useEffect(() => {
     const onOpen = async () => {
-      if (ethereumState.accounts.length > 0 && deepCompare(ethereumState, initialEthereumState)) return;
+      if (ethereumState.accounts.length > 0 || !isStateEmpty) return;
 
       const accountBuilder = new EthereumAccountBuilder(user);
 
@@ -41,7 +38,7 @@ const Ethereum = ({ navigation }: Props) => {
   }, []);
 
   const deleteEthereumAccount = useCallback(() => {
-    setEthereum((current) => ({ ...current, accounts: [] }));
+    setEthereum((_) => initialCoinState);
   }, [setEthereum]);
 
   return (

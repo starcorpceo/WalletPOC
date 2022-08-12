@@ -1,6 +1,6 @@
 import { User } from "api-types/user";
 import { defaultEthereumAccountConfig } from "ethereum/config/ethereum-constants";
-import { EthereumWalletsState } from "ethereum/state/atoms";
+import { EthereumWalletsState } from "ethereum/state/ethereum-atoms";
 import { EthereumWallet } from "ethereum/types/ethereum";
 import { SetterOrUpdater } from "recoil";
 import { CoinTypeKeyShare, PurposeKeyShare } from "shared/types/mpc";

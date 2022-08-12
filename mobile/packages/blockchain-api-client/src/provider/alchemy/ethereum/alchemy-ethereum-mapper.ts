@@ -19,7 +19,7 @@ export const mapAlchemyTransactions = (transaction: AlchemyTransaction[]): Ether
 };
 
 export const mapAlchemyResultToString = (response: AlchemyResult<string>): string => {
-  if (response.error) throw new Error(response.error);
+  if (response.error) throwAlchemyError(response);
 
   return response.result;
 };
@@ -28,7 +28,11 @@ export const ethToGwei = (eth: number): number => eth * 1000000000;
 export const weiToGwei = (wei: number): number => wei / 1000000000;
 
 const throwIfError = (res: AlchemyResult<any>): AlchemyResult<any> => {
-  if (res.error) throw new Error(res.error);
+  if (res.error) throwAlchemyError(res);
 
   return res;
+};
+
+const throwAlchemyError = (result: AlchemyResult<any>): void => {
+  throw new Error(JSON.stringify(result.error));
 };

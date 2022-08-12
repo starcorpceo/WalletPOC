@@ -1,4 +1,4 @@
-import { ethereumWalletsState } from "ethereum/state/atoms";
+import { ethereumWalletsState } from "ethereum/state/ethereum-atoms";
 import { EthereumWallet } from "ethereum/types/ethereum";
 import React from "react";
 import { View } from "react-native";

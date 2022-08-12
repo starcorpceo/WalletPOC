@@ -11,11 +11,7 @@ export const deleteWallet = (wallet: MpcKeyShare) => {
   });
 };
 
-export const createDerivedWallet = (
-  user: User,
-  share: string,
-  path: string
-): Promise<MpcKeyShare> => {
+export const createDerivedWallet = (user: User, share: string, path: string): Promise<MpcKeyShare> => {
   return client.mpcKeyShare.create({
     data: {
       keyShare: share,
@@ -32,11 +28,7 @@ export const createDerivedWallet = (
   });
 };
 
-export const createWallet = (
-  user: User,
-  share: string,
-  path: string
-): Promise<MpcKeyShare> => {
+export const createWallet = (user: User, share: string, path: string): Promise<MpcKeyShare> => {
   return client.mpcKeyShare.create({
     data: {
       keyShare: share,
@@ -53,10 +45,7 @@ export const createWallet = (
   });
 };
 
-export const getWallet = async (
-  id: string,
-  userId: string
-): Promise<MpcKeyShare> => {
+export const getWallet = async (id: string, userId: string): Promise<MpcKeyShare> => {
   const wallet = await client.mpcKeyShare.findFirst({
     where: {
       id,
@@ -69,10 +58,7 @@ export const getWallet = async (
   return wallet;
 };
 
-export const getWalletByPath = async (
-  path: string,
-  userId: string
-): Promise<MpcKeyShare | null> => {
+export const getWalletByPath = async (path: string, userId: string): Promise<MpcKeyShare | null> => {
   const wallet = await client.mpcKeyShare.findUnique({
     where: {
       userId_path: {
