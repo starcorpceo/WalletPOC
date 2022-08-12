@@ -1,10 +1,13 @@
 import { User } from "api-types/user";
+import { BitcoinWallet } from "bitcoin/types/bitcoin";
+import { BitcoinTransaction } from "packages/blockchain-api-client/src/blockchains/bitcoin/types";
 import { CoinTypeAccount } from "wallet/types/wallet";
 
 type NavigationRoutes = {
   Home: undefined;
-  Bitcoin: { isStateEmpty: boolean; user: User };
+  BitcoinScreen: { isStateEmpty: boolean; user: User };
   Ethereum: { isStateEmpty: boolean; user: User };
-  BitcoinTransactions: { account: CoinTypeAccount };
-  SendTransaction: { account: CoinTypeAccount };
+  BitcoinSendScreen: { account: CoinTypeAccount };
+  BitcoinReceiveScreen: { account: CoinTypeAccount };
+  BitcoinSingleTransactionScreen: { transaction: BitcoinTransaction; wallet: BitcoinWallet };
 };

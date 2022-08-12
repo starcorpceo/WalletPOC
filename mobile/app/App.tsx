@@ -10,9 +10,10 @@
 
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import Bitcoin from "bitcoin/view/bitcoin";
-import SendTransactionView from "bitcoin/view/send/send-transaction";
-import BitcoinTransactions from "bitcoin/view/transaction/transaction-overview";
+import BitcoinScreen from "bitcoin/view/bitcoin-screen";
+import BitcoinReceiveScreen from "bitcoin/view/wallet/receive/bitcoin-receive-screen";
+import BitcoinSendScreen from "bitcoin/view/wallet/send/bitcoin-send-screen";
+import { BitcoinSingleTransactionScreen } from "bitcoin/view/wallet/transaction/bitcoin-single-transaction-screen";
 import React from "react";
 import { SafeAreaView, StatusBar, StyleSheet, useColorScheme, View } from "react-native";
 import { RecoilRoot } from "recoil";
@@ -40,10 +41,23 @@ const App = () => {
           <View style={styles.view}>
             <Stack.Navigator initialRouteName="Home">
               <Stack.Screen name="Home" component={Home} />
-              <Stack.Screen name="Bitcoin" component={Bitcoin} />
+              <Stack.Screen name="BitcoinScreen" component={BitcoinScreen} options={{ title: "All wallets" }} />
               <Stack.Screen name="Ethereum" component={Ethereum} />
-              <Stack.Screen name="BitcoinTransactions" component={BitcoinTransactions} />
-              <Stack.Screen name="SendTransaction" component={SendTransactionView} />
+              <Stack.Screen
+                name="BitcoinSendScreen"
+                component={BitcoinSendScreen}
+                options={{ title: "Send Bitcoin" }}
+              />
+              <Stack.Screen
+                name="BitcoinReceiveScreen"
+                component={BitcoinReceiveScreen}
+                options={{ title: "Receive Bitcoin" }}
+              />
+              <Stack.Screen
+                name="BitcoinSingleTransactionScreen"
+                component={BitcoinSingleTransactionScreen}
+                options={{ title: "Transaction Detail" }}
+              />
             </Stack.Navigator>
           </View>
         </RecoilRoot>

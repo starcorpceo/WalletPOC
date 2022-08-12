@@ -35,7 +35,7 @@ const Home = ({ navigation }: Props) => {
         {isWalletReadyForAccountsView(user) ? (
           <>
             <Button
-              onPress={() => navigation.navigate("Bitcoin", { isStateEmpty: isStateEmpty(bitcoin), user })}
+              onPress={() => navigation.navigate("BitcoinScreen", { isStateEmpty: isStateEmpty(bitcoin), user })}
               title="Bitcoin"
             />
             <Button

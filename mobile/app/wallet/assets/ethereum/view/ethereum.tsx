@@ -7,7 +7,7 @@ import { useRecoilState, useRecoilValue } from "recoil";
 import { NavigationRoutes } from "shared/types/navigation";
 import { getPurposeWallet } from "state/utils";
 import { initialCoinState } from "wallet/state/wallet-state-utils";
-import Wallets from "wallet/view/generic-wallet-view";
+import Wallets from "wallet/view/generic-wallet-screen";
 import EthereumWalletListView from "./list/ethereum-wallet-list";
 
 type Props = NativeStackScreenProps<NavigationRoutes, "Ethereum">;
