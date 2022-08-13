@@ -1,6 +1,8 @@
+import { Psbt } from "der-bitcoinjs-lib";
 import { BitcoinBalance } from "packages/blockchain-api-client/src/blockchains/bitcoin/types";
 import { CoinTypeAccount } from "wallet/types/wallet";
 
 export interface BitcoinWallet extends CoinTypeAccount {
   balance: BitcoinBalance;
+  mempool: Psbt[];
 }

@@ -1,24 +1,24 @@
-import { NavigationState } from "@react-navigation/native";
-import { NativeStackNavigationProp, NativeStackScreenProps } from "@react-navigation/native-stack";
-import { getNextUnusedAddress } from "bitcoin/controller/bitcoin-address";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { getAllTransactionsCache } from "bitcoin/controller/bitcoin-transaction";
 import {
   getNetValueFromTransaction,
   getOtherInputs,
   getOtherOutputs,
+  hasOtherAddress,
 } from "bitcoin/controller/bitcoin-transaction-utils";
 import { SatoshisToBitcoin } from "bitcoin/controller/bitcoin-utils";
 import { getUsedAddresses } from "bitcoin/controller/creation/bitcoin-transaction-scanning";
 import { bitcoinWalletsState } from "bitcoin/state/atoms";
+import { useDeleteMempoolTransaction } from "bitcoin/state/bitcoin-wallet-state-utils";
 import { BitcoinWallet } from "bitcoin/types/bitcoin";
+import { Psbt } from "der-bitcoinjs-lib";
 import { BitcoinTransaction } from "packages/blockchain-api-client/src/blockchains/bitcoin/types";
 import React, { useEffect, useState } from "react";
-import { Button, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useRecoilValue } from "recoil";
 import { NavigationRoutes } from "shared/types/navigation";
 import { authState, AuthState } from "state/atoms";
-import { useAddAddress, useOverrideAddress } from "wallet/state/wallet-state-utils";
-import { Address } from "wallet/types/wallet";
+import { useOverrideAddress } from "wallet/state/wallet-state-utils";
 
 type BitcoinTransactionsProps = {
   wallet: BitcoinWallet;
@@ -27,19 +27,44 @@ type BitcoinTransactionsProps = {
 
 const BitcoinTransactionsView = ({ wallet, navigation }: BitcoinTransactionsProps) => {
   const [transactions, setTransactions] = useState<BitcoinTransaction[]>();
+  const [mempoolTransactions, setMempoolTransactions] = useState<Psbt[]>();
   const setOverrideAddress = useOverrideAddress(bitcoinWalletsState);
   const user = useRecoilValue<AuthState>(authState);
+  const deleteMempoolTransaction = useDeleteMempoolTransaction(bitcoinWalletsState);
 
   useEffect(() => {
     const onLoad = async () => {
       if (wallet) setTransactions(getAllTransactionsCache(wallet!));
+      if (wallet.mempool) setMempoolTransactions(wallet.mempool);
     };
     onLoad();
   }, []);
 
   const refreshHistory = async () => {
-    setOverrideAddress(await getUsedAddresses(user, wallet, "external"), wallet, "external");
-    setOverrideAddress(await getUsedAddresses(user, wallet, "internal"), wallet, "internal");
+    const externalAddresses = await getUsedAddresses(user, wallet, "external");
+    setOverrideAddress(externalAddresses, wallet, "external");
+
+    const internalAddresses = await getUsedAddresses(user, wallet, "internal");
+    setOverrideAddress(internalAddresses, wallet, "internal");
+
+    if (wallet.mempool) {
+      deleteMempoolTransaction(
+        wallet.mempool.findIndex(
+          (mempoolTransaction) =>
+            externalAddresses.some((address) =>
+              address.transactions.some(
+                (transaction) => transaction.hash === mempoolTransaction.extractTransaction().getId()
+              )
+            ) ||
+            internalAddresses.some((address) =>
+              address.transactions.some(
+                (transaction) => transaction.hash === mempoolTransaction.extractTransaction().getId()
+              )
+            )
+        ),
+        wallet
+      );
+    }
   };
 
   return (
@@ -56,11 +81,28 @@ const BitcoinTransactionsView = ({ wallet, navigation }: BitcoinTransactionsProp
         </TouchableOpacity>
       </View>
 
+      {mempoolTransactions?.map((transaction, index) => {
+        const otherOutput = transaction.txOutputs.find((output) => hasOtherAddress(output.address!, wallet));
+        return (
+          <View key={index} style={[styles.transaction, { backgroundColor: "#fcfcde" }]}>
+            <View>{otherOutput && <Text>{otherOutput.address?.slice(0, 16) + "..."}</Text>}</View>
+            <View style={styles.pendingArea}>
+              {otherOutput && (
+                <Text style={{ color: "red" }}>
+                  -{SatoshisToBitcoin(otherOutput?.value + transaction.getFee())} BTC
+                </Text>
+              )}
+              <Text style={styles.pendingText}>Pending...</Text>
+            </View>
+          </View>
+        );
+      })}
+
       {transactions?.map((transaction) => {
         const netvalue = getNetValueFromTransaction(transaction, wallet);
         const otherInputs = getOtherInputs(transaction, wallet);
         const otherOutputs = getOtherOutputs(transaction, wallet);
-        const colorBackground = !transaction.blockNumber ? "#fffff0" : netvalue < 0 ? "#fcf2f2" : "#f3fcf2";
+        const colorBackground = netvalue < 0 ? "#fcf2f2" : "#f3fcf2";
         const colorText = netvalue < 0 ? "red" : "green";
         return (
           <TouchableOpacity
@@ -125,6 +167,9 @@ const styles = StyleSheet.create({
     height: 16,
   },
   pendingText: {},
+  pendingArea: {
+    alignItems: "flex-end",
+  },
 });
 
 export default BitcoinTransactionsView;

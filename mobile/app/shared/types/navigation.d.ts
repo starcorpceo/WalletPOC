@@ -7,7 +7,7 @@ type NavigationRoutes = {
   Home: undefined;
   BitcoinScreen: { isStateEmpty: boolean; user: User };
   Ethereum: { isStateEmpty: boolean; user: User };
-  BitcoinSendScreen: { account: CoinTypeAccount };
+  BitcoinSendScreen: { account: BitcoinWallet };
   BitcoinReceiveScreen: { account: CoinTypeAccount };
   BitcoinSingleTransactionScreen: { transaction: BitcoinTransaction; wallet: BitcoinWallet };
 };

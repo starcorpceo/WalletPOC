@@ -39,17 +39,6 @@ const BitcoinWalletView = ({ wallet, index, navigation }: BitcoinWalletProps) =>
       </View>
 
       <BitcoinTransactionsView wallet={wallet} navigation={navigation} />
-
-      {/* <Text>Addresses</Text>
-
-      <View>
-        {wallet.external.addresses.map((addr) => (
-          <>
-            <Text key={addr.publicKey.toString()}>{addr.address}</Text>
-            <Text>Transactions count: {addr.transactions.length}</Text>
-          </>
-        ))}
-      </View> */}
     </View>
   );
 };
