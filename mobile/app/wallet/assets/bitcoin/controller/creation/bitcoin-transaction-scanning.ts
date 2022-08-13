@@ -20,7 +20,10 @@ export const getUsedAddresses = async <T extends CoinTypeAccount>(
   let derivationIndex = 0;
   let addresses: Address[] = [];
   while (!isUnused) {
-    const newAddress = await createAddress(user, account, changeType, derivationIndex);
+    let newAddress: Address;
+    if (!account[changeType].addresses[derivationIndex])
+      newAddress = await createAddress(user, account, changeType, derivationIndex);
+    else newAddress = { ...account[changeType].addresses[derivationIndex] };
 
     const bitcoinService = new BitcoinService(config.IsTestNet ? "TEST" : "MAIN");
     const query = new URLSearchParams({

@@ -35,8 +35,12 @@ export const BitcoinSingleTransactionScreen = ({ route }: Props) => {
           ) : (
             <View>
               <Text style={styles.mediumHeading}>To</Text>
-              {otherOutputs.map((otherOutput) => {
-                return <Text style={styles.mediumText}>{otherOutput.address}</Text>;
+              {otherOutputs.map((otherOutput, index) => {
+                return (
+                  <Text key={index} style={styles.mediumText}>
+                    {otherOutput.address}
+                  </Text>
+                );
               })}
             </View>
           )
@@ -44,8 +48,12 @@ export const BitcoinSingleTransactionScreen = ({ route }: Props) => {
           otherInputs.length > 0 && (
             <View>
               <Text style={styles.mediumHeading}>From</Text>
-              {otherInputs.map((otherInput) => {
-                return <Text style={styles.mediumText}>{otherInput.coin.address}</Text>;
+              {otherInputs.map((otherInput, index) => {
+                return (
+                  <Text key={index} style={styles.mediumText}>
+                    {otherInput.coin.address}
+                  </Text>
+                );
               })}
             </View>
           )

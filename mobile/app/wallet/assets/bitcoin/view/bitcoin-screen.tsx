@@ -56,9 +56,7 @@ const BitcoinScreen = ({ navigation, route }: Props) => {
       {bitcoinState.accounts[0] && (
         <>
           {bitcoinState.accounts.map((wallet, index: number) => (
-            <>
-              <BitcoinWalletView key={"Wallet-" + index} wallet={wallet} index={index} navigation={navigation} />
-            </>
+            <BitcoinWalletView key={"Wallet-" + index} wallet={wallet} index={index} navigation={navigation} />
           ))}
 
           <TouchableOpacity style={styles.deleteButton} onPress={deleteBitcoinAccount}>

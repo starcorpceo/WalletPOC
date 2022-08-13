@@ -8,13 +8,16 @@ import {
   getOtherOutputs,
 } from "bitcoin/controller/bitcoin-transaction-utils";
 import { SatoshisToBitcoin } from "bitcoin/controller/bitcoin-utils";
+import { getUsedAddresses } from "bitcoin/controller/creation/bitcoin-transaction-scanning";
+import { bitcoinWalletsState } from "bitcoin/state/atoms";
 import { BitcoinWallet } from "bitcoin/types/bitcoin";
 import { BitcoinTransaction } from "packages/blockchain-api-client/src/blockchains/bitcoin/types";
 import React, { useEffect, useState } from "react";
-import { Button, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Button, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useRecoilValue } from "recoil";
 import { NavigationRoutes } from "shared/types/navigation";
 import { authState, AuthState } from "state/atoms";
+import { useAddAddress } from "wallet/state/wallet-state-utils";
 import { Address } from "wallet/types/wallet";
 
 type BitcoinTransactionsProps = {
@@ -24,6 +27,8 @@ type BitcoinTransactionsProps = {
 
 const BitcoinTransactionsView = ({ wallet, navigation }: BitcoinTransactionsProps) => {
   const [transactions, setTransactions] = useState<BitcoinTransaction[]>();
+  const setAddAddress = useAddAddress(bitcoinWalletsState);
+  const user = useRecoilValue<AuthState>(authState);
 
   useEffect(() => {
     const onLoad = async () => {
@@ -32,9 +37,24 @@ const BitcoinTransactionsView = ({ wallet, navigation }: BitcoinTransactionsProp
     onLoad();
   }, []);
 
+  const refreshHistory = async () => {
+    setAddAddress(await getUsedAddresses(user, wallet, "external"), wallet, "external");
+    setAddAddress(await getUsedAddresses(user, wallet, "internal"), wallet, "internal");
+  };
+
   return (
     <>
-      <Text style={styles.heading}>History</Text>
+      <View style={styles.headingArea}>
+        <Text style={styles.heading}>History</Text>
+        <TouchableOpacity onPress={refreshHistory}>
+          <Image
+            style={styles.reloadIcon}
+            source={{
+              uri: "https://cdn.iconscout.com/icon/free/png-256/reload-retry-again-update-restart-refresh-sync-13-3149.png",
+            }}
+          />
+        </TouchableOpacity>
+      </View>
 
       {transactions?.map((transaction) => {
         const netvalue = getNetValueFromTransaction(transaction, wallet);
@@ -79,6 +99,10 @@ const BitcoinTransactionsView = ({ wallet, navigation }: BitcoinTransactionsProp
 };
 
 const styles = StyleSheet.create({
+  headingArea: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
   heading: {
     fontSize: 14,
     fontWeight: "bold",
@@ -92,6 +116,10 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 12,
     backgroundColor: "lightgrey",
+  },
+  reloadIcon: {
+    width: 16,
+    height: 16,
   },
 });
 
