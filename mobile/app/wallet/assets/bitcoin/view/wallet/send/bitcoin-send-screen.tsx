@@ -2,6 +2,8 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { signAllInputs } from "bitcoin/controller/bitcoin-signer";
 import { broadcastTransaction, prepareTransactionP2PKH } from "bitcoin/controller/bitcoin-transaction";
 import { SatoshisToBitcoin } from "bitcoin/controller/bitcoin-utils";
+import { bitcoinWalletsState } from "bitcoin/state/atoms";
+import { useAppendSentTransaction } from "bitcoin/state/bitcoin-wallet-state-utils";
 import React, { useState } from "react";
 import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useRecoilValue } from "recoil";
@@ -12,6 +14,7 @@ type Props = NativeStackScreenProps<NavigationRoutes, "BitcoinSendScreen">;
 
 const BitcoinSendScreen = ({ route }: Props) => {
   const user = useRecoilValue<AuthState>(authState);
+  const appendSentTransaction = useAppendSentTransaction(bitcoinWalletsState);
 
   const [receiverAddress, setReceiverAddress] = useState<string>();
   const [amount, setAmount] = useState<string>();
@@ -49,10 +52,14 @@ const BitcoinSendScreen = ({ route }: Props) => {
   };
 
   const broadcast = async (signedTransaction: any) => {
+    const { account } = route.params;
     try {
-      await broadcastTransaction(signedTransaction);
+      const { txId } = await broadcastTransaction(signedTransaction);
       Alert.alert("Successfully sent.");
+      //TODO append finished transaction to a mempool object in state to show in pending transaction history
+      // if (transaction) appendSentTransaction(transaction, account);
     } catch (err) {
+      console.log(err);
       Alert.alert("Unable to broadcast transaction");
     }
   };

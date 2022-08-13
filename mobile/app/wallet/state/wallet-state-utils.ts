@@ -69,6 +69,28 @@ export const useAddAddress = <T extends CoinTypeAccount>(state: RecoilState<Coin
   };
 };
 
+export const useOverrideAddress = <T extends CoinTypeAccount>(state: RecoilState<CoinTypeState<T>>) => {
+  const setCoinState = useSetRecoilState(state);
+
+  return function ToCoinState(address: Address[], account: CoinTypeAccount, changeType: "internal" | "external") {
+    const index = getAccountIndex(account);
+    setCoinState((current) => {
+      return {
+        ...current,
+        accounts: [
+          {
+            ...current.accounts[index],
+            [changeType]: {
+              ...current.accounts[index][changeType],
+              addresses: [...address],
+            },
+          },
+        ],
+      };
+    });
+  };
+};
+
 /**
  * Get the index of account - index is the bip44 path - account part
  * @param account

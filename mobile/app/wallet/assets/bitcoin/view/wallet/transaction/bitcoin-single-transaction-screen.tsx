@@ -1,17 +1,12 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { getBalanceFromAccount } from "bitcoin/controller/bitcoin-balance";
 import {
   getNetValueFromTransaction,
   getOtherInputs,
   getOtherOutputs,
 } from "bitcoin/controller/bitcoin-transaction-utils";
 import { SatoshisToBitcoin } from "bitcoin/controller/bitcoin-utils";
-import { bitcoinWalletsState } from "bitcoin/state/atoms";
-import { useUpdateAccountBalance } from "bitcoin/state/bitcoin-wallet-state-utils";
-import { BitcoinWallet } from "bitcoin/types/bitcoin";
-import { BitcoinTransaction } from "packages/blockchain-api-client/src/blockchains/bitcoin/types";
-import React, { useEffect } from "react";
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import React from "react";
+import { StyleSheet, Text, View } from "react-native";
 import { NavigationRoutes } from "shared/types/navigation";
 
 type Props = NativeStackScreenProps<NavigationRoutes, "BitcoinSingleTransactionScreen">;
@@ -22,6 +17,7 @@ export const BitcoinSingleTransactionScreen = ({ route }: Props) => {
   const netvalue = getNetValueFromTransaction(transaction, wallet);
   const otherInputs = getOtherInputs(transaction, wallet);
   const otherOutputs = getOtherOutputs(transaction, wallet);
+
   return (
     <View style={styles.container}>
       <Text style={styles.heading}>Details</Text>

@@ -17,7 +17,7 @@ import { Button, Image, StyleSheet, Text, TouchableOpacity, View } from "react-n
 import { useRecoilValue } from "recoil";
 import { NavigationRoutes } from "shared/types/navigation";
 import { authState, AuthState } from "state/atoms";
-import { useAddAddress } from "wallet/state/wallet-state-utils";
+import { useAddAddress, useOverrideAddress } from "wallet/state/wallet-state-utils";
 import { Address } from "wallet/types/wallet";
 
 type BitcoinTransactionsProps = {
@@ -27,7 +27,7 @@ type BitcoinTransactionsProps = {
 
 const BitcoinTransactionsView = ({ wallet, navigation }: BitcoinTransactionsProps) => {
   const [transactions, setTransactions] = useState<BitcoinTransaction[]>();
-  const setAddAddress = useAddAddress(bitcoinWalletsState);
+  const setOverrideAddress = useOverrideAddress(bitcoinWalletsState);
   const user = useRecoilValue<AuthState>(authState);
 
   useEffect(() => {
@@ -38,8 +38,8 @@ const BitcoinTransactionsView = ({ wallet, navigation }: BitcoinTransactionsProp
   }, []);
 
   const refreshHistory = async () => {
-    setAddAddress(await getUsedAddresses(user, wallet, "external"), wallet, "external");
-    setAddAddress(await getUsedAddresses(user, wallet, "internal"), wallet, "internal");
+    setOverrideAddress(await getUsedAddresses(user, wallet, "external"), wallet, "external");
+    setOverrideAddress(await getUsedAddresses(user, wallet, "internal"), wallet, "internal");
   };
 
   return (
@@ -60,11 +60,13 @@ const BitcoinTransactionsView = ({ wallet, navigation }: BitcoinTransactionsProp
         const netvalue = getNetValueFromTransaction(transaction, wallet);
         const otherInputs = getOtherInputs(transaction, wallet);
         const otherOutputs = getOtherOutputs(transaction, wallet);
+        const colorBackground = !transaction.blockNumber ? "#fffff0" : netvalue < 0 ? "#fcf2f2" : "#f3fcf2";
+        const colorText = netvalue < 0 ? "red" : "green";
         return (
           <TouchableOpacity
             key={transaction.hash}
             onPress={() => navigation.navigate("BitcoinSingleTransactionScreen", { transaction, wallet })}
-            style={[styles.transaction, { backgroundColor: netvalue < 0 ? "#fcf2f2" : "#f3fcf2" }]}
+            style={[styles.transaction, { backgroundColor: colorBackground }]}
           >
             {netvalue < 0 ? (
               otherOutputs.length <= 0 ? (
@@ -87,10 +89,11 @@ const BitcoinTransactionsView = ({ wallet, navigation }: BitcoinTransactionsProp
                 </View>
               )
             )}
-            <Text style={{ color: netvalue < 0 ? "red" : "green" }}>
+            <Text style={{ color: colorText }}>
               {netvalue >= 0 && "+"}
               {SatoshisToBitcoin(netvalue)} BTC
             </Text>
+            {!transaction.blockNumber && <Text style={styles.pendingText}>Pending</Text>}
           </TouchableOpacity>
         );
       })}
@@ -121,6 +124,7 @@ const styles = StyleSheet.create({
     width: 16,
     height: 16,
   },
+  pendingText: {},
 });
 
 export default BitcoinTransactionsView;
