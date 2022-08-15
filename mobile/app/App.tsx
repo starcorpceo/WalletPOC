@@ -19,9 +19,12 @@ import { SafeAreaView, StatusBar, StyleSheet, useColorScheme, View } from "react
 import { RecoilRoot } from "recoil";
 import { NavigationRoutes } from "shared/types/navigation";
 
-import Ethereum from "wallet/assets/ethereum/view/ethereum";
+import EthereumScreen from "ethereum/view/ethereum-screen";
 import Header from "./shared/header";
 import Home from "./views/home";
+import EthereumReceiveScreen from "ethereum/view/wallet/receive/ethereum-receive-screen";
+import EthereumSendScreen from "ethereum/view/wallet/send/ethereum-send-screen";
+import { EthereumSingleTransactionScreen } from "ethereum/view/wallet/transaction/ethereum-single-transaction-screen";
 
 const App = () => {
   const isDarkMode = useColorScheme() === "dark";
@@ -41,8 +44,25 @@ const App = () => {
           <View style={styles.view}>
             <Stack.Navigator initialRouteName="Home">
               <Stack.Screen name="Home" component={Home} />
+
+              <Stack.Screen name="EthereumScreen" component={EthereumScreen} />
+              <Stack.Screen
+                name="EthereumSendScreen"
+                component={EthereumSendScreen}
+                options={{ title: "Send Ethereum" }}
+              />
+              <Stack.Screen
+                name="EthereumReceiveScreen"
+                component={EthereumReceiveScreen}
+                options={{ title: "Receive Ethereum" }}
+              />
+              <Stack.Screen
+                name="EthereumSingleTransactionScreen"
+                component={EthereumSingleTransactionScreen}
+                options={{ title: "Transaction Details" }}
+              />
+
               <Stack.Screen name="BitcoinScreen" component={BitcoinScreen} options={{ title: "All wallets" }} />
-              <Stack.Screen name="Ethereum" component={Ethereum} />
               <Stack.Screen
                 name="BitcoinSendScreen"
                 component={BitcoinSendScreen}
@@ -56,7 +76,7 @@ const App = () => {
               <Stack.Screen
                 name="BitcoinSingleTransactionScreen"
                 component={BitcoinSingleTransactionScreen}
-                options={{ title: "Transaction Detail" }}
+                options={{ title: "Transaction Details" }}
               />
             </Stack.Navigator>
           </View>

@@ -57,6 +57,11 @@ const ImportMasterAndPurpose = ({ user, setLoading }: ImportWalletProps) => {
     }
   }, [setAuth, seed, user]);
 
+  const continueImport = useCallback(async () => {
+    setLoading(2);
+    derivePurposeShare(user.bip44MasterKeyShare);
+  }, [setAuth, user]);
+
   const isCleanStart = deepCompare(user.bip44MasterKeyShare, {
     ...emptyKeyPair,
     type: KeyShareType.MASTER,
@@ -76,7 +81,7 @@ const ImportMasterAndPurpose = ({ user, setLoading }: ImportWalletProps) => {
             Looks like you are in the middle of importing or generating a Wallet. If you just stared, please wait a
             moment. If you aborted the Import Process for some reason, you can Continue the import safely:
           </Text>
-          <TouchableOpacity style={styles.actionButton} onPress={() => derivePurposeShare(user.bip44MasterKeyShare)}>
+          <TouchableOpacity style={styles.actionButton} onPress={continueImport}>
             <Text style={styles.actionButtonText}>Continue Wallet Import</Text>
           </TouchableOpacity>
         </>

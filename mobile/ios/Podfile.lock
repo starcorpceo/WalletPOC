@@ -16,6 +16,8 @@ PODS:
     - ExpoModulesCore
   - Expo (45.0.5):
     - ExpoModulesCore
+  - ExpoClipboard (3.0.1):
+    - ExpoModulesCore
   - ExpoKeepAwake (10.1.1):
     - ExpoModulesCore
   - ExpoModulesCore (0.9.2):
@@ -380,8 +382,6 @@ PODS:
     - React-perflogger (= 0.68.1)
   - RNCAsyncStorage (1.17.7):
     - React-Core
-  - RNCClipboard (1.10.0):
-    - React-Core
   - RNScreens (3.13.1):
     - React-Core
     - React-RCTImage
@@ -400,6 +400,7 @@ DEPENDENCIES:
   - EXFont (from `../node_modules/expo-font/ios`)
   - EXLocalAuthentication (from `../node_modules/expo-local-authentication/ios`)
   - Expo (from `../node_modules/expo/ios`)
+  - ExpoClipboard (from `../node_modules/expo-clipboard/ios`)
   - ExpoKeepAwake (from `../node_modules/expo-keep-awake/ios`)
   - ExpoModulesCore (from `../node_modules/expo-modules-core/ios`)
   - FBLazyVector (from `../node_modules/react-native/Libraries/FBLazyVector`)
@@ -459,7 +460,6 @@ DEPENDENCIES:
   - React-runtimeexecutor (from `../node_modules/react-native/ReactCommon/runtimeexecutor`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
-  - "RNCClipboard (from `../node_modules/@react-native-clipboard/clipboard`)"
   - RNScreens (from `../node_modules/react-native-screens`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
@@ -500,6 +500,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo-local-authentication/ios"
   Expo:
     :path: "../node_modules/expo/ios"
+  ExpoClipboard:
+    :path: "../node_modules/expo-clipboard/ios"
   ExpoKeepAwake:
     :path: "../node_modules/expo-keep-awake/ios"
   ExpoModulesCore:
@@ -570,8 +572,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon"
   RNCAsyncStorage:
     :path: "../node_modules/@react-native-async-storage/async-storage"
-  RNCClipboard:
-    :path: "../node_modules/@react-native-clipboard/clipboard"
   RNScreens:
     :path: "../node_modules/react-native-screens"
   Yoga:
@@ -588,6 +588,7 @@ SPEC CHECKSUMS:
   EXFont: 04235cc22e6fef86028feb67db452978dc6f240f
   EXLocalAuthentication: 7f37b242eae73f9acf111d39bdee3f1379e68902
   Expo: b9fff0a1eac0f424fc68ea49b4347fb308e52e17
+  ExpoClipboard: e2dda22be0524595a5eeead51665f60729829123
   ExpoKeepAwake: c0c494b442ecd8122974c13b93ccfb57bd408e88
   ExpoModulesCore: e4278a668e8c13c0269ed8b8a4200989deea2973
   FBLazyVector: 2c76493a346ef8cacf1f442926a39f805fffec1f
@@ -635,7 +636,6 @@ SPEC CHECKSUMS:
   React-runtimeexecutor: 7285b499d0339104b2813a1f58ad1ada4adbd6c0
   ReactCommon: bf2888a826ceedf54b99ad1b6182d1bc4a8a3984
   RNCAsyncStorage: d81ee5c3db1060afd49ea7045ad460eff82d2b7d
-  RNCClipboard: f1736c75ab85b627a4d57587edb4b60999c4dd80
   RNScreens: 40a2cb40a02a609938137a1e0acfbf8fc9eebf19
   SocketRocket: fccef3f9c5cedea1353a9ef6ada904fde10d6608
   Yoga: 17cd9a50243093b547c1e539c749928dd68152da

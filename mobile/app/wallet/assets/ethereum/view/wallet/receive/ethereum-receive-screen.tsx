@@ -1,17 +1,13 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { getNextUnusedAddress } from "bitcoin/controller/bitcoin-address";
 import * as Clipboard from "expo-clipboard";
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { useRecoilValue } from "recoil";
 import { NavigationRoutes } from "shared/types/navigation";
-import { authState, AuthState } from "state/atoms";
 import { Address } from "wallet/types/wallet";
 
-type Props = NativeStackScreenProps<NavigationRoutes, "BitcoinSendScreen">;
+type Props = NativeStackScreenProps<NavigationRoutes, "EthereumReceiveScreen">;
 
-const BitcoinReceiveScreen = ({ route }: Props) => {
-  const user = useRecoilValue<AuthState>(authState);
+const EthereumReceiveScreen = ({ route }: Props) => {
   const [receiveAddress, setReceiveAddress] = useState<Address>();
   const [copyText, setCopyText] = useState<string>("Copy Address");
   const wallet = route.params.account;
@@ -25,7 +21,7 @@ const BitcoinReceiveScreen = ({ route }: Props) => {
   }, []);
 
   const showReceiveAddress = async () => {
-    setReceiveAddress(await getNextUnusedAddress(user, wallet, "external"));
+    setReceiveAddress(wallet.external.addresses[0]);
   };
 
   const copyToClipboard = () => {
@@ -40,8 +36,11 @@ const BitcoinReceiveScreen = ({ route }: Props) => {
 
   return (
     <View style={styles.container}>
-      <Image style={styles.icon} source={{ uri: "https://bitcoin.org/img/icons/opengraph.png?1657703267" }} />
-      <Text style={styles.heading}>Your BTC address</Text>
+      <Image
+        style={styles.icon}
+        source={{ uri: "https://ethereum.org/static/6b935ac0e6194247347855dc3d328e83/13c43/eth-diamond-black.png" }}
+      />
+      <Text style={styles.heading}>Your ETH address</Text>
       {receiveAddress && <Text style={styles.addressText}>{receiveAddress.address}</Text>}
       {!receiveAddress?.address && (
         <Text style={styles.addressText}>
@@ -72,7 +71,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
   },
-  icon: { width: 25, height: 25, marginBottom: 6 },
+  icon: { width: 14, height: 25, marginBottom: 6 },
   addressText: {
     fontSize: 17,
     textAlign: "center",
@@ -93,4 +92,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default BitcoinReceiveScreen;
+export default EthereumReceiveScreen;

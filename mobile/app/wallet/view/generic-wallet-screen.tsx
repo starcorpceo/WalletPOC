@@ -13,6 +13,7 @@ const Wallets = ({ children, name }: WalletProps) => {
       style={{
         margin: 12,
         flex: 1,
+        maxHeight: "80%",
       }}
     >
       <Text style={{ fontSize: 22, fontWeight: "700", marginBottom: 12 }}>{name}</Text>

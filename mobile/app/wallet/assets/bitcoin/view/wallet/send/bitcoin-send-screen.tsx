@@ -2,7 +2,7 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { signAllInputs } from "bitcoin/controller/bitcoin-signer";
 import { broadcastTransaction, prepareTransactionP2PKH } from "bitcoin/controller/bitcoin-transaction";
 import { SatoshisToBitcoin } from "bitcoin/controller/bitcoin-utils";
-import { bitcoinWalletsState } from "bitcoin/state/atoms";
+import { bitcoinWalletsState } from "bitcoin/state/bitcoin-atoms";
 import { useAddMempoolTransaction } from "bitcoin/state/bitcoin-wallet-state-utils";
 import { Psbt } from "der-bitcoinjs-lib";
 import React, { useState } from "react";

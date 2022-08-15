@@ -8,7 +8,7 @@ import {
 } from "bitcoin/controller/bitcoin-transaction-utils";
 import { SatoshisToBitcoin } from "bitcoin/controller/bitcoin-utils";
 import { getUsedAddresses } from "bitcoin/controller/creation/bitcoin-transaction-scanning";
-import { bitcoinWalletsState } from "bitcoin/state/atoms";
+import { bitcoinWalletsState } from "bitcoin/state/bitcoin-atoms";
 import { useDeleteMempoolTransaction } from "bitcoin/state/bitcoin-wallet-state-utils";
 import { BitcoinWallet } from "bitcoin/types/bitcoin";
 import { Psbt } from "der-bitcoinjs-lib";
@@ -77,6 +77,9 @@ const BitcoinTransactionsView = ({ wallet, navigation }: BitcoinTransactionsProp
         wallet
       );
     }
+
+    if (wallet.mempool) setMempoolTransactions(wallet.mempool);
+
     setLoading(false);
   };
   return (
@@ -182,7 +185,9 @@ const styles = StyleSheet.create({
     width: 16,
     height: 16,
   },
-  pendingText: {},
+  pendingText: {
+    color: "grey",
+  },
   pendingArea: {
     alignItems: "flex-end",
   },

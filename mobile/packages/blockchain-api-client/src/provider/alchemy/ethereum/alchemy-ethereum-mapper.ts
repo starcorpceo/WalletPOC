@@ -13,7 +13,7 @@ export const mapAlchemyTransactions = (transaction: AlchemyTransaction[]): Ether
   const transactions = transaction
     .map(throwIfError)
     .flatMap(apiResult => apiResult.result.transfers)
-    .sort((a, b) => Number.parseInt(a.blockNum, 16) - Number.parseInt(b.blockNum, 16));
+    .sort((a, b) => Number.parseInt(b.blockNum, 16) - Number.parseInt(a.blockNum, 16));
 
   return transactions.map(transaction => ({ ...transaction, value: ethToGwei(transaction.value) }));
 };

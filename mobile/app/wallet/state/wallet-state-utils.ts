@@ -1,7 +1,7 @@
 import { bitcoinWalletsState, BitcoinWalletsState } from "bitcoin/state/bitcoin-atoms";
 import { EthereumWalletsState, ethereumWalletsState } from "ethereum/state/ethereum-atoms";
 import { deepCompare } from "lib/util";
-import { RecoilState, selector, useSetRecoilState } from "recoil";
+import { RecoilState, selector, useRecoilState, useSetRecoilState } from "recoil";
 import { CoinTypeKeyShare, KeyShareType } from "shared/types/mpc";
 import { authState, AuthState } from "state/atoms";
 import { CoinTypeState } from "state/types";
@@ -48,11 +48,15 @@ export const getAllWallets = selector({
 });
 
 export const useAddAddress = <T extends CoinTypeAccount>(state: RecoilState<CoinTypeState<T>>) => {
-  const setCoinState = useSetRecoilState(state);
+  const [coinState, setCoinState] = useRecoilState(state);
 
-  return function ToCoinState(address: Address[], account: CoinTypeAccount, changeType: "internal" | "external") {
+  return function ToCoinState(
+    address: Address[],
+    account: CoinTypeAccount,
+    changeType: "internal" | "external"
+  ): CoinTypeState<T> {
     const index = getAccountIndex(account);
-    setCoinState((current) => {
+    setCoinState((current: any) => {
       return {
         ...current,
         accounts: [
@@ -66,6 +70,7 @@ export const useAddAddress = <T extends CoinTypeAccount>(state: RecoilState<Coin
         ],
       };
     });
+    return coinState;
   };
 };
 

@@ -55,7 +55,7 @@ const Home = ({ navigation }: Props) => {
               <View style={styles.padding}></View>
               <TouchableOpacity
                 style={styles.actionButton}
-                onPress={() => navigation.navigate("Ethereum", { isStateEmpty: isStateEmpty(ethereum), user })}
+                onPress={() => navigation.navigate("EthereumScreen", { isStateEmpty: isStateEmpty(ethereum), user })}
               >
                 <Image
                   style={styles.iconEth}

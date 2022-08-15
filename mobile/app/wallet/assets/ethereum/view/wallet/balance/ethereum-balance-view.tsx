@@ -1,22 +1,19 @@
-import { getBalanceFromAccount } from "bitcoin/controller/bitcoin-balance";
-import { SatoshisToBitcoin } from "bitcoin/controller/bitcoin-utils";
-import { bitcoinWalletsState } from "bitcoin/state/bitcoin-atoms";
-import { useUpdateAccountBalance } from "bitcoin/state/bitcoin-wallet-state-utils";
-import { BitcoinWallet } from "bitcoin/types/bitcoin";
-import React, { useState } from "react";
+import { gWeiToEth } from "ethereum/controller/ethereum-utils";
+import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Address } from "wallet/types/wallet";
 
-type BitcoinBalanceProps = {
-  wallet: BitcoinWallet;
+type EthereumBalanceProps = {
+  address: Address;
+  updateBalance: () => Promise<void>;
 };
 
-export const BitcoinBalanceView = ({ wallet }: BitcoinBalanceProps) => {
-  const updateBalance = useUpdateAccountBalance(bitcoinWalletsState);
+export const EthereumBalanceView = ({ address, updateBalance }: EthereumBalanceProps) => {
   const [loading, setLoading] = useState<boolean>(false);
 
-  const refreshBalance = async () => {
+  const updateBalanceFunction = async () => {
     setLoading(true);
-    updateBalance(await getBalanceFromAccount(wallet), wallet);
+    await updateBalance();
     setLoading(false);
   };
 
@@ -24,11 +21,14 @@ export const BitcoinBalanceView = ({ wallet }: BitcoinBalanceProps) => {
     <View style={styles.balanceContainer}>
       <View style={{ flexDirection: "row" }}>
         <Text style={styles.balanceText}>
-          {SatoshisToBitcoin(wallet.balance.incoming - wallet.balance.outgoing)} BTC
+          {gWeiToEth(address.balance as number)
+            .toString()
+            .slice(0, 12)}{" "}
+          ETH
         </Text>
         {loading && <ActivityIndicator />}
       </View>
-      <TouchableOpacity onPress={refreshBalance}>
+      <TouchableOpacity onPress={updateBalanceFunction}>
         <Image
           style={styles.reloadIcon}
           source={{
