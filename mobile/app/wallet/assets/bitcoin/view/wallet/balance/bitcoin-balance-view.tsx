@@ -3,8 +3,8 @@ import { SatoshisToBitcoin } from "bitcoin/controller/bitcoin-utils";
 import { bitcoinWalletsState } from "bitcoin/state/atoms";
 import { useUpdateAccountBalance } from "bitcoin/state/bitcoin-wallet-state-utils";
 import { BitcoinWallet } from "bitcoin/types/bitcoin";
-import React from "react";
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import React, { useState } from "react";
+import { ActivityIndicator, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 type BitcoinBalanceProps = {
   wallet: BitcoinWallet;
@@ -12,14 +12,22 @@ type BitcoinBalanceProps = {
 
 export const BitcoinBalanceView = ({ wallet }: BitcoinBalanceProps) => {
   const updateBalance = useUpdateAccountBalance(bitcoinWalletsState);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const refreshBalance = async () => {
+    setLoading(true);
     updateBalance(await getBalanceFromAccount(wallet), wallet);
+    setLoading(false);
   };
 
   return (
     <View style={styles.balanceContainer}>
-      <Text style={styles.balanceText}>{SatoshisToBitcoin(wallet.balance.incoming - wallet.balance.outgoing)} BTC</Text>
+      <View style={{ flexDirection: "row" }}>
+        <Text style={styles.balanceText}>
+          {SatoshisToBitcoin(wallet.balance.incoming - wallet.balance.outgoing)} BTC
+        </Text>
+        {loading && <ActivityIndicator />}
+      </View>
       <TouchableOpacity onPress={refreshBalance}>
         <Image
           style={styles.reloadIcon}
@@ -41,6 +49,7 @@ const styles = StyleSheet.create({
   balanceText: {
     fontSize: 24,
     fontWeight: "normal",
+    marginRight: 8,
   },
   reloadIcon: {
     width: 20,
