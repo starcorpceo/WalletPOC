@@ -1,7 +1,8 @@
+import { ApiBalance } from '../../../base/types';
 import { EthereumBalance, EthereumTransaction } from '../../../blockchains/ethereum/types';
 import { AlchemyBalance, AlchemyResult, AlchemyTransaction } from './alchemy-ethereum-types';
 
-export const mapAlchemyBalance = (balance: AlchemyBalance): EthereumBalance => {
+export const mapAlchemyBalance = (balance: ApiBalance<AlchemyBalance>): EthereumBalance => {
   if (balance.error) throw new Error(balance.error);
 
   return {

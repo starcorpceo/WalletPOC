@@ -5,6 +5,13 @@ import {
   mapAlchemyResultToString,
   mapAlchemyTransactions,
 } from '../../provider/alchemy/ethereum/alchemy-ethereum-mapper';
+import {
+  AlchemyBalance,
+  AlchemyBroadCastTransactionResult,
+  AlchemyFees,
+  AlchemyTransaction,
+  AlchemyTransactionCount,
+} from '../../provider/alchemy/ethereum/alchemy-ethereum-types';
 import { EthereumProvider } from './types';
 
 export enum EthereumProviderEnum {
@@ -28,11 +35,12 @@ export class EthereumFactory {
   private alchemy = (network: Network): EthereumProvider => ({
     fetcher: alchemyEthereumFetcher(network),
     mapper: {
-      responseToBalance: mapAlchemyBalance,
-      responseToTransactions: mapAlchemyTransactions,
-      responseToBroadCastTransactionResult: mapAlchemyResultToString,
-      responseToFees: mapAlchemyResultToString,
-      responseToTransactionCount: mapAlchemyResultToString,
+      responseToBalance: input => mapAlchemyBalance(input as AlchemyBalance),
+      responseToTransactions: input => mapAlchemyTransactions(input as AlchemyTransaction[]),
+      responseToBroadCastTransactionResult: input =>
+        mapAlchemyResultToString(input as AlchemyBroadCastTransactionResult),
+      responseToFees: input => mapAlchemyResultToString(input as AlchemyFees),
+      responseToTransactionCount: input => mapAlchemyResultToString(input as AlchemyTransactionCount),
     },
   });
 }

@@ -1,3 +1,5 @@
+import { BitcoinMapper } from './bitcoin-mapper';
+
 export interface BitcoinBalance {
   incoming: number;
   outgoing: number;
@@ -62,7 +64,7 @@ export interface UTXO {
 }
 
 export interface BitcoinProvider {
-  fetcher: BitcoinFetcher;
+  fetcher: any;
   mapper: BitcoinMapper;
 }
 

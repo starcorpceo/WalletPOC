@@ -1,9 +1,9 @@
-import { ApiBalance, ApiBroadCastTransactionResult, ApiFees, ApiTransaction } from '../../base/types';
+import { ApiBalance, ApiBroadcastTransaction, ApiFees, ApiTransaction } from '../../base/types';
 import { BitcoinBalance, BitcoinTransaction } from './types';
 
 export interface BitcoinMapper {
   responseToBalance: (input: ApiBalance) => BitcoinBalance;
   responseToTransactions: (input: ApiTransaction) => BitcoinTransaction[];
-  responseToBroadCastTransactionResult: (input: ApiBroadCastTransactionResult) => any;
+  responseToBroadcastTransaction: (input: ApiBroadcastTransaction) => any;
   responseToFees: (input: ApiFees) => any;
 }
