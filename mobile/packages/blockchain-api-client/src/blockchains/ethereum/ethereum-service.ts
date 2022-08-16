@@ -40,6 +40,14 @@ export class EthereumService {
     return mapper.responseToTransactions(apiTransactions);
   };
 
+  getERC20Transactions = async (address: string, provider: EthereumProviderEnum): Promise<EthereumTransaction[]> => {
+    const { mapper, fetcher } = this.factory.getProviderFunctions(provider);
+
+    const apiTransactions = await fetcher.fetchERC20Transactions(address);
+
+    return mapper.responseToTransactions(apiTransactions);
+  };
+
   getFees = async (provider: EthereumProviderEnum): Promise<string> => {
     const { mapper, fetcher } = this.factory.getProviderFunctions(provider);
 

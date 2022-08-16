@@ -67,7 +67,11 @@ const EthereumTransactionsView = ({ wallet, address, navigation, updateTransacti
             onPress={() => navigation.navigate("EthereumSingleTransactionScreen", { transaction, wallet })}
             style={[styles.transaction, { backgroundColor: colorBackground }]}
           >
-            <Text>{transaction.to.slice(0, 16) + "..."}</Text>
+            {isPlus ? (
+              <Text>{transaction.from.slice(0, 16) + "..."}</Text>
+            ) : (
+              <Text>{transaction.to.slice(0, 16) + "..."}</Text>
+            )}
             <Text key={transaction.hash} style={{ color: isPlus ? "green" : "red" }}>
               {pre + gWeiToEth(transaction.value).toString().slice(0, 10)} ETH
             </Text>

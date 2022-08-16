@@ -15,8 +15,13 @@ export const alchemyEthereumFetcher = (network: Network) => ({
     fetchFromAlchemy<AlchemyBalance>(alchemyEndpoints(network), Method.Balance, [address, 'latest']),
   fetchTransactions: async (address: string) =>
     await Promise.all([
-      fetchAlchemyTransactions('from', network, address),
-      fetchAlchemyTransactions('to', network, address),
+      fetchAlchemyTransactions('from', network, address, ['external']),
+      fetchAlchemyTransactions('to', network, address, ['external']),
+    ]),
+  fetchERC20Transactions: async (address: string) =>
+    await Promise.all([
+      fetchAlchemyTransactions('from', network, address, ['erc20']),
+      fetchAlchemyTransactions('to', network, address, ['erc20']),
     ]),
   sendRawTransaction: (transaction: string) =>
     fetchFromAlchemy<AlchemyBroadCastTransactionResult>(alchemyEndpoints(network), Method.SendTransaction, [
@@ -32,15 +37,15 @@ export const alchemyEthereumFetcher = (network: Network) => ({
     ]),
 });
 
-const fetchAlchemyTransactions = (mode: 'from' | 'to', network: Network, address: string) =>
+const fetchAlchemyTransactions = (mode: 'from' | 'to', network: Network, address: string, category: string[]) =>
   fetchFromAlchemy<AlchemyTransaction>(alchemyEndpoints(network), Method.Transactions, [
-    getTransactionQuery(address, mode),
+    getTransactionQuery(address, mode, category),
   ]);
 
-const getTransactionQuery = (address: string, mode: 'from' | 'to') => ({
+const getTransactionQuery = (address: string, mode: 'from' | 'to', category: string[]) => ({
   fromBlock: '0x0',
   fromAddress: mode === 'from' ? address : undefined,
   toAddress: mode === 'to' ? address : undefined,
   toBlock: 'latest',
-  category: ['external', 'internal', 'erc20', 'erc721', 'erc1155'],
+  category: category,
 });

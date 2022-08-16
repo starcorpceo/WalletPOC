@@ -4,6 +4,7 @@ import { EthereumProviderEnum } from "packages/blockchain-api-client/src/blockch
 import {
   EthereumTokenBalance,
   EthereumTokenBalances,
+  EthereumTransaction,
 } from "packages/blockchain-api-client/src/blockchains/ethereum/types";
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Button, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
@@ -14,8 +15,10 @@ type Props = NativeStackScreenProps<NavigationRoutes, "EthereumERC20TestScreen">
 
 const EthereumERC20TestScreen = ({ route }: Props) => {
   const [tokenBalanceUSDC, setTokenBalanceUSDC] = useState<EthereumTokenBalance>();
+  const [transactions, setTransactions] = useState<EthereumTransaction[]>();
   const wallet = route.params.wallet;
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loadingBalance, setLoadingBalance] = useState<boolean>(false);
+  const [loadingTransactions, setLoadingTransactions] = useState<boolean>(false);
 
   const [service] = useState(new EthereumService("TEST"));
 
@@ -25,6 +28,7 @@ const EthereumERC20TestScreen = ({ route }: Props) => {
 
   const updateBalance = () => {
     const loadBalance = async () => {
+      setLoadingBalance(true);
       let tokenAddr: string[] = [];
       tokenAddr.push("0x07865c6e87b9f70255377e024ace6630c1eaa37f"); //should be usdc
       const tokenBalances: EthereumTokenBalances = await service.getTokenBalances(
@@ -33,22 +37,35 @@ const EthereumERC20TestScreen = ({ route }: Props) => {
         EthereumProviderEnum.ALCHEMY
       );
       setTokenBalanceUSDC(tokenBalances.tokenBalances[0]);
+      setLoadingBalance(false);
     };
-    setLoading(true);
     loadBalance();
-    setLoading(false);
+  };
+
+  const updateTransactions = async () => {
+    setLoadingTransactions(true);
+    const transactions: EthereumTransaction[] = await service.getERC20Transactions(
+      wallet.external.addresses[0].address,
+      EthereumProviderEnum.ALCHEMY
+    );
+    console.log(transactions);
+    setTransactions(transactions);
+    setLoadingTransactions(false);
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.heading}>USDC Wallet</Text>
+      <View style={styles.headingAreaTop}>
+        <Image style={styles.icon} source={{ uri: "https://cryptologos.cc/logos/usd-coin-usdc-logo.png" }} />
+        <Text style={styles.heading}>USDC Wallet</Text>
+      </View>
       <View style={styles.balanceContainer}>
         <View style={{ flexDirection: "row" }}>
           {tokenBalanceUSDC && (
-            <Text style={styles.balanceText}>{Number.parseInt(tokenBalanceUSDC?.tokenBalance, 16)} USDC</Text>
+            <Text style={styles.balanceText}>{Number.parseInt(tokenBalanceUSDC?.tokenBalance, 16) / 10 ** 6} USDC</Text>
           )}
           {!tokenBalanceUSDC && <Text style={styles.balanceText}>0 USDC</Text>}
-          {loading && <ActivityIndicator />}
+          {loadingBalance && <ActivityIndicator />}
         </View>
         <TouchableOpacity onPress={updateBalance}>
           <Image
@@ -59,6 +76,43 @@ const EthereumERC20TestScreen = ({ route }: Props) => {
           />
         </TouchableOpacity>
       </View>
+
+      <View style={styles.headingArea}>
+        <Text style={styles.heading}>Unordered History</Text>
+        <TouchableOpacity onPress={updateTransactions}>
+          <Image
+            style={styles.reloadIcon}
+            source={{
+              uri: "https://cdn.iconscout.com/icon/free/png-256/reload-retry-again-update-restart-refresh-sync-13-3149.png",
+            }}
+          />
+        </TouchableOpacity>
+      </View>
+
+      {loadingTransactions && <ActivityIndicator />}
+
+      {transactions &&
+        transactions.map((transaction) => {
+          const isPlus = transaction.to === wallet.external.addresses[0].address;
+          const colorBackground = !isPlus ? "#fcf2f2" : "#f3fcf2";
+
+          const pre = isPlus ? "+" : "-";
+          return (
+            <View key={transaction.hash} style={[styles.transaction, { backgroundColor: colorBackground }]}>
+              {isPlus ? (
+                <Text>{transaction.from.slice(0, 16) + "..."}</Text>
+              ) : (
+                <Text>{transaction.to.slice(0, 16) + "..."}</Text>
+              )}
+              <Text key={transaction.hash} style={{ color: isPlus ? "green" : "red" }}>
+                {pre +
+                  Number.parseInt(transaction.rawContract.value, 16) /
+                    10 ** Number.parseInt(transaction.rawContract.decimal, 16)}{" "}
+                USDC
+              </Text>
+            </View>
+          );
+        })}
     </View>
   );
 };
@@ -75,9 +129,27 @@ const styles = StyleSheet.create({
     margin: 12,
     paddingBottom: 24,
   },
+  headingAreaTop: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  headingArea: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 24,
+  },
   heading: {
     fontSize: 18,
     fontWeight: "bold",
+  },
+  transaction: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: 8,
+    padding: 12,
+    borderRadius: 12,
+    backgroundColor: "lightgrey",
   },
   balanceContainer: {
     flexDirection: "row",
@@ -94,6 +166,7 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
   },
+  icon: { width: 25, height: 25, marginRight: 6 },
 });
 
 export default EthereumERC20TestScreen;
