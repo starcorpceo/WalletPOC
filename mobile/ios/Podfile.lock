@@ -16,6 +16,8 @@ PODS:
     - ExpoModulesCore
   - Expo (45.0.5):
     - ExpoModulesCore
+  - ExpoClipboard (3.0.1):
+    - ExpoModulesCore
   - ExpoKeepAwake (10.1.1):
     - ExpoModulesCore
   - ExpoModulesCore (0.9.2):
@@ -398,6 +400,7 @@ DEPENDENCIES:
   - EXFont (from `../node_modules/expo-font/ios`)
   - EXLocalAuthentication (from `../node_modules/expo-local-authentication/ios`)
   - Expo (from `../node_modules/expo/ios`)
+  - ExpoClipboard (from `../node_modules/expo-clipboard/ios`)
   - ExpoKeepAwake (from `../node_modules/expo-keep-awake/ios`)
   - ExpoModulesCore (from `../node_modules/expo-modules-core/ios`)
   - FBLazyVector (from `../node_modules/react-native/Libraries/FBLazyVector`)
@@ -497,6 +500,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo-local-authentication/ios"
   Expo:
     :path: "../node_modules/expo/ios"
+  ExpoClipboard:
+    :path: "../node_modules/expo-clipboard/ios"
   ExpoKeepAwake:
     :path: "../node_modules/expo-keep-awake/ios"
   ExpoModulesCore:
@@ -583,6 +588,7 @@ SPEC CHECKSUMS:
   EXFont: 04235cc22e6fef86028feb67db452978dc6f240f
   EXLocalAuthentication: 7f37b242eae73f9acf111d39bdee3f1379e68902
   Expo: b9fff0a1eac0f424fc68ea49b4347fb308e52e17
+  ExpoClipboard: e2dda22be0524595a5eeead51665f60729829123
   ExpoKeepAwake: c0c494b442ecd8122974c13b93ccfb57bd408e88
   ExpoModulesCore: e4278a668e8c13c0269ed8b8a4200989deea2973
   FBLazyVector: 2c76493a346ef8cacf1f442926a39f805fffec1f

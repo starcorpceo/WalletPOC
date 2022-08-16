@@ -1,7 +1,7 @@
 import { bitcoinWalletsState, BitcoinWalletsState } from "bitcoin/state/bitcoin-atoms";
 import { EthereumWalletsState, ethereumWalletsState } from "ethereum/state/ethereum-atoms";
 import { deepCompare } from "lib/util";
-import { RecoilState, selector, useSetRecoilState } from "recoil";
+import { RecoilState, selector, useRecoilState, useSetRecoilState } from "recoil";
 import { CoinTypeKeyShare, KeyShareType } from "shared/types/mpc";
 import { authState, AuthState } from "state/atoms";
 import { CoinTypeState } from "state/types";
@@ -48,6 +48,33 @@ export const getAllWallets = selector({
 });
 
 export const useAddAddress = <T extends CoinTypeAccount>(state: RecoilState<CoinTypeState<T>>) => {
+  const [coinState, setCoinState] = useRecoilState(state);
+
+  return function ToCoinState(
+    address: Address[],
+    account: CoinTypeAccount,
+    changeType: "internal" | "external"
+  ): CoinTypeState<T> {
+    const index = getAccountIndex(account);
+    setCoinState((current: any) => {
+      return {
+        ...current,
+        accounts: [
+          {
+            ...current.accounts[index],
+            [changeType]: {
+              ...current.accounts[index][changeType],
+              addresses: [...current.accounts[index][changeType].addresses, ...address],
+            },
+          },
+        ],
+      };
+    });
+    return coinState;
+  };
+};
+
+export const useOverrideAddress = <T extends CoinTypeAccount>(state: RecoilState<CoinTypeState<T>>) => {
   const setCoinState = useSetRecoilState(state);
 
   return function ToCoinState(address: Address[], account: CoinTypeAccount, changeType: "internal" | "external") {
@@ -60,7 +87,7 @@ export const useAddAddress = <T extends CoinTypeAccount>(state: RecoilState<Coin
             ...current.accounts[index],
             [changeType]: {
               ...current.accounts[index][changeType],
-              addresses: [...current.accounts[index][changeType].addresses, ...address],
+              addresses: [...address],
             },
           },
         ],

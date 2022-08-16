@@ -12,7 +12,7 @@ export const getNextUnusedAddress = async (
 ): Promise<Address> => {
   const bitcoinService = new BitcoinService("TEST");
   const query = new URLSearchParams({
-    pageSize: "1",
+    pageSize: "5",
     offset: "0",
   });
 

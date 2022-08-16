@@ -10,7 +10,6 @@ export interface CoinTypeAccount {
   external: AccountChange;
   config: WalletConfig;
   xPub: string;
-  transactions: Transaction[];
 }
 
 export type Balance = BitcoinBalance | number;

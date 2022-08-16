@@ -3,8 +3,19 @@ import { Transaction } from "ethereumjs-tx";
 import { signEcdsa } from "lib/mpc";
 import { getBinSignature } from "react-native-blockchain-crypto-mpc";
 import { Address } from "wallet/types/wallet";
+import * as LocalAuthentication from "expo-local-authentication";
 
 export const getSignedRawTransaction = async (user: User, from: Address, transaction: Transaction): Promise<string> => {
+  const result = await LocalAuthentication.authenticateAsync({
+    promptMessage: "Authenticate to verify your Device WalletPOC",
+    cancelLabel: "cancel",
+  });
+
+  if (!result.success) {
+    // Show snackbar here or similar
+    throw new Error(result.error);
+  }
+
   const msgHash = transaction.hash(false);
 
   const context = await signEcdsa(

@@ -39,7 +39,8 @@
     "recoil-persist": "^4.2.0",
     "rn-nodeify": "^10.3.0",
     "stream-browserify": "^1.0.0",
-    "vm-browserify": "^0.0.4"
+    "vm-browserify": "^0.0.4",
+    "expo-clipboard": "~3.0.1"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",

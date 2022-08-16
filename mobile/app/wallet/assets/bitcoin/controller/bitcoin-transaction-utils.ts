@@ -99,7 +99,7 @@ const hasOwnAddress = (address: string, account: CoinTypeAccount): boolean => {
  * @param account
  * @returns
  */
-const hasOtherAddress = (address: string, account: CoinTypeAccount): boolean => {
+export const hasOtherAddress = (address: string, account: CoinTypeAccount): boolean => {
   return !(
     account.external.addresses.some((externalAddress: Address) => externalAddress.address === address) ||
     account.internal.addresses.some((internalAddress: Address) => internalAddress.address === address)
@@ -117,8 +117,8 @@ export const getAddressFromUTXOOutput = (utxo: BitcoinTransaction, account: Coin
     utxo.outputs.some((output: Output) => address.address === output.address)
   );
   if (!address)
-    account.internal.addresses.find((address: Address) =>
-      utxo.outputs.some((output: Output) => address.address === output.address)
+    address = account.internal.addresses.find((address: Address) =>
+      utxo.outputs.some((output: Output) => address.address == output.address)
     );
   return address!;
 };

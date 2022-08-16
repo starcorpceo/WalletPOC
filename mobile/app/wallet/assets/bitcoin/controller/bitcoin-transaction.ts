@@ -72,16 +72,19 @@ export const prepareTransactionP2PKH = async (
       index: getChangeIndexFromUTXO(utxo, account),
       nonWitnessUtxo: Buffer.from(utxo.hex, "hex"),
     });
-
     //add prepared signer to signers array
     signers.push(prepareSingleSigner(user, getAddressFromUTXOOutput(utxo, account)));
   });
 
   //add address from receiver to output
-  psbt.addOutput({
-    address: address,
-    value: amount,
-  });
+  try {
+    psbt.addOutput({
+      address: address,
+      value: amount,
+    });
+  } catch (err) {
+    console.log(err, "Receiver address is possibly not an bitcoin address");
+  }
 
   //generate own unused internal change address
   const unusedAddress: Address = await getNextUnusedAddress(user, account, "internal");

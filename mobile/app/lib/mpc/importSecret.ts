@@ -5,17 +5,13 @@
  * @param {Function} setSeedShare Function to return the client side seed share
  */
 
-import {
-  initImportGenericSecret,
-  step,
-} from "react-native-blockchain-crypto-mpc";
+import { initImportGenericSecret, step } from "react-native-blockchain-crypto-mpc";
 import { authenticatedCreateShareMpc, getServerShareId, Share } from ".";
 
 export const importSecret = authenticatedCreateShareMpc<Share>(
   "/mpc/ecdsa/import",
   (resolve, reject, websocket, secret) => {
-    if (!secret || secret === "")
-      throw new Error("Trying to import secret with empty string");
+    if (!secret || secret === "") throw new Error("Trying to import secret with empty string");
 
     let clientShare: string;
 
@@ -42,6 +38,7 @@ export const importSecret = authenticatedCreateShareMpc<Share>(
     };
 
     websocket.onerror = (error) => {
+      console.log("err in socket");
       reject(error);
     };
   }

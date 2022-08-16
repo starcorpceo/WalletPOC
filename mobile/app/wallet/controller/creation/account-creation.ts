@@ -117,7 +117,7 @@ export class AccountBuilder<T extends CoinTypeAccount> {
       external: this.external,
       config: this.config,
       balance: { incoming: 0, outgoing: 0 },
-      transactions: [],
+      mempool: [],
     };
 
     return {

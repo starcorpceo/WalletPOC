@@ -1,5 +1,6 @@
 import { User } from "api-types/user";
 import { config } from "bitcoin/config/bitcoin-config";
+import { BitcoinWallet } from "bitcoin/types/bitcoin";
 import { BitcoinService } from "packages/blockchain-api-client/src";
 import { BitcoinProviderEnum } from "packages/blockchain-api-client/src/blockchains/bitcoin/bitcoin-factory";
 import { createAddress } from "wallet/controller/creation/address-creation";
@@ -13,14 +14,17 @@ import { Address, CoinTypeAccount } from "wallet/types/wallet";
  */
 export const getUsedAddresses = async <T extends CoinTypeAccount>(
   user: User,
-  account: CoinTypeAccount,
+  account: BitcoinWallet,
   changeType: "internal" | "external"
 ): Promise<Address[]> => {
   let isUnused = false;
   let derivationIndex = 0;
   let addresses: Address[] = [];
   while (!isUnused) {
-    const newAddress = await createAddress(user, account, changeType, derivationIndex);
+    let newAddress: Address;
+    if (!account[changeType].addresses[derivationIndex])
+      newAddress = await createAddress(user, account, changeType, derivationIndex);
+    else newAddress = { ...account[changeType].addresses[derivationIndex] };
 
     const bitcoinService = new BitcoinService(config.IsTestNet ? "TEST" : "MAIN");
     const query = new URLSearchParams({
