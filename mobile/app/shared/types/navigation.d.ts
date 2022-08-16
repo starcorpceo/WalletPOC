@@ -12,6 +12,7 @@ type NavigationRoutes = {
   EthereumSendScreen: { account: EthereumWallet; service?: EthereumService };
   EthereumReceiveScreen: { account: EthereumWallet };
   EthereumSingleTransactionScreen: { transaction: EthereumTransaction; wallet: EthereumWallet };
+  EthereumERC20TestScreen: { wallet: EthereumWallet };
 
   //Bitcoin Screens
   BitcoinScreen: { isStateEmpty: boolean; user: User };

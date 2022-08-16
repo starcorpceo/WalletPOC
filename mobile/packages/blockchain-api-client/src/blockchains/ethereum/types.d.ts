@@ -29,3 +29,14 @@ export interface EthereumProvider {
   fetcher: EthereumFetcher;
   mapper: EthereumMapper;
 }
+
+export interface EthereumTokenBalances {
+  address: string;
+  tokenBalances: EthereumTokenBalance[];
+}
+
+export interface EthereumTokenBalance {
+  contractAddress: string;
+  tokenBalance: string;
+  error: boolean;
+}

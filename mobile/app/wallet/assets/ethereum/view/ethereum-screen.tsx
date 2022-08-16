@@ -2,7 +2,7 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { EthereumAccountBuilder } from "ethereum/controller/ethereum-account-creation";
 import { EthereumWalletsState, ethereumWalletsState } from "ethereum/state/ethereum-atoms";
 import React, { useCallback, useEffect, useState } from "react";
-import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Button, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { NavigationRoutes } from "shared/types/navigation";
 import { getPurposeWallet } from "state/utils";
@@ -59,6 +59,10 @@ const EthereumScreen = ({ navigation, route }: Props) => {
 
   return (
     <Wallets name="Ethereum">
+      <Button
+        title="ERC-20 Test"
+        onPress={() => navigation.navigate("EthereumERC20TestScreen", { wallet: ethereumState.accounts[0] })}
+      />
       {ethereumState.accounts[0] && (
         <>
           {ethereumState.accounts.map((wallet, index: number) => (

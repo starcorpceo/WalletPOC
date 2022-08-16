@@ -5,6 +5,7 @@ import {
   AlchemyBalance,
   AlchemyBroadCastTransactionResult,
   AlchemyFees,
+  AlchemyTokenBalances,
   AlchemyTransaction,
   AlchemyTransactionCount,
 } from './alchemy-ethereum-types';
@@ -24,6 +25,11 @@ export const alchemyEthereumFetcher = (network: Network) => ({
   fetchFees: () => fetchFromAlchemy<AlchemyFees>(alchemyEndpoints(network), Method.GasPrice),
   fetchTransactionCount: (address: string) =>
     fetchFromAlchemy<AlchemyTransactionCount>(alchemyEndpoints(network), Method.TransactionCount, [address, 'latest']),
+  fetchTokenBalances: (address: string, contractAddresses: string[]) =>
+    fetchFromAlchemy<AlchemyTokenBalances>(alchemyEndpoints(network), Method.TokenBalances, [
+      address,
+      contractAddresses,
+    ]),
 });
 
 const fetchAlchemyTransactions = (mode: 'from' | 'to', network: Network, address: string) =>

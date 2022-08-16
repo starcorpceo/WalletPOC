@@ -1,3 +1,5 @@
+import { EthereumTokenBalances } from '../../../blockchains/ethereum/types';
+
 export type AlchemyResult<T> = {
   jsonrpc: string;
   id: number;
@@ -8,8 +10,9 @@ export type AlchemyResult<T> = {
 export type AlchemyBalance = AlchemyResult<string>;
 export type AlchemyTransaction = AlchemyResult<AlchemyTransactionResult>;
 export type AlchemyFees = AlchemyResult<string>;
-export type AlchemyBroadCastTransactionResult = AlchemyResult<string>;
+export type AlchemyBroadCastTransaction = AlchemyResult<string>;
 export type AlchemyTransactionCount = AlchemyResult<string>;
+export type AlchemyTokenBalances = AlchemyResult<EthereumTokenBalances>;
 
 export interface AlchemyTransactionResult {
   transfers: Transaction[];

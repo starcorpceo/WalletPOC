@@ -2,13 +2,15 @@ import { Network } from '../../base/types';
 import { alchemyEthereumFetcher } from '../../provider/alchemy/ethereum/alchemy-ethereum-fetcher';
 import {
   mapAlchemyBalance,
+  mapAlchemyResult,
   mapAlchemyResultToString,
   mapAlchemyTransactions,
 } from '../../provider/alchemy/ethereum/alchemy-ethereum-mapper';
 import {
   AlchemyBalance,
-  AlchemyBroadCastTransactionResult,
+  AlchemyBroadCastTransaction,
   AlchemyFees,
+  AlchemyTokenBalances,
   AlchemyTransaction,
   AlchemyTransactionCount,
 } from '../../provider/alchemy/ethereum/alchemy-ethereum-types';
@@ -37,10 +39,10 @@ export class EthereumFactory {
     mapper: {
       responseToBalance: input => mapAlchemyBalance(input as AlchemyBalance),
       responseToTransactions: input => mapAlchemyTransactions(input as AlchemyTransaction[]),
-      responseToBroadCastTransactionResult: input =>
-        mapAlchemyResultToString(input as AlchemyBroadCastTransactionResult),
+      responseToBroadcastTransaction: input => mapAlchemyResultToString(input as AlchemyBroadCastTransaction),
       responseToFees: input => mapAlchemyResultToString(input as AlchemyFees),
       responseToTransactionCount: input => mapAlchemyResultToString(input as AlchemyTransactionCount),
+      responseToTokenBalances: input => mapAlchemyResult(input as AlchemyTokenBalances),
     },
   });
 }

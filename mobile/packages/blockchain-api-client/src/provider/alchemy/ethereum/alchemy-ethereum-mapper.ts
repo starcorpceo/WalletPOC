@@ -19,6 +19,11 @@ export const mapAlchemyTransactions = (transaction: AlchemyTransaction[]): Ether
   return transactions.map(transaction => ({ ...transaction, value: ethToGwei(transaction.value) }));
 };
 
+export const mapAlchemyResult = <T>(response: AlchemyResult<T>): T => {
+  if (response.error) throwAlchemyError(response);
+  return response.result;
+};
+
 export const mapAlchemyResultToString = (response: AlchemyResult<string>): string => {
   if (response.error) throwAlchemyError(response);
 

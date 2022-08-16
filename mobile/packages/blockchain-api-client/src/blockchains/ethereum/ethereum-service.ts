@@ -1,6 +1,6 @@
-import { ApiBroadcastTransaction, ApiTransactionCount, Network } from '../../base/types';
+import { ApiBroadcastTransaction, ApiTokenBalances, ApiTransactionCount, Network } from '../../base/types';
 import { EthereumFactory, EthereumProviderEnum } from './ethereum-factory';
-import { EthereumBalance, EthereumTransaction } from './types';
+import { EthereumBalance, EthereumTokenBalances, EthereumTransaction } from './types';
 
 export class EthereumService {
   private factory: EthereumFactory;
@@ -53,7 +53,7 @@ export class EthereumService {
 
     const apiResult = fetcher.sendRawTransaction && (await fetcher.sendRawTransaction(transaction));
 
-    return mapper.responseToBroadCastTransactionResult(apiResult as ApiBroadcastTransaction);
+    return mapper.responseToBroadcastTransaction(apiResult as ApiBroadcastTransaction);
   };
 
   getTransactionCount = async (address: string, provider: EthereumProviderEnum): Promise<string> => {
@@ -62,5 +62,19 @@ export class EthereumService {
     const apiResult = fetcher.fetchTransactionCount && (await fetcher.fetchTransactionCount(address));
 
     return mapper.responseToTransactionCount(apiResult as ApiTransactionCount);
+  };
+
+  getTokenBalances = async (
+    address: string,
+    contractAddresses: string[],
+    provider: EthereumProviderEnum
+  ): Promise<EthereumTokenBalances> => {
+    const { fetcher, mapper } = this.factory.getProviderFunctions(provider);
+
+    const apiResult = fetcher.fetchTokenBalances && (await fetcher.fetchTokenBalances(address, contractAddresses));
+
+    console.log('here', apiResult.result);
+
+    return mapper.responseToTokenBalances(apiResult as ApiTokenBalances);
   };
 }
