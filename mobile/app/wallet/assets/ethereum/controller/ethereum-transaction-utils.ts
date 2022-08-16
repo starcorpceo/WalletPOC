@@ -1,25 +1,34 @@
-import { config } from "ethereum/config/ethereum-config";
-import { Transaction, TxData } from "ethereumjs-tx";
+import { TransactionRequest } from "@ethersproject/abstract-provider";
 
-export const buildRawTransaction = async (
+// const tryZkSync = async (address: Address, user: User) => {
+//   const syncProvider = await zksync.getDefaultProvider("goerli");
+
+//   const ethersProvider = ethers.getDefaultProvider("goerli");
+//   const ethWallet2 = ethers.Wallet.fromMnemonic("MNEMONIC").connect(ethersProvider);
+
+//   ethWallet2.signTransaction();
+
+//   const ethWallet = new MPCSigner(address, user).connect(ethersProvider);
+
+//   ethWallet.signMessage("asdf");
+
+//   const syncWallet = zksync.Wallet.fromEthSigner(ethWallet, syncProvider);
+// };
+
+export const buildRawTransaction = (
   to: string,
   value: number,
   txCount: string,
   gasPrice: string
-): Promise<Transaction> => {
-  const txData: TxData = {
+): TransactionRequest => {
+  const txData: TransactionRequest = {
     nonce: txCount,
     to,
-    value,
+    value: "0x" + value.toString(16),
     gasPrice,
-    v: Buffer.from([]),
-    r: Buffer.from([]),
-    s: Buffer.from([]),
+    gasLimit: "0x5208",
+    chainId: 5,
   };
 
-  const tx = new Transaction(txData, { chain: config.chain });
-
-  tx.gasLimit = tx.getBaseFee().toBuffer();
-
-  return tx;
+  return txData;
 };

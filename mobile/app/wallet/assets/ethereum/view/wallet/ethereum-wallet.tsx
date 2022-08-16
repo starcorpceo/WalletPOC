@@ -20,7 +20,7 @@ type EthereumWalletProps = {
 };
 
 const EthereumWalletView = ({ wallet, index, navigation }: EthereumWalletProps) => {
-  const [service] = useState(new EthereumService("TEST"));
+  const [service, setService] = useState<EthereumService>();
   const updateWallet = useUpdateAccount<EthereumWallet>(ethereumWalletsState);
   const deleteMempoolTransaction = useDeleteMempoolTransaction(ethereumWalletsState);
 
@@ -29,10 +29,13 @@ const EthereumWalletView = ({ wallet, index, navigation }: EthereumWalletProps) 
       await updateTransactions();
       updateBalance();
     };
+    setService(new EthereumService("TEST"));
     onLoad();
   }, []);
 
   const updateBalance = useCallback(async () => {
+    if (!service) return;
+
     const balance = await service.getBalance(wallet.external.addresses[0].address, EthereumProviderEnum.ALCHEMY);
 
     updateWallet(
@@ -45,6 +48,8 @@ const EthereumWalletView = ({ wallet, index, navigation }: EthereumWalletProps) 
   }, [index, updateWallet, service]);
 
   const updateTransactions = useCallback(async () => {
+    if (!service) return;
+
     const walletUpdate = async () => {
       const transactions = await service.getTransactions(
         wallet.external.addresses[0].address,
@@ -109,7 +114,7 @@ const EthereumWalletView = ({ wallet, index, navigation }: EthereumWalletProps) 
         <View style={styles.actionAreaSpace} />
         <TouchableOpacity
           style={styles.actionButton}
-          onPress={() => navigation.navigate("EthereumSendScreen", { account: wallet })}
+          onPress={() => navigation.navigate("EthereumSendScreen", { account: wallet, service })}
         >
           <Text style={styles.actionButtonText}>Send</Text>
         </TouchableOpacity>

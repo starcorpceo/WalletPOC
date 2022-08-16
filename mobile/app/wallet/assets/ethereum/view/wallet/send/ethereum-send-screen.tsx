@@ -1,13 +1,13 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { getSignedRawTransaction } from "ethereum/controller/ethereum-signer";
 import { buildRawTransaction } from "ethereum/controller/ethereum-transaction-utils";
 import { gWeiToEth, gWeiToWei } from "ethereum/controller/ethereum-utils";
+import { MPCSigner } from "ethereum/controller/zksync/signer";
 import { ethereumWalletsState } from "ethereum/state/ethereum-atoms";
 import { useAddMempoolTransaction } from "ethereum/state/ethereum-wallet-state-utils";
-import { EthereumService } from "packages/blockchain-api-client/src";
+import { ethers } from "ethers";
 import { EthereumProviderEnum } from "packages/blockchain-api-client/src/blockchains/ethereum/ethereum-factory";
 import { EthereumTransaction } from "packages/blockchain-api-client/src/blockchains/ethereum/types";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useRecoilValue } from "recoil";
 import { NavigationRoutes } from "shared/types/navigation";
@@ -19,27 +19,34 @@ type Props = NativeStackScreenProps<NavigationRoutes, "EthereumSendScreen">;
 const EthereumSendScreen = ({ route }: Props) => {
   const [gWeis, setGWeis] = useState<string>("");
   const [toAddress, setToAddress] = useState<string>("0x49e749dc596ebb62b724262928d0657f8950a7d7");
-  const [service] = useState(new EthereumService("TEST"));
   const user = useRecoilValue<AuthState>(authState);
-  const wallet = route.params.account;
+
+  const [signer, setSigner] = useState<MPCSigner>();
+  const { service, account: wallet } = route.params;
   const addMempoolTransaction = useAddMempoolTransaction(ethereumWalletsState);
 
+  useEffect(() => {
+    setSigner(new MPCSigner(wallet.external.addresses[0], user).connect(ethers.getDefaultProvider("goerli")));
+  }, []);
+
   const sendTransaction = useCallback(async () => {
+    if (!service || !signer) return;
     try {
       const gasPrice = await service.getFees(EthereumProviderEnum.ALCHEMY);
 
       const address = wallet.external.addresses[0];
       const transactionCount = await service.getTransactionCount(address.address, EthereumProviderEnum.ALCHEMY);
 
-      const transaction = await buildRawTransaction(
+      const transaction = buildRawTransaction(
         toAddress,
         gWeiToWei(Number.parseFloat(gWeis)),
         transactionCount,
         gasPrice
       );
-      const finalRawTransaction = await getSignedRawTransaction(user, address, transaction);
 
-      console.log("Transaction valid:  " + transaction.validate());
+      const rawTransaction = await signer.signTransaction(transaction);
+
+      console.log("Transaction to be published: ", rawTransaction);
 
       let mempoolTransaction: EthereumTransaction = {
         blockNum: "",
@@ -65,7 +72,7 @@ const EthereumSendScreen = ({ route }: Props) => {
         [
           {
             text: "Send now",
-            onPress: () => broadcast(finalRawTransaction, mempoolTransaction),
+            onPress: () => broadcast(rawTransaction, mempoolTransaction),
           },
           {
             text: "Cancel",
@@ -77,18 +84,23 @@ const EthereumSendScreen = ({ route }: Props) => {
     }
   }, [wallet, user, gWeis, toAddress]);
 
-  const broadcast = async (finalRawTransaction: string, mempoolTransaction: EthereumTransaction) => {
-    try {
-      const result = await service.sendRawTransaction(finalRawTransaction, EthereumProviderEnum.ALCHEMY);
-      mempoolTransaction.hash = result.toString();
-      Alert.alert("Successfully sent.");
+  const broadcast = useCallback(
+    async (finalRawTransaction: string, mempoolTransaction: EthereumTransaction) => {
+      if (!service) return;
 
-      addMempoolTransaction(mempoolTransaction, wallet);
-    } catch (err) {
-      console.log(err);
-      Alert.alert("Unable to broadcast transaction");
-    }
-  };
+      try {
+        const result = await service.sendRawTransaction(finalRawTransaction, EthereumProviderEnum.ALCHEMY);
+        mempoolTransaction.hash = result.toString();
+        Alert.alert("Successfully sent.");
+
+        addMempoolTransaction(mempoolTransaction, wallet);
+      } catch (err) {
+        console.log(err);
+        Alert.alert("Unable to broadcast transaction");
+      }
+    },
+    [service, addMempoolTransaction]
+  );
 
   return (
     <View style={styles.container}>
