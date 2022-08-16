@@ -7,9 +7,9 @@ import {
   EthereumTransaction,
 } from "packages/blockchain-api-client/src/blockchains/ethereum/types";
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, Button, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { NavigationRoutes } from "shared/types/navigation";
-import { Address } from "wallet/types/wallet";
+import { abiArray } from "./abi-array";
 
 type Props = NativeStackScreenProps<NavigationRoutes, "EthereumERC20TestScreen">;
 
@@ -51,6 +51,10 @@ const EthereumERC20TestScreen = ({ route }: Props) => {
     console.log(transactions);
     setTransactions(transactions);
     setLoadingTransactions(false);
+  };
+
+  const send = () => {
+    const abi = abiArray;
   };
 
   return (
