@@ -72,6 +72,19 @@ export class EthereumService {
     return mapper.responseToTransactionCount(apiResult as ApiTransactionCount);
   };
 
+  getEstimatedFees = async (
+    from: string,
+    to: string,
+    data: string,
+    provider: EthereumProviderEnum
+  ): Promise<string> => {
+    const { mapper, fetcher } = this.factory.getProviderFunctions(provider);
+
+    const apiFees = fetcher.fetchEstimatedGas && (await fetcher.fetchEstimatedGas(from, to, data));
+
+    return mapper.responseToFees(apiFees);
+  };
+
   getTokenBalances = async (
     address: string,
     contractAddresses: string[],
@@ -80,8 +93,6 @@ export class EthereumService {
     const { fetcher, mapper } = this.factory.getProviderFunctions(provider);
 
     const apiResult = fetcher.fetchTokenBalances && (await fetcher.fetchTokenBalances(address, contractAddresses));
-
-    console.log('here', apiResult.result);
 
     return mapper.responseToTokenBalances(apiResult as ApiTokenBalances);
   };

@@ -93,7 +93,8 @@ const TokenUsdcWalletScreen = ({ route }: Props) => {
       Number.parseFloat(usdcSendAmount),
       transactionCount,
       gasPrice,
-      signer
+      signer,
+      service
     );
 
     const rawTransaction = await signer.signTransaction(transaction);

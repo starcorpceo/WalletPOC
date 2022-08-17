@@ -15,4 +15,5 @@ export interface EthereumFetcher {
   fetchFees: () => Promise<ApiFees>;
   fetchTransactionCount: (address: string) => Promise<ApiTransactionCount>;
   fetchTokenBalances: (address: string, contractAddresses: string[]) => Promise<ApiTokenBalances>;
+  fetchEstimatedGas: (from: string, to: string, data: string) => Promise<ApiFees>;
 }

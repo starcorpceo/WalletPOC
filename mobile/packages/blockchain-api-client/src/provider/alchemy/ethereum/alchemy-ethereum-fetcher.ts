@@ -3,7 +3,7 @@ import { fetchFromAlchemy, Method } from '../http';
 import { alchemyEndpoints } from './alchemy-ethereum-endpoints';
 import {
   AlchemyBalance,
-  AlchemyBroadCastTransactionResult,
+  AlchemyBroadCastTransaction,
   AlchemyFees,
   AlchemyTokenBalances,
   AlchemyTransaction,
@@ -24,9 +24,7 @@ export const alchemyEthereumFetcher = (network: Network) => ({
       fetchAlchemyTransactions('to', network, address, ['erc20']),
     ]),
   sendRawTransaction: (transaction: string) =>
-    fetchFromAlchemy<AlchemyBroadCastTransactionResult>(alchemyEndpoints(network), Method.SendTransaction, [
-      transaction,
-    ]),
+    fetchFromAlchemy<AlchemyBroadCastTransaction>(alchemyEndpoints(network), Method.SendTransaction, [transaction]),
   fetchFees: () => fetchFromAlchemy<AlchemyFees>(alchemyEndpoints(network), Method.GasPrice),
   fetchTransactionCount: (address: string) =>
     fetchFromAlchemy<AlchemyTransactionCount>(alchemyEndpoints(network), Method.TransactionCount, [address, 'latest']),
@@ -35,6 +33,8 @@ export const alchemyEthereumFetcher = (network: Network) => ({
       address,
       contractAddresses,
     ]),
+  fetchEstimatedGas: (from: string, to: string, data: string) =>
+    fetchFromAlchemy<AlchemyFees>(alchemyEndpoints(network), Method.EstimateGas, [{ from, to, data }]),
 });
 
 const fetchAlchemyTransactions = (mode: 'from' | 'to', network: Network, address: string, category: string[]) =>
