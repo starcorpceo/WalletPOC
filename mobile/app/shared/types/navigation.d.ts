@@ -7,16 +7,19 @@ import { EthereumTransaction } from "packages/blockchain-api-client/src/blockcha
 
 type NavigationRoutes = {
   Home: undefined;
-  //Ethereum Screens
-  EthereumScreen: { isStateEmpty: boolean; user: User };
-  EthereumSendScreen: { account: EthereumWallet; service?: EthereumService };
-  EthereumReceiveScreen: { account: EthereumWallet };
-  EthereumSingleTransactionScreen: { transaction: EthereumTransaction; wallet: EthereumWallet };
-  EthereumERC20TestScreen: { wallet: EthereumWallet };
 
   //Bitcoin Screens
   BitcoinScreen: { isStateEmpty: boolean; user: User };
   BitcoinSendScreen: { account: BitcoinWallet };
   BitcoinReceiveScreen: { account: BitcoinWallet };
   BitcoinSingleTransactionScreen: { transaction: BitcoinTransaction; wallet: BitcoinWallet };
+
+  //Ethereum Screens
+  EthereumScreen: { isStateEmpty: boolean; user: User };
+  EthereumSendScreen: { account: EthereumWallet; service?: EthereumService };
+  EthereumReceiveScreen: { account: EthereumWallet };
+  EthereumSingleTransactionScreen: { transaction: EthereumTransaction; wallet: EthereumWallet };
+
+  //Ethereum Token Screens
+  TokenUsdcWalletScreen: { wallet: EthereumWallet };
 };

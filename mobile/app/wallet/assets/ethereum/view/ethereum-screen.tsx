@@ -59,10 +59,15 @@ const EthereumScreen = ({ navigation, route }: Props) => {
 
   return (
     <Wallets name="Ethereum">
-      <Button
-        title="ERC-20 Test"
-        onPress={() => navigation.navigate("EthereumERC20TestScreen", { wallet: ethereumState.accounts[0] })}
-      />
+      <View style={styles.container}>
+        <Text style={styles.heading}>Token Wallets</Text>
+        <TouchableOpacity
+          style={styles.actionButton}
+          onPress={() => navigation.navigate("TokenUsdcWalletScreen", { wallet: ethereumState.accounts[0] })}
+        >
+          <Text style={styles.actionButtonText}>USDC Wallet {"\u2192"}</Text>
+        </TouchableOpacity>
+      </View>
       {ethereumState.accounts[0] && (
         <>
           {ethereumState.accounts.map((wallet, index: number) => (
@@ -85,6 +90,22 @@ const EthereumScreen = ({ navigation, route }: Props) => {
 };
 
 const styles = StyleSheet.create({
+  container: {
+    backgroundColor: "white",
+    padding: 16,
+    borderRadius: 12,
+    shadowColor: "grey",
+    shadowOffset: { width: 0, height: 14 },
+    shadowOpacity: 0.2,
+    shadowRadius: 20,
+    paddingBottom: 24,
+    maxHeight: "80%",
+    marginBottom: 30,
+  },
+  heading: {
+    fontSize: 18,
+    fontWeight: "bold",
+  },
   deleteButton: {
     flex: 1,
     justifyContent: "center",
@@ -95,6 +116,21 @@ const styles = StyleSheet.create({
   deleteButtonText: {
     fontSize: 17,
     color: "red",
+  },
+  actionButton: {
+    height: 42,
+    width: "100%",
+    backgroundColor: "transparent",
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 14,
+    borderWidth: 1,
+    borderColor: "#3828e0",
+  },
+  actionButtonText: {
+    color: "#3828e0",
+    fontSize: 16,
   },
 });
 

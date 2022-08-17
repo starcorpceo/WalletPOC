@@ -25,7 +25,7 @@ import Home from "./views/home";
 import EthereumReceiveScreen from "ethereum/view/wallet/receive/ethereum-receive-screen";
 import EthereumSendScreen from "ethereum/view/wallet/send/ethereum-send-screen";
 import { EthereumSingleTransactionScreen } from "ethereum/view/wallet/transaction/ethereum-single-transaction-screen";
-import EthereumERC20TestScreen from "ethereum/view/wallet/erc-20/ethereum-erc-20-test-screen";
+import TokenUsdcWalletScreen from "ethereum/view/tokens/usdc/token-usdc-wallet";
 
 const App = () => {
   const isDarkMode = useColorScheme() === "dark";
@@ -63,8 +63,8 @@ const App = () => {
                 options={{ title: "Transaction Details" }}
               />
               <Stack.Screen
-                name="EthereumERC20TestScreen"
-                component={EthereumERC20TestScreen}
+                name="TokenUsdcWalletScreen"
+                component={TokenUsdcWalletScreen}
                 options={{ title: "ERC-20" }}
               />
 
