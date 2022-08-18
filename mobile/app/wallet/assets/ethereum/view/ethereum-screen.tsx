@@ -1,4 +1,5 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { erc20Tokens } from "ethereum/config/token-constants";
 import { EthereumAccountBuilder } from "ethereum/controller/ethereum-account-creation";
 import { EthereumWalletsState, ethereumWalletsState } from "ethereum/state/ethereum-atoms";
 import React, { useCallback, useEffect, useState } from "react";
@@ -8,6 +9,7 @@ import { NavigationRoutes } from "shared/types/navigation";
 import { getPurposeWallet } from "state/utils";
 import { initialCoinState } from "wallet/state/wallet-state-utils";
 import Wallets from "wallet/view/generic-wallet-screen";
+import TokenWalletListView from "./tokens/token-wallet-list-view";
 import EthereumWalletView from "./wallet/ethereum-wallet";
 
 type Props = NativeStackScreenProps<NavigationRoutes, "EthereumScreen">;
@@ -59,19 +61,19 @@ const EthereumScreen = ({ navigation, route }: Props) => {
 
   return (
     <Wallets name="Ethereum">
-      <View style={styles.container}>
-        <Text style={styles.heading}>Token Wallets</Text>
-        <TouchableOpacity
-          style={styles.actionButton}
-          onPress={() => navigation.navigate("TokenUsdcWalletScreen", { wallet: ethereumState.accounts[0] })}
-        >
-          <Text style={styles.actionButtonText}>USDC Wallet {"\u2192"}</Text>
-        </TouchableOpacity>
-      </View>
       {ethereumState.accounts[0] && (
         <>
           {ethereumState.accounts.map((wallet, index: number) => (
-            <EthereumWalletView key={"EthereumWallet-" + index} wallet={wallet} index={index} navigation={navigation} />
+            <View key={"EthereumWalletHolder-" + index}>
+              <TokenWalletListView wallet={wallet} navigation={navigation} />
+
+              <EthereumWalletView
+                key={"EthereumWallet-" + index}
+                wallet={wallet}
+                index={index}
+                navigation={navigation}
+              />
+            </View>
           ))}
 
           <TouchableOpacity style={styles.deleteButton} onPress={deleteEthereumAccount}>
@@ -116,21 +118,6 @@ const styles = StyleSheet.create({
   deleteButtonText: {
     fontSize: 17,
     color: "red",
-  },
-  actionButton: {
-    height: 42,
-    width: "100%",
-    backgroundColor: "transparent",
-    borderRadius: 8,
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: 14,
-    borderWidth: 1,
-    borderColor: "#3828e0",
-  },
-  actionButtonText: {
-    color: "#3828e0",
-    fontSize: 16,
   },
 });
 

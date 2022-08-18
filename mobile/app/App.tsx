@@ -20,12 +20,13 @@ import { RecoilRoot } from "recoil";
 import { NavigationRoutes } from "shared/types/navigation";
 
 import EthereumScreen from "ethereum/view/ethereum-screen";
-import Header from "./shared/header";
-import Home from "./views/home";
+import TokenWalletScreen from "ethereum/view/tokens/wallet/token-wallet-screen";
 import EthereumReceiveScreen from "ethereum/view/wallet/receive/ethereum-receive-screen";
 import EthereumSendScreen from "ethereum/view/wallet/send/ethereum-send-screen";
 import { EthereumSingleTransactionScreen } from "ethereum/view/wallet/transaction/ethereum-single-transaction-screen";
-import TokenUsdcWalletScreen from "ethereum/view/tokens/usdc/token-usdc-wallet";
+import Header from "./shared/header";
+import Home from "./views/home";
+import TokenSendScreen from "ethereum/view/tokens/wallet/send/token-send-screen";
 
 const App = () => {
   const isDarkMode = useColorScheme() === "dark";
@@ -63,10 +64,11 @@ const App = () => {
                 options={{ title: "Transaction Details" }}
               />
               <Stack.Screen
-                name="TokenUsdcWalletScreen"
-                component={TokenUsdcWalletScreen}
-                options={{ title: "ERC-20" }}
+                name="TokenWalletScreen"
+                component={TokenWalletScreen}
+                options={{ title: "ERC-20 Token Wallet" }}
               />
+              <Stack.Screen name="TokenSendScreen" component={TokenSendScreen} options={{ title: "Send Token" }} />
 
               <Stack.Screen name="BitcoinScreen" component={BitcoinScreen} options={{ title: "All wallets" }} />
               <Stack.Screen

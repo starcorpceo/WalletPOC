@@ -1,5 +1,6 @@
 import { User } from "api-types/user";
 import { BitcoinWallet } from "bitcoin/types/bitcoin";
+import { ERC20Token } from "ethereum/config/token-constants";
 import { EthereumWallet } from "ethereum/types/ethereum";
 import { EthereumService } from "packages/blockchain-api-client/src";
 import { BitcoinTransaction } from "packages/blockchain-api-client/src/blockchains/bitcoin/types";
@@ -21,5 +22,6 @@ type NavigationRoutes = {
   EthereumSingleTransactionScreen: { transaction: EthereumTransaction; wallet: EthereumWallet };
 
   //Ethereum Token Screens
-  TokenUsdcWalletScreen: { wallet: EthereumWallet };
+  TokenWalletScreen: { wallet: EthereumWallet; token: ERC20Token };
+  TokenSendScreen: { wallet: EthereumWallet; token: ERC20Token };
 };

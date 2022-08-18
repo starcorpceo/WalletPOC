@@ -1,34 +1,37 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { buildRawTransaction } from "ethereum/controller/ethereum-transaction-utils";
-import { gWeiToEth, gWeiToWei } from "ethereum/controller/ethereum-utils";
+import { abi } from "ethereum/config/general-abi";
+import { ERC20Token } from "ethereum/config/token-constants";
+import { buildRawTokenTransaction, buildRawTransaction } from "ethereum/controller/ethereum-transaction-utils";
 import { MPCSigner } from "ethereum/controller/zksync/signer";
-import { ethereumWalletsState } from "ethereum/state/ethereum-atoms";
-import { useAddMempoolTransaction } from "ethereum/state/ethereum-wallet-state-utils";
+import { EthereumWallet } from "ethereum/types/ethereum";
 import { ethers } from "ethers";
+import { EthereumService } from "packages/blockchain-api-client/src";
 import { EthereumProviderEnum } from "packages/blockchain-api-client/src/blockchains/ethereum/ethereum-factory";
-import { EthereumTransaction } from "packages/blockchain-api-client/src/blockchains/ethereum/types";
 import React, { useCallback, useEffect, useState } from "react";
 import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useRecoilValue } from "recoil";
 import { NavigationRoutes } from "shared/types/navigation";
 import "shim";
 import { authState, AuthState } from "state/atoms";
+import { Address } from "wallet/types/wallet";
 
-type Props = NativeStackScreenProps<NavigationRoutes, "EthereumSendScreen">;
+type Props = NativeStackScreenProps<NavigationRoutes, "TokenSendScreen">;
 
-const EthereumSendScreen = ({ route }: Props) => {
-  const [gWeis, setGWeis] = useState<string>("");
-  const [toAddress, setToAddress] = useState<string>("0x49e749dc596ebb62b724262928d0657f8950a7d7");
+const TokenSendScreen = ({ route }: Props) => {
+  const [token, setToken] = useState<ERC20Token>(route.params.token);
+  const [wallet, setWallet] = useState<EthereumWallet>(route.params.wallet);
+  const [address, setAddress] = useState<Address>(route.params.wallet.external.addresses[0]);
   const user = useRecoilValue<AuthState>(authState);
 
-  const [signer, setSigner] = useState<MPCSigner>();
-  const { service, account: wallet } = route.params;
-  const addMempoolTransaction = useAddMempoolTransaction(ethereumWalletsState);
+  const [toAddress, setToAddress] = useState<string>("0x49e749dc596ebb62b724262928d0657f8950a7d7");
+  const [tokenToSend, setTokenToSend] = useState<string>("");
 
   useEffect(() => {
     setSigner(new MPCSigner(wallet.external.addresses[0], user).connect(ethers.getDefaultProvider("goerli")));
   }, []);
 
+  const [signer, setSigner] = useState<MPCSigner>();
+  const [service] = useState(new EthereumService("TEST"));
   const sendTransaction = useCallback(async () => {
     if (!service || !signer) return;
     try {
@@ -37,74 +40,54 @@ const EthereumSendScreen = ({ route }: Props) => {
       const address = wallet.external.addresses[0];
       const transactionCount = await service.getTransactionCount(address.address, EthereumProviderEnum.ALCHEMY);
 
-      const transaction = buildRawTransaction(
+      const transaction = await buildRawTokenTransaction(
+        abi,
+        token.contractAddress,
         toAddress,
-        gWeiToWei(Number.parseFloat(gWeis)),
+        Number.parseFloat(tokenToSend),
         transactionCount,
-        gasPrice
+        gasPrice,
+        token,
+        signer,
+        service
       );
 
       const rawTransaction = await signer.signTransaction(transaction);
 
       console.log("Transaction to be published: ", rawTransaction);
 
-      let mempoolTransaction: EthereumTransaction = {
-        blockNum: "",
-        hash: "",
-        from: address.address,
-        to: toAddress,
-        value: gWeiToWei(Number.parseFloat(gWeis)),
-        erc721TokenId: null,
-        erc1155Metadata: null,
-        tokenId: null,
-        asset: "",
-        category: "",
-        rawContract: {
-          value: "",
-          address: "",
-          decimal: "",
+      Alert.alert("Confirm your transaction", "Sending " + tokenToSend + " " + token.symbol + " to " + toAddress, [
+        {
+          text: "Send now",
+          onPress: () => broadcast(rawTransaction),
         },
-      };
-
-      Alert.alert(
-        "Confirm your transaction",
-        "Sending " + gWeis + " gWeis (" + gWeiToEth(Number(gWeis)) + " ETH) to " + toAddress,
-        [
-          {
-            text: "Send now",
-            onPress: () => broadcast(rawTransaction, mempoolTransaction),
-          },
-          {
-            text: "Cancel",
-          },
-        ]
-      );
+        {
+          text: "Cancel",
+        },
+      ]);
     } catch (err) {
       console.error(err);
     }
-  }, [wallet, user, gWeis, toAddress]);
+  }, [wallet, user, tokenToSend, toAddress]);
 
   const broadcast = useCallback(
-    async (finalRawTransaction: string, mempoolTransaction: EthereumTransaction) => {
+    async (finalRawTransaction: string) => {
       if (!service) return;
 
       try {
         const result = await service.sendRawTransaction(finalRawTransaction, EthereumProviderEnum.ALCHEMY);
-        mempoolTransaction.hash = result.toString();
         Alert.alert("Successfully sent.");
-
-        addMempoolTransaction(mempoolTransaction, wallet);
       } catch (err) {
         console.log(err);
         Alert.alert("Unable to broadcast transaction");
       }
     },
-    [service, addMempoolTransaction]
+    [service]
   );
 
   return (
     <View style={styles.container}>
-      <Text style={styles.heading}>Send Ethereum</Text>
+      <Text style={styles.heading}>Send {token.name}</Text>
 
       <View>
         <TextInput
@@ -115,11 +98,12 @@ const EthereumSendScreen = ({ route }: Props) => {
         ></TextInput>
         <TextInput
           style={styles.input}
-          placeholder="0 gWei"
-          onChangeText={(value) => setGWeis(value)}
-          value={gWeis?.toString()}
+          placeholder={"0 " + token.symbol}
+          onChangeText={(value) => setTokenToSend(value)}
+          value={tokenToSend?.toString()}
         ></TextInput>
       </View>
+
       <TouchableOpacity style={styles.actionButton} onPress={sendTransaction}>
         <Text style={styles.actionButtonText}>Send</Text>
       </TouchableOpacity>
@@ -166,4 +150,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default EthereumSendScreen;
+export default TokenSendScreen;

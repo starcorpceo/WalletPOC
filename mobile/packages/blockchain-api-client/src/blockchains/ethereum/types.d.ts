@@ -21,7 +21,7 @@ export interface EthereumTransaction {
 
 export interface RawContract {
   value: string;
-  address: null;
+  address: string;
   decimal: string;
 }
 

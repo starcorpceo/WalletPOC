@@ -1,4 +1,5 @@
 import { TransactionRequest } from "@ethersproject/abstract-provider";
+import { ERC20Token } from "ethereum/config/token-constants";
 import { ethers } from "ethers";
 import { EthereumService } from "packages/blockchain-api-client/src";
 import { EthereumProviderEnum } from "packages/blockchain-api-client/src/blockchains/ethereum/ethereum-factory";
@@ -44,12 +45,13 @@ export const buildRawTokenTransaction = async (
   value: number,
   txCount: string,
   gasPrice: string,
+  token: ERC20Token,
   signer: MPCSigner,
   service: EthereumService
 ): Promise<TransactionRequest> => {
   const erc20_rw = new ethers.Contract(contractAddress, abi, signer);
 
-  const unsignedTrans = await erc20_rw.populateTransaction.transfer(to, value * 10 ** 6);
+  const unsignedTrans = await erc20_rw.populateTransaction.transfer(to, (value * 10 ** token.decimals).toString());
 
   const gas = await service.getEstimatedFees(
     unsignedTrans.from!,
