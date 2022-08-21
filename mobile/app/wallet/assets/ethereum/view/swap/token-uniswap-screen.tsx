@@ -1,70 +1,190 @@
 import "@ethersproject/shims";
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
-
 import { Picker } from "@react-native-picker/picker";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { SwapRoute } from "@uniswap/smart-order-router";
 import { ERC20Token, erc20Tokens } from "ethereum/config/token-constants";
 import { getBalanceFromEthereumTokenBalance } from "ethereum/controller/ethereum-utils";
+import {
+  approveAmount,
+  checkAllowance,
+  findRouteExactInput,
+  swapWithRoute,
+} from "ethereum/controller/uniswap/uniswap-utils";
+import { MPCSigner } from "ethereum/controller/zksync/signer";
 import { EthereumWallet } from "ethereum/types/ethereum";
+import { ethers } from "ethers";
 import { EthereumService } from "packages/blockchain-api-client/src";
 import { EthereumProviderEnum } from "packages/blockchain-api-client/src/blockchains/ethereum/ethereum-factory";
 import {
   EthereumTokenBalance,
   EthereumTokenBalances,
 } from "packages/blockchain-api-client/src/blockchains/ethereum/types";
-import React, { useEffect, useState } from "react";
-import { ActivityIndicator, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import React, { useEffect, useRef, useState } from "react";
+import { ActivityIndicator, Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { useRecoilValue } from "recoil";
 import { NavigationRoutes } from "shared/types/navigation";
 import "shim";
+import { authState, AuthState } from "state/atoms";
 import { Address } from "wallet/types/wallet";
+
+//TODO remove necessary .filter((token) => token != erc20Tokens[selectedInputTokenIndex])
 
 type Props = NativeStackScreenProps<NavigationRoutes, "TokenUniswapScreen">;
 
 const TokenUniswapScreen = ({ route }: Props) => {
-  const [wallet, setWallet] = useState<EthereumWallet>(route.params.wallet);
-  const [address, setAddress] = useState<Address>(route.params.wallet.external.addresses[0]);
+  const [wallet] = useState<EthereumWallet>(route.params.wallet);
+  const [address] = useState<Address>(route.params.wallet.external.addresses[0]);
+  const user = useRecoilValue<AuthState>(authState);
 
   const [selectedInputTokenIndex, setSelectedInputTokenIndex] = useState<number>(0);
   const [selectedOutputTokenIndex, setSelectedOutputTokenIndex] = useState<number>(0);
 
-  const [inputValue, setInputValue] = useState<string>();
-
+  const [signer, setSigner] = useState<MPCSigner>();
   useEffect(() => {
+    setSigner(
+      new MPCSigner(wallet.external.addresses[0], user).connect(
+        new ethers.providers.AlchemyProvider("goerli", "ahl42ynne2Kd8FosnoYBtCW3ssoCtIu0")
+      )
+    );
     updateBalance(erc20Tokens[0]);
   }, []);
+
+  type refreshProps = {
+    inputIndex: number;
+    inputValue: string;
+    outputIndex: number;
+  };
+  const refreshSwapRouteTimer = (props: refreshProps) => {
+    clearTimeout(timerRef.current);
+    setLoadingSwapRoute(false);
+    setSwapRouteErr(false);
+    setSwapRoute(undefined);
+    if (inputValue) {
+      setLoadingSwapRoute(true);
+      timerRef.current = setTimeout(
+        () =>
+          updateSwapRoute(
+            erc20Tokens[props.inputIndex],
+            erc20Tokens.filter((token) => token != erc20Tokens[props.inputIndex])[props.outputIndex],
+            props.inputValue
+          ),
+        2000
+      );
+    }
+  };
 
   const updateSelectedInputToken = (index: number) => {
     setSelectedInputTokenIndex(index);
     updateBalance(erc20Tokens[index]);
+    refreshSwapRouteTimer({ inputIndex: index, inputValue: inputValue!, outputIndex: selectedOutputTokenIndex });
+  };
+
+  const [inputValue, setInputValue] = useState<string>();
+  const timerRef = useRef<any>();
+  const updateInputValue = (inputValue: string) => {
+    setInputValue(inputValue);
+    refreshSwapRouteTimer({
+      inputIndex: selectedInputTokenIndex,
+      inputValue: inputValue,
+      outputIndex: selectedOutputTokenIndex,
+    });
+  };
+
+  const updateSelectedOutputToken = (index: number) => {
+    setSelectedOutputTokenIndex(index);
+    refreshSwapRouteTimer({ inputIndex: selectedInputTokenIndex, inputValue: inputValue!, outputIndex: index });
   };
 
   const [availableBalance, setAvailableBalance] = useState<EthereumTokenBalance>();
   const [loadingBalance, setLoadingBalance] = useState<boolean>(false);
   const [service] = useState(new EthereumService("TEST"));
-  const updateBalance = (token: ERC20Token) => {
-    const loadBalance = async () => {
-      setLoadingBalance(true);
-      let tokenAddr: string[] = [];
-      tokenAddr.push(token.contractAddress);
-      const tokenBalances: EthereumTokenBalances = await service.getTokenBalances(
-        address.address,
-        tokenAddr,
-        EthereumProviderEnum.ALCHEMY
-      );
-      setAvailableBalance(tokenBalances.tokenBalances[0]);
-      setLoadingBalance(false);
-    };
-    loadBalance();
+  const updateBalance = async (token: ERC20Token) => {
+    setLoadingBalance(true);
+    let tokenAddr: string[] = [];
+    tokenAddr.push(token.contractAddress);
+    const tokenBalances: EthereumTokenBalances = await service.getTokenBalances(
+      address.address,
+      tokenAddr,
+      EthereumProviderEnum.ALCHEMY
+    );
+    setAvailableBalance(tokenBalances.tokenBalances[0]);
+    setLoadingBalance(false);
   };
 
-  const swapTokens = () => {
-    console.log(
-      "Swap " +
+  const [swapRoute, setSwapRoute] = useState<SwapRoute>();
+  const [loadingSwapRoute, setLoadingSwapRoute] = useState<boolean>();
+  const [swapRouteErr, setSwapRouteErr] = useState<boolean>(false);
+  const updateSwapRoute = async (inputToken: ERC20Token, outputToken: ERC20Token, inputAmount: string) => {
+    const inputAmountWei = ethers.utils.parseUnits(inputAmount, inputToken.decimals);
+    try {
+      const route = await findRouteExactInput(
+        inputToken,
+        outputToken,
+        address.address,
+        inputAmountWei.toString(),
+        signer!.provider!
+      );
+      setSwapRoute(route);
+    } catch (err) {
+      console.log(err);
+      setSwapRouteErr(true);
+    }
+    setLoadingSwapRoute(false);
+  };
+
+  const swapAlert = () => {
+    if (!inputValue || !swapRoute) return;
+    Alert.alert(
+      "Confirm your swap",
+      "You should get " +
+        swapRoute.quote.toFixed() +
+        " " +
+        erc20Tokens.filter((token) => token != erc20Tokens[selectedInputTokenIndex])[selectedOutputTokenIndex].symbol +
+        " for " +
         inputValue +
         " " +
         erc20Tokens[selectedInputTokenIndex].symbol +
-        " for " +
-        erc20Tokens[selectedOutputTokenIndex].name
+        " with fee " +
+        swapRoute.estimatedGasUsed.toString() +
+        " WEI",
+      [
+        {
+          text: "Swap now",
+          onPress: () => swapTokens(),
+        },
+        {
+          text: "Cancel",
+        },
+      ]
     );
+  };
+
+  const swapTokens = async () => {
+    if (!inputValue || !swapRoute) return;
+
+    const inputAmountWei = ethers.utils.parseUnits(inputValue, erc20Tokens[selectedInputTokenIndex].decimals);
+
+    //check if uniswap has allowance for enough value - else approve new amount
+    const allowedAmount = await checkAllowance(
+      erc20Tokens[selectedInputTokenIndex],
+      address.address,
+      signer!.provider!
+    );
+    if (!allowedAmount.gte(inputAmountWei)) {
+      if (!(await approveAmount(erc20Tokens[selectedInputTokenIndex], inputAmountWei.sub(allowedAmount), signer!)))
+        console.error("Could not approve new amount for swapping");
+    }
+
+    try {
+      const swapped = await swapWithRoute(swapRoute, address.address, signer!);
+      Alert.alert(
+        "Successfully swapped!",
+        "You should get " + swapRoute.quote.toFixed() + " " + erc20Tokens[selectedOutputTokenIndex].symbol
+      );
+    } catch (err) {
+      console.log(err);
+      Alert.alert("Unable to swap", "Maybe the route was outdated.");
+    }
   };
 
   return (
@@ -85,7 +205,7 @@ const TokenUniswapScreen = ({ route }: Props) => {
         <TextInput
           style={styles.input}
           placeholder={"0 " + erc20Tokens[selectedInputTokenIndex]?.symbol}
-          onChangeText={(value) => setInputValue(value)}
+          onChangeText={(value) => updateInputValue(value)}
           value={inputValue}
         ></TextInput>
         <Text style={styles.availableValueText}>
@@ -101,26 +221,39 @@ const TokenUniswapScreen = ({ route }: Props) => {
           {loadingBalance && <ActivityIndicator />}
         </Text>
       </View>
-      <Text style={styles.arrowDown}>{"\u2193"}</Text>
+      {loadingSwapRoute ? <ActivityIndicator /> : <Text style={styles.arrowDown}>{"\u2193"}</Text>}
       <View style={styles.pickerArea}>
         <Text style={styles.pickerHeading}>To</Text>
         <Picker
           style={styles.tokenPicker}
           itemStyle={styles.tokenPickerItem}
           selectedValue={selectedOutputTokenIndex}
-          onValueChange={(itemValue) => setSelectedOutputTokenIndex(itemValue)}
+          onValueChange={(itemValue) => updateSelectedOutputToken(itemValue)}
         >
-          {erc20Tokens.map((token, index) => {
-            return <Picker.Item key={token.name} label={token.name} value={index} />;
-          })}
+          {erc20Tokens
+            .filter((token) => token != erc20Tokens[selectedInputTokenIndex])
+            .map((token, index) => {
+              return <Picker.Item key={token.name} label={token.name} value={index} />;
+            })}
         </Picker>
         <TextInput
           editable={false}
           style={styles.input}
-          placeholder={"? " + erc20Tokens[selectedOutputTokenIndex]?.symbol}
+          value={
+            (swapRoute ? swapRoute.quote.toFixed() : "?") +
+            " " +
+            erc20Tokens.filter((token) => token != erc20Tokens[selectedInputTokenIndex])[selectedOutputTokenIndex]
+              ?.symbol
+          }
         ></TextInput>
+        {swapRouteErr && <Text style={styles.routeErrorText}>No route for this pair</Text>}
+        {swapRoute && <Text style={styles.feesText}>{"Fees: " + swapRoute.estimatedGasUsed.toString() + " WEI"}</Text>}
       </View>
-      <TouchableOpacity style={styles.actionButton} onPress={swapTokens}>
+      <TouchableOpacity
+        style={!inputValue || !swapRoute || swapRouteErr ? styles.actionButtonDisabled : styles.actionButton}
+        disabled={!inputValue || !swapRoute || swapRouteErr}
+        onPress={() => swapAlert()}
+      >
         <Text style={styles.actionButtonText}>Swap</Text>
       </TouchableOpacity>
     </View>
@@ -176,6 +309,16 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     fontSize: 14,
   },
+  actionButtonDisabled: {
+    opacity: 0.5,
+    height: 42,
+    width: "100%",
+    backgroundColor: "#3828e0",
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 14,
+  },
   actionButton: {
     height: 42,
     width: "100%",
@@ -191,6 +334,18 @@ const styles = StyleSheet.create({
   },
   availableValueText: {
     textAlign: "right",
+    marginTop: 4,
+  },
+  routeErrorText: {
+    color: "red",
+    textAlign: "right",
+    fontSize: 12,
+    marginTop: 4,
+  },
+  feesText: {
+    textAlign: "right",
+    fontSize: 12,
+    marginTop: 4,
   },
 });
 
