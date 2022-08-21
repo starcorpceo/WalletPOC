@@ -30,6 +30,13 @@ const TokenWalletScreen = ({ route, navigation }: Props) => {
         >
           <Text style={styles.actionButtonText}>Send</Text>
         </TouchableOpacity>
+        <View style={styles.actionAreaSpace} />
+        <TouchableOpacity
+          style={styles.actionButton}
+          onPress={() => navigation.navigate("TokenUniswapScreen", { wallet, token })}
+        >
+          <Text style={styles.actionButtonText}>Swap</Text>
+        </TouchableOpacity>
       </View>
 
       <TokenTransactionsView wallet={wallet} address={address} navigation={navigation} token={token} />
@@ -77,6 +84,9 @@ const styles = StyleSheet.create({
   actionButtonText: {
     color: "white",
     fontSize: 16,
+  },
+  actionAreaSpace: {
+    width: 18,
   },
 });
 

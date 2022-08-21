@@ -13,9 +13,13 @@
     "nodeify": "rn-nodeify --install buffer,stream,assert,events,crypto,vm,process --hack"
   },
   "dependencies": {
+    "@ethersproject/shims": "^5.6.0",
     "@react-native-async-storage/async-storage": "^1.17.7",
     "@react-navigation/native": "^6.0.10",
     "@react-navigation/native-stack": "^6.6.2",
+    "@uniswap/sdk-core": "^3.0.1",
+    "@uniswap/smart-order-router": "^2.9.3",
+    "@uniswap/v3-sdk": "^3.9.0",
     "assert": "^1.5.0",
     "buffer": "^4.9.2",
     "der-bitcoinjs-lib": "^0.0.1",
@@ -26,6 +30,7 @@
     "expo": "^45.0.0",
     "expo-clipboard": "~3.0.1",
     "expo-local-authentication": "~12.2.0",
+    "jsbi": "^3.1.4",
     "process": "^0.11.10",
     "react": "17.0.2",
     "react-native": "0.68.1",

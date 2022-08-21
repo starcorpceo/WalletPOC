@@ -27,6 +27,7 @@ import { EthereumSingleTransactionScreen } from "ethereum/view/wallet/transactio
 import Header from "./shared/header";
 import Home from "./views/home";
 import TokenSendScreen from "ethereum/view/tokens/wallet/send/token-send-screen";
+import TokenUniswapScreen from "ethereum/view/tokens/wallet/swap/token-uniswap-screen";
 
 const App = () => {
   const isDarkMode = useColorScheme() === "dark";
@@ -69,6 +70,7 @@ const App = () => {
                 options={{ title: "ERC-20 Token Wallet" }}
               />
               <Stack.Screen name="TokenSendScreen" component={TokenSendScreen} options={{ title: "Send Token" }} />
+              <Stack.Screen name="TokenUniswapScreen" component={TokenUniswapScreen} options={{ title: "Uniswap" }} />
 
               <Stack.Screen name="BitcoinScreen" component={BitcoinScreen} options={{ title: "All wallets" }} />
               <Stack.Screen
