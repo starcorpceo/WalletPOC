@@ -27,7 +27,7 @@ import { EthereumSingleTransactionScreen } from "ethereum/view/wallet/transactio
 import Header from "./shared/header";
 import Home from "./views/home";
 import TokenSendScreen from "ethereum/view/tokens/wallet/send/token-send-screen";
-import TokenUniswapScreen from "ethereum/view/tokens/wallet/swap/token-uniswap-screen";
+import TokenUniswapScreen from "ethereum/view/swap/token-uniswap-screen";
 
 const App = () => {
   const isDarkMode = useColorScheme() === "dark";

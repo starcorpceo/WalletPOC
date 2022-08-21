@@ -1,7 +1,7 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { ERC20Token, findContractAddressBySymbol } from "ethereum/config/token-constants";
+import { ERC20Token } from "ethereum/config/token-constants";
 import { EthereumWallet } from "ethereum/types/ethereum";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { NavigationRoutes } from "shared/types/navigation";
 import { Address } from "wallet/types/wallet";
@@ -29,13 +29,6 @@ const TokenWalletScreen = ({ route, navigation }: Props) => {
           onPress={() => navigation.navigate("TokenSendScreen", { wallet, token })}
         >
           <Text style={styles.actionButtonText}>Send</Text>
-        </TouchableOpacity>
-        <View style={styles.actionAreaSpace} />
-        <TouchableOpacity
-          style={styles.actionButton}
-          onPress={() => navigation.navigate("TokenUniswapScreen", { wallet, token })}
-        >
-          <Text style={styles.actionButtonText}>Swap</Text>
         </TouchableOpacity>
       </View>
 

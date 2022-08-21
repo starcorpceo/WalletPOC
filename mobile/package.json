@@ -46,7 +46,8 @@
     "rn-nodeify": "^10.3.0",
     "stream-browserify": "^1.0.0",
     "vm-browserify": "^0.0.4",
-    "zksync": "^0.13.1"
+    "zksync": "^0.13.1",
+    "@react-native-picker/picker": "2.4.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",
