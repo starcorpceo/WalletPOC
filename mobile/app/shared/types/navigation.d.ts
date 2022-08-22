@@ -17,7 +17,7 @@ type NavigationRoutes = {
 
   //Ethereum Screens
   EthereumScreen: { isStateEmpty: boolean; user: User };
-  EthereumSendScreen: { account: EthereumWallet; service?: EthereumService };
+  EthereumSendScreen: { service?: EthereumService };
   EthereumReceiveScreen: { account: EthereumWallet };
   EthereumSingleTransactionScreen: { transaction: EthereumTransaction; wallet: EthereumWallet };
 
