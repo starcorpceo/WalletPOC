@@ -19,7 +19,7 @@ const TokenWalletListView = ({ wallet, navigation }: TokenWalletListViewProps) =
         <Text style={styles.heading}>Token Wallets</Text>
         <TouchableOpacity
           style={styles.headerButton}
-          onPress={() => navigation.navigate("TokenUniswapScreen", { wallet })}
+          onPress={() => navigation.navigate("TokenSwapScreen", { wallet })}
         >
           <Text style={styles.headerButtonText}>Swap Tokens</Text>
         </TouchableOpacity>

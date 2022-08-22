@@ -1,6 +1,5 @@
 import "@ethersproject/shims";
 import { Picker } from "@react-native-picker/picker";
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { SwapRoute } from "@uniswap/smart-order-router";
 import { ERC20Token, erc20Tokens } from "ethereum/config/token-constants";
 import { getBalanceFromEthereumTokenBalance } from "ethereum/controller/ethereum-utils";
@@ -9,7 +8,7 @@ import {
   checkAllowance,
   findRouteExactInput,
   swapWithRoute,
-} from "ethereum/controller/uniswap/uniswap-utils";
+} from "ethereum/controller/swap/uniswap-utils";
 import { MPCSigner } from "ethereum/controller/zksync/signer";
 import { EthereumWallet } from "ethereum/types/ethereum";
 import { ethers } from "ethers";
@@ -22,18 +21,18 @@ import {
 import React, { useEffect, useRef, useState } from "react";
 import { ActivityIndicator, Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useRecoilValue } from "recoil";
-import { NavigationRoutes } from "shared/types/navigation";
 import "shim";
 import { authState, AuthState } from "state/atoms";
 import { Address } from "wallet/types/wallet";
 
 //TODO remove necessary .filter((token) => token != erc20Tokens[selectedInputTokenIndex])
 
-type Props = NativeStackScreenProps<NavigationRoutes, "TokenUniswapScreen">;
+type Props = {
+  wallet: EthereumWallet;
+  address: Address;
+};
 
-const TokenUniswapScreen = ({ route }: Props) => {
-  const [wallet] = useState<EthereumWallet>(route.params.wallet);
-  const [address] = useState<Address>(route.params.wallet.external.addresses[0]);
+const TokenUniswapView = ({ wallet, address }: Props) => {
   const user = useRecoilValue<AuthState>(authState);
 
   const [selectedInputTokenIndex, setSelectedInputTokenIndex] = useState<number>(0);
@@ -349,4 +348,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default TokenUniswapScreen;
+export default TokenUniswapView;
