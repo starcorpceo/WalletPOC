@@ -21,11 +21,22 @@ export interface EthereumTransaction {
 
 export interface RawContract {
   value: string;
-  address: null;
+  address: string;
   decimal: string;
 }
 
 export interface EthereumProvider {
   fetcher: EthereumFetcher;
   mapper: EthereumMapper;
+}
+
+export interface EthereumTokenBalances {
+  address: string;
+  tokenBalances: EthereumTokenBalance[];
+}
+
+export interface EthereumTokenBalance {
+  contractAddress: string;
+  tokenBalance: string;
+  error: boolean;
 }

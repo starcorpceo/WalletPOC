@@ -10,6 +10,10 @@ export enum Method {
   SendTransaction = 'eth_sendRawTransaction',
   GasPrice = 'eth_gasPrice',
   TransactionCount = 'eth_getTransactionCount',
+  EstimateGas = 'eth_estimateGas',
+
+  //ERC-20
+  TokenBalances = 'alchemy_getTokenBalances',
 }
 
 const apiKey = 'ahl42ynne2Kd8FosnoYBtCW3ssoCtIu0';

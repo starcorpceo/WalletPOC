@@ -1,6 +1,4 @@
-import { ApiTransaction, Balance } from '../../../base/types';
-
-export interface BlockCypherBalance extends Balance {
+export type BlockCypherBalance = {
   total_received: number;
   total_sent: number;
   unconfirmed_balance: number;
@@ -9,9 +7,9 @@ export interface BlockCypherBalance extends Balance {
   n_tx: number;
   unconfirmed_n_tx: number;
   final_n_tx: number;
-}
+};
 
-export interface BlockCypherBalanceFull extends ApiTransaction {
+export type BlockCypherBalanceFull = {
   address: string;
   total_received: number;
   total_sent: number;
@@ -22,7 +20,7 @@ export interface BlockCypherBalanceFull extends ApiTransaction {
   unconfirmed_n_tx: number;
   final_n_tx: number;
   txs: BlockCypherTransaction[];
-}
+};
 
 export interface BlockCypherTransaction {
   block_hash: string;

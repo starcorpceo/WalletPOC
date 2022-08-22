@@ -1,7 +1,8 @@
+import { ApiBalance } from '../../../base/types';
 import { EthereumBalance, EthereumTransaction } from '../../../blockchains/ethereum/types';
 import { AlchemyBalance, AlchemyResult, AlchemyTransaction } from './alchemy-ethereum-types';
 
-export const mapAlchemyBalance = (balance: AlchemyBalance): EthereumBalance => {
+export const mapAlchemyBalance = (balance: ApiBalance<AlchemyBalance>): EthereumBalance => {
   if (balance.error) throw new Error(balance.error);
 
   return {
@@ -16,6 +17,11 @@ export const mapAlchemyTransactions = (transaction: AlchemyTransaction[]): Ether
     .sort((a, b) => Number.parseInt(b.blockNum, 16) - Number.parseInt(a.blockNum, 16));
 
   return transactions.map(transaction => ({ ...transaction, value: ethToGwei(transaction.value) }));
+};
+
+export const mapAlchemyResult = <T>(response: AlchemyResult<T>): T => {
+  if (response.error) throwAlchemyError(response);
+  return response.result;
 };
 
 export const mapAlchemyResultToString = (response: AlchemyResult<string>): string => {

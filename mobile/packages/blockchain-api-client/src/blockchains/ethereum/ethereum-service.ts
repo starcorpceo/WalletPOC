@@ -1,6 +1,6 @@
-import { ApiBroadcastTransaction, ApiTransactionCount, Network } from '../../base/types';
+import { ApiBroadcastTransaction, ApiTokenBalances, ApiTransactionCount, Network } from '../../base/types';
 import { EthereumFactory, EthereumProviderEnum } from './ethereum-factory';
-import { EthereumBalance, EthereumTransaction } from './types';
+import { EthereumBalance, EthereumTokenBalances, EthereumTransaction } from './types';
 
 export class EthereumService {
   private factory: EthereumFactory;
@@ -40,6 +40,14 @@ export class EthereumService {
     return mapper.responseToTransactions(apiTransactions);
   };
 
+  getERC20Transactions = async (address: string, provider: EthereumProviderEnum): Promise<EthereumTransaction[]> => {
+    const { mapper, fetcher } = this.factory.getProviderFunctions(provider);
+
+    const apiTransactions = await fetcher.fetchERC20Transactions(address);
+
+    return mapper.responseToTransactions(apiTransactions);
+  };
+
   getFees = async (provider: EthereumProviderEnum): Promise<string> => {
     const { mapper, fetcher } = this.factory.getProviderFunctions(provider);
 
@@ -53,7 +61,7 @@ export class EthereumService {
 
     const apiResult = fetcher.sendRawTransaction && (await fetcher.sendRawTransaction(transaction));
 
-    return mapper.responseToBroadCastTransactionResult(apiResult as ApiBroadcastTransaction);
+    return mapper.responseToBroadcastTransaction(apiResult as ApiBroadcastTransaction);
   };
 
   getTransactionCount = async (address: string, provider: EthereumProviderEnum): Promise<string> => {
@@ -62,5 +70,30 @@ export class EthereumService {
     const apiResult = fetcher.fetchTransactionCount && (await fetcher.fetchTransactionCount(address));
 
     return mapper.responseToTransactionCount(apiResult as ApiTransactionCount);
+  };
+
+  getEstimatedFees = async (
+    from: string,
+    to: string,
+    data: string,
+    provider: EthereumProviderEnum
+  ): Promise<string> => {
+    const { mapper, fetcher } = this.factory.getProviderFunctions(provider);
+
+    const apiFees = fetcher.fetchEstimatedGas && (await fetcher.fetchEstimatedGas(from, to, data));
+
+    return mapper.responseToFees(apiFees);
+  };
+
+  getTokenBalances = async (
+    address: string,
+    contractAddresses: string[],
+    provider: EthereumProviderEnum
+  ): Promise<EthereumTokenBalances> => {
+    const { fetcher, mapper } = this.factory.getProviderFunctions(provider);
+
+    const apiResult = fetcher.fetchTokenBalances && (await fetcher.fetchTokenBalances(address, contractAddresses));
+
+    return mapper.responseToTokenBalances(apiResult as ApiTokenBalances);
   };
 }

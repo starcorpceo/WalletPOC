@@ -1,13 +1,15 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { erc20Tokens } from "ethereum/config/token-constants";
 import { EthereumAccountBuilder } from "ethereum/controller/ethereum-account-creation";
 import { EthereumWalletsState, ethereumWalletsState } from "ethereum/state/ethereum-atoms";
 import React, { useCallback, useEffect, useState } from "react";
-import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Button, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { NavigationRoutes } from "shared/types/navigation";
 import { getPurposeWallet } from "state/utils";
 import { initialCoinState } from "wallet/state/wallet-state-utils";
 import Wallets from "wallet/view/generic-wallet-screen";
+import TokenWalletListView from "./tokens/token-wallet-list-view";
 import EthereumWalletView from "./wallet/ethereum-wallet";
 
 type Props = NativeStackScreenProps<NavigationRoutes, "EthereumScreen">;
@@ -62,7 +64,16 @@ const EthereumScreen = ({ navigation, route }: Props) => {
       {ethereumState.accounts[0] && (
         <>
           {ethereumState.accounts.map((wallet, index: number) => (
-            <EthereumWalletView key={"EthereumWallet-" + index} wallet={wallet} index={index} navigation={navigation} />
+            <View key={"EthereumWalletHolder-" + index}>
+              <TokenWalletListView wallet={wallet} navigation={navigation} />
+
+              <EthereumWalletView
+                key={"EthereumWallet-" + index}
+                wallet={wallet}
+                index={index}
+                navigation={navigation}
+              />
+            </View>
           ))}
 
           <TouchableOpacity style={styles.deleteButton} onPress={deleteEthereumAccount}>
@@ -81,6 +92,22 @@ const EthereumScreen = ({ navigation, route }: Props) => {
 };
 
 const styles = StyleSheet.create({
+  container: {
+    backgroundColor: "white",
+    padding: 16,
+    borderRadius: 12,
+    shadowColor: "grey",
+    shadowOffset: { width: 0, height: 14 },
+    shadowOpacity: 0.2,
+    shadowRadius: 20,
+    paddingBottom: 24,
+    maxHeight: "80%",
+    marginBottom: 30,
+  },
+  heading: {
+    fontSize: 18,
+    fontWeight: "bold",
+  },
   deleteButton: {
     flex: 1,
     justifyContent: "center",
