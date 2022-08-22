@@ -1,7 +1,7 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { ERC20Token, findContractAddressBySymbol } from "ethereum/config/token-constants";
+import { ERC20Token } from "ethereum/config/token-constants";
 import { EthereumWallet } from "ethereum/types/ethereum";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { NavigationRoutes } from "shared/types/navigation";
 import { Address } from "wallet/types/wallet";
@@ -77,6 +77,9 @@ const styles = StyleSheet.create({
   actionButtonText: {
     color: "white",
     fontSize: 16,
+  },
+  actionAreaSpace: {
+    width: 18,
   },
 });
 

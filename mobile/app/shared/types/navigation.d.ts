@@ -24,4 +24,5 @@ type NavigationRoutes = {
   //Ethereum Token Screens
   TokenWalletScreen: { wallet: EthereumWallet; token: ERC20Token };
   TokenSendScreen: { wallet: EthereumWallet; token: ERC20Token };
+  TokenUniswapScreen: { wallet: EthereumWallet };
 };

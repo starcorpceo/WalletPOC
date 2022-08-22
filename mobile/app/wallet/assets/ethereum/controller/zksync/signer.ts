@@ -2,7 +2,7 @@ import { Provider, TransactionRequest } from "@ethersproject/abstract-provider";
 import { serialize, UnsignedTransaction } from "@ethersproject/transactions";
 import { User } from "api-types/user";
 import { Bytes, Signer } from "ethers";
-import { getAddress, joinSignature, keccak256, resolveProperties, toUtf8Bytes } from "ethers/lib/utils";
+import { defineReadOnly, getAddress, joinSignature, keccak256, resolveProperties, toUtf8Bytes } from "ethers/lib/utils";
 import * as LocalAuthentication from "expo-local-authentication";
 import { signEcdsa } from "lib/mpc";
 import { getBinSignature } from "react-native-blockchain-crypto-mpc";
@@ -61,7 +61,13 @@ export class MPCSigner extends Signer {
     return resolveProperties(transaction).then(async (tx) => {
       if (tx.from != null) {
         if (getAddress(tx.from) !== this.address.address) {
-          console.error("transaction from address mismatch", "transaction.from", transaction.from);
+          console.error(
+            "transaction from address mismatch",
+            "transaction.from",
+            tx.from,
+            " !== ",
+            this.address.address
+          );
         }
         delete tx.from;
       }
@@ -93,7 +99,8 @@ export class MPCSigner extends Signer {
   }
 
   connect(provider: Provider): MPCSigner {
-    Object.assign(this, provider);
+    defineReadOnly(this, "provider", provider || null);
+    // Object.assign(this, provider);
     return this;
   }
 }
