@@ -1,11 +1,10 @@
+import { Provider } from "@ethersproject/abstract-provider";
 import "@ethersproject/shims";
 import { CurrencyAmount, Percent, Token, TradeType } from "@uniswap/sdk-core";
-import { BigNumber, BigNumberish, ethers } from "ethers";
-import { Provider } from "@ethersproject/abstract-provider";
 import { AlphaRouter, SwapRoute } from "@uniswap/smart-order-router";
-import { abi as ERC20ABI } from "@uniswap/v2-core/build/ERC20.json";
 import { ERC20Token } from "ethereum/config/token-constants";
 import { MPCSigner } from "ethereum/controller/zksync/signer";
+import { BigNumber, ethers } from "ethers";
 import JSBI from "jsbi";
 import "shim";
 
@@ -14,39 +13,6 @@ const V3_SWAP_ROUTER_ADDRESS = "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45";
 
 //Factroy contract address from uniswap
 const FACTORY_CONTRACT_ADDRESS = "0x1F98431c8aD98523631AE4a59f267346ea31F984";
-
-/**
- * Approves amount of token to be used for swapping
- * Is neccessary so uniswap can use that amount for swapping (uses fees)
- * @param token token which value should be approved
- * @param amount amount to be approved
- * @param signer signer to be use for signing
- * @returns Promise<boolean> true if it succeeded
- */
-export const approveAmount = async (token: ERC20Token, amount: BigNumberish, signer: MPCSigner): Promise<boolean> => {
-  const approvalResponse = await new ethers.Contract(token.contractAddress, ERC20ABI, signer).approve(
-    V3_SWAP_ROUTER_ADDRESS,
-    amount.toString()
-  );
-  console.log("Approved new Amount");
-  if (approvalResponse) return true;
-  else return false;
-};
-
-/**
- * Checks how much value is approved for token on this address
- * @param token
- * @param address
- * @param provider
- * @returns
- */
-export const checkAllowance = async (token: ERC20Token, address: string, provider: Provider): Promise<BigNumber> => {
-  const allowanceResponce: BigNumber = await new ethers.Contract(token.contractAddress, ERC20ABI, provider).allowance(
-    address,
-    V3_SWAP_ROUTER_ADDRESS
-  );
-  return allowanceResponce;
-};
 
 /**
  * Find auto router uniswap route for tokens to swap

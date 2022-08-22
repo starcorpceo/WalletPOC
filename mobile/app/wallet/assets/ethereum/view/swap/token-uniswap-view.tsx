@@ -3,12 +3,8 @@ import { Picker } from "@react-native-picker/picker";
 import { SwapRoute } from "@uniswap/smart-order-router";
 import { ERC20Token, erc20Tokens } from "ethereum/config/token-constants";
 import { getBalanceFromEthereumTokenBalance } from "ethereum/controller/ethereum-utils";
-import {
-  approveAmount,
-  checkAllowance,
-  findRouteExactInput,
-  swapWithRoute,
-} from "ethereum/controller/swap/uniswap-utils";
+import { approveAmount, checkAllowance } from "ethereum/controller/swap/swap-utils";
+import { findRouteExactInput, swapWithRoute } from "ethereum/controller/swap/uniswap-utils";
 import { MPCSigner } from "ethereum/controller/zksync/signer";
 import { EthereumWallet } from "ethereum/types/ethereum";
 import { ethers } from "ethers";
@@ -26,6 +22,9 @@ import { authState, AuthState } from "state/atoms";
 import { Address } from "wallet/types/wallet";
 
 //TODO remove necessary .filter((token) => token != erc20Tokens[selectedInputTokenIndex])
+
+//Router contract address from uniswap v3
+const V3_SWAP_ROUTER_ADDRESS = "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45";
 
 type Props = {
   wallet: EthereumWallet;
@@ -167,10 +166,18 @@ const TokenUniswapView = ({ wallet, address }: Props) => {
     const allowedAmount = await checkAllowance(
       erc20Tokens[selectedInputTokenIndex],
       address.address,
-      signer!.provider!
+      signer!.provider!,
+      V3_SWAP_ROUTER_ADDRESS
     );
     if (!allowedAmount.gte(inputAmountWei)) {
-      if (!(await approveAmount(erc20Tokens[selectedInputTokenIndex], inputAmountWei.sub(allowedAmount), signer!)))
+      if (
+        !(await approveAmount(
+          erc20Tokens[selectedInputTokenIndex],
+          inputAmountWei.sub(allowedAmount),
+          signer!,
+          V3_SWAP_ROUTER_ADDRESS
+        ))
+      )
         console.error("Could not approve new amount for swapping");
     }
 
