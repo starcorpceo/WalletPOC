@@ -1,6 +1,6 @@
 import { Picker } from "@react-native-picker/picker";
 import { ERC20Token, erc20Tokens } from "ethereum/config/token-constants";
-import { getBalanceFromEthereumTokenBalance } from "ethereum/controller/ethereum-utils";
+import { getBalanceFromEthereumTokenBalance, gWeiToEth } from "ethereum/controller/ethereum-utils";
 import { getSwapQuote, swapWithQuote } from "ethereum/controller/swap/0x-utils";
 import { approveAmount, checkAllowance } from "ethereum/controller/swap/swap-utils";
 import { MPCSigner } from "ethereum/controller/zksync/signer";
@@ -9,6 +9,7 @@ import { ethers } from "ethers";
 import { EthereumService } from "packages/blockchain-api-client/src";
 import { EthereumProviderEnum } from "packages/blockchain-api-client/src/blockchains/ethereum/ethereum-factory";
 import {
+  EthereumBalance,
   EthereumTokenBalance,
   EthereumTokenBalances,
 } from "packages/blockchain-api-client/src/blockchains/ethereum/types";
@@ -91,19 +92,24 @@ const Token0xView = ({ wallet, address }: Props) => {
     refreshQuoteTimer({ inputIndex: selectedInputTokenIndex, inputValue: inputValue!, outputIndex: index });
   };
 
-  const [availableBalance, setAvailableBalance] = useState<EthereumTokenBalance>();
+  const [availableBalance, setAvailableBalance] = useState<string>();
   const [loadingBalance, setLoadingBalance] = useState<boolean>(false);
   const [service] = useState(new EthereumService("TEST"));
   const updateBalance = async (token: ERC20Token) => {
     setLoadingBalance(true);
-    let tokenAddr: string[] = [];
-    tokenAddr.push(token.contractAddress);
-    const tokenBalances: EthereumTokenBalances = await service.getTokenBalances(
-      address.address,
-      tokenAddr,
-      EthereumProviderEnum.ALCHEMY
-    );
-    setAvailableBalance(tokenBalances.tokenBalances[0]);
+    if (token.isToken == false) {
+      const balance: EthereumBalance = await service.getBalance(address.address, EthereumProviderEnum.ALCHEMY);
+      setAvailableBalance(gWeiToEth(balance.value).toString());
+    } else {
+      let tokenAddr: string[] = [];
+      tokenAddr.push(token.contractAddress);
+      const tokenBalances: EthereumTokenBalances = await service.getTokenBalances(
+        address.address,
+        tokenAddr,
+        EthereumProviderEnum.ALCHEMY
+      );
+      setAvailableBalance(getBalanceFromEthereumTokenBalance(tokenBalances.tokenBalances[0], token).value.toString());
+    }
     setLoadingBalance(false);
   };
 
@@ -247,14 +253,7 @@ const Token0xView = ({ wallet, address }: Props) => {
         ></TextInput>
         <Text style={styles.availableValueText}>
           Available:{" "}
-          {availableBalance &&
-            !loadingBalance &&
-            getBalanceFromEthereumTokenBalance(
-              availableBalance,
-              erc20Tokens[selectedInputTokenIndex]
-            ).value.toString() +
-              " " +
-              erc20Tokens[selectedInputTokenIndex].symbol}
+          {availableBalance && !loadingBalance && availableBalance + " " + erc20Tokens[selectedInputTokenIndex].symbol}
           {loadingBalance && <ActivityIndicator />}
         </Text>
       </View>

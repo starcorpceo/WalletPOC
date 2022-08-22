@@ -3,6 +3,13 @@ import { config } from "./ethereum-config";
 //created VEST Tether with remix -> to receive funds -> mathias chrome metamask wallet have full funds
 const erc20GoerliTokens: ERC20Token[] = [
   {
+    name: "Ethereum",
+    symbol: "ETH",
+    contractAddress: "0x0000000000000000000000000000000000000000",
+    decimals: 18,
+    isToken: false,
+  },
+  {
     name: "Wrapped Ether",
     symbol: "wETH",
     contractAddress: "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6",
@@ -28,4 +35,5 @@ export interface ERC20Token {
   symbol: string;
   contractAddress: string;
   decimals: number;
+  isToken?: boolean;
 }

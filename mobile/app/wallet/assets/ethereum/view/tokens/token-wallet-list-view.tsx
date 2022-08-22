@@ -26,14 +26,16 @@ const TokenWalletListView = ({ wallet, navigation }: TokenWalletListViewProps) =
       </View>
       {erc20Tokens.map((token) => {
         return (
-          <TouchableOpacity
-            style={styles.actionButton}
-            onPress={() => navigation.navigate("TokenWalletScreen", { wallet: wallet, token: token })}
-          >
-            <Text style={styles.actionButtonText}>
-              {token.name} Wallet {"\u2192"}
-            </Text>
-          </TouchableOpacity>
+          token.isToken != false && (
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => navigation.navigate("TokenWalletScreen", { wallet: wallet, token: token })}
+            >
+              <Text style={styles.actionButtonText}>
+                {token.name} Wallet {"\u2192"}
+              </Text>
+            </TouchableOpacity>
+          )
         );
       })}
     </View>
