@@ -7,6 +7,7 @@ import * as LocalAuthentication from "expo-local-authentication";
 import { signEcdsa } from "lib/mpc";
 import { getBinSignature } from "react-native-blockchain-crypto-mpc";
 import { Address } from "wallet/types/wallet";
+import { getSignatureWithRecoveryCode } from "../ethereum-utils";
 
 export class MPCSigner extends Signer {
   private address: Address;
@@ -84,15 +85,19 @@ export class MPCSigner extends Signer {
         "hex"
       );
 
-      const { signature, recoveryCode: recoveryParam } = await getBinSignature(context, this.address.keyShare.keyShare);
+      const { signature, recoveryCode } = await getBinSignature(context, this.address.keyShare.keyShare);
 
       const sigBuff = Buffer.from(signature, "base64");
 
-      const sig = {
-        r: "0x" + sigBuff.slice(0, 32).toString("hex"),
-        s: "0x" + sigBuff.slice(32, 64).toString("hex"),
-        recoveryParam,
-      };
+      const sig = getSignatureWithRecoveryCode(
+        {
+          r: "0x" + sigBuff.slice(0, 32).toString("hex"),
+          s: "0x" + sigBuff.slice(32, 64).toString("hex"),
+          recoveryParam: 0,
+        },
+        Buffer.from(kec, "hex"),
+        this.address.address
+      );
 
       return serialize(<UnsignedTransaction>tx, sig);
     });
@@ -100,7 +105,6 @@ export class MPCSigner extends Signer {
 
   connect(provider: Provider): MPCSigner {
     defineReadOnly(this, "provider", provider || null);
-    // Object.assign(this, provider);
     return this;
   }
 }

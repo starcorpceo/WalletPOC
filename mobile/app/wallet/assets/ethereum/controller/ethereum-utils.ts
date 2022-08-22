@@ -1,5 +1,6 @@
+import { Signature, SignatureLike } from "@ethersproject/bytes";
 import { ERC20Token } from "ethereum/config/token-constants";
-import { BigNumber } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import { EthereumBalance, EthereumTokenBalance } from "packages/blockchain-api-client/src/blockchains/ethereum/types";
 
 export const weiToEth = (wei: number): number => wei / 1000000000000000000;
@@ -19,4 +20,24 @@ export const getBalanceFromEthereumTokenBalance = (
   token: ERC20Token
 ): EthereumBalance => {
   return { value: Number.parseInt(ethereumBalance.tokenBalance, 16) / 10 ** token.decimals };
+};
+
+/**
+ * Workaround to fix a problem in unbound-crypto-mpc
+ *
+ * @param signature Signature with recoveryParam: 0
+ * @param msgHash Message before signing
+ * @param address Address we are expecting
+ * @returns Recovery Code that leads from the Signature to the correct Public Key / Address
+ */
+export const getSignatureWithRecoveryCode = (
+  signature: SignatureLike,
+  msgHash: Buffer,
+  address: string
+): SignatureLike => {
+  const recoveredAddress = ethers.utils.recoverAddress(msgHash, signature).toLowerCase();
+
+  if (recoveredAddress === address) return signature;
+
+  return { ...(signature as Signature), recoveryParam: 1 };
 };
