@@ -166,29 +166,31 @@ const Token0xView = ({ wallet, address }: Props) => {
     const inputAmountWei = ethers.utils.parseUnits(inputValue, erc20Tokens[selectedInputTokenIndex].decimals);
 
     //check if uniswap has allowance for enough value - else approve new amount
-    const allowedAmount = await checkAllowance(
-      erc20Tokens[selectedInputTokenIndex],
-      address.address,
-      signer!.provider!,
-      quote.allowanceTarget
-    );
-    if (!allowedAmount.gte(inputAmountWei)) {
-      setApprovalModalVisible(true);
-      try {
-        if (
-          !(await approveAmount(
-            erc20Tokens[selectedInputTokenIndex],
-            inputAmountWei.sub(allowedAmount),
-            signer!,
-            quote.allowanceTarget
-          ))
-        )
-          console.error("Could not approve new amount for swapping");
-      } catch (err) {
-        console.error(err);
+    if (erc20Tokens[selectedInputTokenIndex].isToken != false) {
+      const allowedAmount = await checkAllowance(
+        erc20Tokens[selectedInputTokenIndex],
+        address.address,
+        signer!.provider!,
+        quote.allowanceTarget
+      );
+      if (!allowedAmount.gte(inputAmountWei)) {
+        setApprovalModalVisible(true);
+        try {
+          if (
+            !(await approveAmount(
+              erc20Tokens[selectedInputTokenIndex],
+              inputAmountWei.sub(allowedAmount),
+              signer!,
+              quote.allowanceTarget
+            ))
+          )
+            console.error("Could not approve new amount for swapping");
+        } catch (err) {
+          console.error(err);
+          setApprovalModalVisible(false);
+        }
         setApprovalModalVisible(false);
       }
-      setApprovalModalVisible(false);
     }
 
     try {

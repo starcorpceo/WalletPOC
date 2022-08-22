@@ -2,10 +2,11 @@ import { config } from "./ethereum-config";
 
 //created VEST Tether with remix -> to receive funds -> mathias chrome metamask wallet have full funds
 const erc20GoerliTokens: ERC20Token[] = [
+  //Ethereum is not ERC20 Token, but is here for workaround for 0x swap
   {
     name: "Ethereum",
     symbol: "ETH",
-    contractAddress: "0x0000000000000000000000000000000000000000",
+    contractAddress: "ETH",
     decimals: 18,
     isToken: false,
   },

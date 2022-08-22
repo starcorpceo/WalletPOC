@@ -34,6 +34,7 @@ type Props = {
 };
 
 const TokenUniswapView = ({ wallet, address }: Props) => {
+  const erc20TokensLocal = erc20Tokens.filter((token) => token.isToken != false);
   const user = useRecoilValue<AuthState>(authState);
 
   const [selectedInputTokenIndex, setSelectedInputTokenIndex] = useState<number>(0);
@@ -46,7 +47,7 @@ const TokenUniswapView = ({ wallet, address }: Props) => {
         new ethers.providers.AlchemyProvider("goerli", "ahl42ynne2Kd8FosnoYBtCW3ssoCtIu0")
       )
     );
-    updateBalance(erc20Tokens[0]);
+    updateBalance(erc20TokensLocal[0]);
   }, []);
 
   type refreshProps = {
@@ -64,8 +65,8 @@ const TokenUniswapView = ({ wallet, address }: Props) => {
       timerRef.current = setTimeout(
         () =>
           updateSwapRoute(
-            erc20Tokens[props.inputIndex],
-            erc20Tokens.filter((token) => token != erc20Tokens[props.inputIndex])[props.outputIndex],
+            erc20TokensLocal[props.inputIndex],
+            erc20TokensLocal.filter((token) => token != erc20TokensLocal[props.inputIndex])[props.outputIndex],
             props.inputValue
           ),
         2000
@@ -75,7 +76,7 @@ const TokenUniswapView = ({ wallet, address }: Props) => {
 
   const updateSelectedInputToken = (index: number) => {
     setSelectedInputTokenIndex(index);
-    updateBalance(erc20Tokens[index]);
+    updateBalance(erc20TokensLocal[index]);
     refreshSwapRouteTimer({ inputIndex: index, inputValue: inputValue!, outputIndex: selectedOutputTokenIndex });
   };
 
@@ -139,11 +140,12 @@ const TokenUniswapView = ({ wallet, address }: Props) => {
       "You should get " +
         swapRoute.quote.toFixed() +
         " " +
-        erc20Tokens.filter((token) => token != erc20Tokens[selectedInputTokenIndex])[selectedOutputTokenIndex].symbol +
+        erc20TokensLocal.filter((token) => token != erc20TokensLocal[selectedInputTokenIndex])[selectedOutputTokenIndex]
+          .symbol +
         " for " +
         inputValue +
         " " +
-        erc20Tokens[selectedInputTokenIndex].symbol +
+        erc20TokensLocal[selectedInputTokenIndex].symbol +
         " with fee " +
         swapRoute.estimatedGasUsed.toString() +
         " WEI",
@@ -162,11 +164,11 @@ const TokenUniswapView = ({ wallet, address }: Props) => {
   const swapTokens = async () => {
     if (!inputValue || !swapRoute) return;
 
-    const inputAmountWei = ethers.utils.parseUnits(inputValue, erc20Tokens[selectedInputTokenIndex].decimals);
+    const inputAmountWei = ethers.utils.parseUnits(inputValue, erc20TokensLocal[selectedInputTokenIndex].decimals);
 
     //check if uniswap has allowance for enough value - else approve new amount
     const allowedAmount = await checkAllowance(
-      erc20Tokens[selectedInputTokenIndex],
+      erc20TokensLocal[selectedInputTokenIndex],
       address.address,
       signer!.provider!,
       V3_SWAP_ROUTER_ADDRESS
@@ -174,7 +176,7 @@ const TokenUniswapView = ({ wallet, address }: Props) => {
     if (!allowedAmount.gte(inputAmountWei)) {
       if (
         !(await approveAmount(
-          erc20Tokens[selectedInputTokenIndex],
+          erc20TokensLocal[selectedInputTokenIndex],
           inputAmountWei.sub(allowedAmount),
           signer!,
           V3_SWAP_ROUTER_ADDRESS
@@ -187,7 +189,7 @@ const TokenUniswapView = ({ wallet, address }: Props) => {
       const swapped = await swapWithRoute(swapRoute, address.address, signer!);
       Alert.alert(
         "Successfully swapped!",
-        "You should get " + swapRoute.quote.toFixed() + " " + erc20Tokens[selectedOutputTokenIndex].symbol
+        "You should get " + swapRoute.quote.toFixed() + " " + erc20TokensLocal[selectedOutputTokenIndex].symbol
       );
     } catch (err) {
       console.log(err);
@@ -206,13 +208,13 @@ const TokenUniswapView = ({ wallet, address }: Props) => {
           selectedValue={selectedInputTokenIndex}
           onValueChange={(itemValue) => updateSelectedInputToken(itemValue)}
         >
-          {erc20Tokens.map((token, index) => {
+          {erc20TokensLocal.map((token, index) => {
             return <Picker.Item key={token.name} label={token.name} value={index} />;
           })}
         </Picker>
         <TextInput
           style={styles.input}
-          placeholder={"0 " + erc20Tokens[selectedInputTokenIndex]?.symbol}
+          placeholder={"0 " + erc20TokensLocal[selectedInputTokenIndex]?.symbol}
           onChangeText={(value) => updateInputValue(value)}
           value={inputValue}
         ></TextInput>
@@ -222,10 +224,10 @@ const TokenUniswapView = ({ wallet, address }: Props) => {
             !loadingBalance &&
             getBalanceFromEthereumTokenBalance(
               availableBalance,
-              erc20Tokens[selectedInputTokenIndex]
+              erc20TokensLocal[selectedInputTokenIndex]
             ).value.toString() +
               " " +
-              erc20Tokens[selectedInputTokenIndex].symbol}
+              erc20TokensLocal[selectedInputTokenIndex].symbol}
           {loadingBalance && <ActivityIndicator />}
         </Text>
       </View>
@@ -238,8 +240,8 @@ const TokenUniswapView = ({ wallet, address }: Props) => {
           selectedValue={selectedOutputTokenIndex}
           onValueChange={(itemValue) => updateSelectedOutputToken(itemValue)}
         >
-          {erc20Tokens
-            .filter((token) => token != erc20Tokens[selectedInputTokenIndex])
+          {erc20TokensLocal
+            .filter((token) => token != erc20TokensLocal[selectedInputTokenIndex])
             .map((token, index) => {
               return <Picker.Item key={token.name} label={token.name} value={index} />;
             })}
@@ -250,8 +252,9 @@ const TokenUniswapView = ({ wallet, address }: Props) => {
           value={
             (swapRoute ? swapRoute.quote.toFixed() : "?") +
             " " +
-            erc20Tokens.filter((token) => token != erc20Tokens[selectedInputTokenIndex])[selectedOutputTokenIndex]
-              ?.symbol
+            erc20TokensLocal.filter((token) => token != erc20TokensLocal[selectedInputTokenIndex])[
+              selectedOutputTokenIndex
+            ]?.symbol
           }
         ></TextInput>
         {swapRouteErr && <Text style={styles.routeErrorText}>No route for this pair</Text>}
