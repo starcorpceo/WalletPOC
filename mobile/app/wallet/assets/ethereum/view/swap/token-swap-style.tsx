@@ -107,4 +107,22 @@ export const styles = StyleSheet.create({
   switchPadding: {
     width: 12,
   },
+
+  approvalModalParent: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  approvalModalChild: {
+    width: 160,
+    height: 120,
+    backgroundColor: "white",
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "grey",
+    shadowOffset: { width: 0, height: 14 },
+    shadowOpacity: 0.2,
+    shadowRadius: 20,
+  },
 });

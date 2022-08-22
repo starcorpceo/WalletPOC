@@ -23,7 +23,7 @@ export const approveAmount = async (
     contractAddress,
     amount.toString()
   );
-  console.log("Approved new Amount");
+  await approvalResponse.wait();
   if (approvalResponse) return true;
   else return false;
 };

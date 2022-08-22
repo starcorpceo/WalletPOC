@@ -1,6 +1,8 @@
 import { Picker } from "@react-native-picker/picker";
 import { ERC20Token, erc20Tokens } from "ethereum/config/token-constants";
 import { getBalanceFromEthereumTokenBalance } from "ethereum/controller/ethereum-utils";
+import { getSwapQuote, swapWithQuote } from "ethereum/controller/swap/0x-utils";
+import { approveAmount, checkAllowance } from "ethereum/controller/swap/swap-utils";
 import { MPCSigner } from "ethereum/controller/zksync/signer";
 import { EthereumWallet } from "ethereum/types/ethereum";
 import { ethers } from "ethers";
@@ -10,8 +12,9 @@ import {
   EthereumTokenBalance,
   EthereumTokenBalances,
 } from "packages/blockchain-api-client/src/blockchains/ethereum/types";
+import { Api0xSwapQuote } from "packages/blockchain-api-client/src/provider/0x/ethereum/0x-ethereum-types";
 import React, { useEffect, useRef, useState } from "react";
-import { ActivityIndicator, Alert, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Alert, Modal, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useRecoilValue } from "recoil";
 import { authState, AuthState } from "state/atoms";
 import { Address } from "wallet/types/wallet";
@@ -22,6 +25,9 @@ type Props = {
   wallet: EthereumWallet;
   address: Address;
 };
+
+//Router contract address from 0x
+const ZEROX_SWAP_ROUTER_ADDRESS = "0xdef1c0ded9bec7f1a1670819833240f027b25eff";
 
 const Token0xView = ({ wallet, address }: Props) => {
   const user = useRecoilValue<AuthState>(authState);
@@ -39,19 +45,50 @@ const Token0xView = ({ wallet, address }: Props) => {
     updateBalance(erc20Tokens[0]);
   }, []);
 
+  type refreshProps = {
+    inputIndex: number;
+    inputValue: string;
+    outputIndex: number;
+  };
+  const refreshQuoteTimer = (props: refreshProps) => {
+    clearTimeout(timerRef.current);
+    setLoadingQuote(false);
+    setQuoteErr(false);
+    setQuote(undefined);
+    if (inputValue) {
+      setLoadingQuote(true);
+      timerRef.current = setTimeout(
+        () =>
+          updateQuote(
+            erc20Tokens[props.inputIndex],
+            erc20Tokens.filter((token) => token != erc20Tokens[props.inputIndex])[props.outputIndex],
+            props.inputValue
+          ),
+        2000
+      );
+    }
+  };
+
   const updateSelectedInputToken = (index: number) => {
     setSelectedInputTokenIndex(index);
     updateBalance(erc20Tokens[index]);
+    refreshQuoteTimer({ inputIndex: index, inputValue: inputValue!, outputIndex: selectedOutputTokenIndex });
   };
 
   const [inputValue, setInputValue] = useState<string>();
   const timerRef = useRef<any>();
   const updateInputValue = (inputValue: string) => {
     setInputValue(inputValue);
+    refreshQuoteTimer({
+      inputIndex: selectedInputTokenIndex,
+      inputValue: inputValue,
+      outputIndex: selectedOutputTokenIndex,
+    });
   };
 
   const updateSelectedOutputToken = (index: number) => {
     setSelectedOutputTokenIndex(index);
+    refreshQuoteTimer({ inputIndex: selectedInputTokenIndex, inputValue: inputValue!, outputIndex: index });
   };
 
   const [availableBalance, setAvailableBalance] = useState<EthereumTokenBalance>();
@@ -71,17 +108,125 @@ const Token0xView = ({ wallet, address }: Props) => {
   };
 
   const [loadingQuote, setLoadingQuote] = useState<boolean>(false);
-  const [quote, setQuote] = useState<any>();
+  const [quote, setQuote] = useState<Api0xSwapQuote>();
   const [quoteErr, setQuoteErr] = useState<boolean>();
-  const updateQuote = async (inputToken: ERC20Token, outputToken: ERC20Token, inputAmount: string) => {};
+  const updateQuote = async (inputToken: ERC20Token, outputToken: ERC20Token, inputAmount: string) => {
+    const inputAmountWei = ethers.utils.parseUnits(inputAmount, inputToken.decimals);
+    try {
+      const quote = await getSwapQuote(inputToken, outputToken, address.address, inputAmountWei.toString(), service);
+      console.log(quote);
+      setQuote(quote);
+    } catch (err) {
+      console.log(err);
+      setQuoteErr(true);
+    }
+    setLoadingQuote(false);
+  };
 
-  const swapAlert = () => {};
+  const swapAlert = () => {
+    if (!inputValue || !quote) return;
+    Alert.alert(
+      "Confirm your swap",
+      "You should get " +
+        ethers.utils.formatUnits(
+          quote.buyAmount,
+          erc20Tokens.filter((token) => token != erc20Tokens[selectedInputTokenIndex])[selectedOutputTokenIndex]
+            .decimals
+        ) +
+        " " +
+        erc20Tokens.filter((token) => token != erc20Tokens[selectedInputTokenIndex])[selectedOutputTokenIndex].symbol +
+        " for " +
+        inputValue +
+        " " +
+        erc20Tokens[selectedInputTokenIndex].symbol +
+        " with fee " +
+        quote.estimatedGas.toString() +
+        " WEI",
+      [
+        {
+          text: "Swap now",
+          onPress: () => swapTokens(),
+        },
+        {
+          text: "Cancel",
+        },
+      ]
+    );
+  };
 
-  const swapTokens = async () => {};
+  const swapTokens = async () => {
+    if (!inputValue || !quote) return;
+
+    const inputAmountWei = ethers.utils.parseUnits(inputValue, erc20Tokens[selectedInputTokenIndex].decimals);
+
+    //check if uniswap has allowance for enough value - else approve new amount
+    const allowedAmount = await checkAllowance(
+      erc20Tokens[selectedInputTokenIndex],
+      address.address,
+      signer!.provider!,
+      quote.allowanceTarget
+    );
+    if (!allowedAmount.gte(inputAmountWei)) {
+      setApprovalModalVisible(true);
+      try {
+        if (
+          !(await approveAmount(
+            erc20Tokens[selectedInputTokenIndex],
+            inputAmountWei.sub(allowedAmount),
+            signer!,
+            quote.allowanceTarget
+          ))
+        )
+          console.error("Could not approve new amount for swapping");
+      } catch (err) {
+        console.error(err);
+        setApprovalModalVisible(false);
+      }
+      setApprovalModalVisible(false);
+    }
+
+    try {
+      const swapped = await swapWithQuote(quote, address.address, signer!);
+      console.log(swapped);
+      Alert.alert(
+        "Successfully swapped!",
+        "You should get " +
+          ethers.utils.formatUnits(
+            quote.buyAmount,
+            erc20Tokens.filter((token) => token != erc20Tokens[selectedInputTokenIndex])[selectedOutputTokenIndex]
+              .decimals
+          ) +
+          " " +
+          erc20Tokens[selectedOutputTokenIndex].symbol
+      );
+    } catch (err) {
+      console.log(err);
+      Alert.alert("Unable to swap", "Maybe the route was outdated.");
+    }
+  };
+
+  const [approvalModalVisible, setApprovalModalVisible] = useState(false);
+  const renderApprovalModal = () => {
+    return (
+      <Modal
+        visible={approvalModalVisible}
+        style={{ margin: 40, alignItems: "center", justifyContent: "center" }}
+        transparent={true}
+      >
+        <View style={styles.approvalModalParent}>
+          <View style={styles.approvalModalChild}>
+            <Text style={styles.heading}>Waiting for approval</Text>
+            <ActivityIndicator />
+          </View>
+        </View>
+      </Modal>
+    );
+  };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.heading}>Swap with Uniswap</Text>
+      {renderApprovalModal()}
+      <Text style={styles.heading}>Swap with 0x</Text>
       <View style={styles.pickerArea}>
         <Text style={styles.pickerHeading}>From</Text>
         <Picker
@@ -132,14 +277,20 @@ const Token0xView = ({ wallet, address }: Props) => {
           editable={false}
           style={styles.input}
           value={
-            (quote ? quote.quote.toFixed() : "?") +
+            (quote
+              ? ethers.utils.formatUnits(
+                  quote.buyAmount,
+                  erc20Tokens.filter((token) => token != erc20Tokens[selectedInputTokenIndex])[selectedOutputTokenIndex]
+                    .decimals
+                )
+              : "?") +
             " " +
             erc20Tokens.filter((token) => token != erc20Tokens[selectedInputTokenIndex])[selectedOutputTokenIndex]
               ?.symbol
           }
         ></TextInput>
         {quoteErr && <Text style={styles.routeErrorText}>No route for this pair</Text>}
-        {quote && <Text style={styles.feesText}>{"Fees: " + quote.estimatedGasUsed.toString() + " WEI"}</Text>}
+        {quote && <Text style={styles.feesText}>{"Fees: " + quote.estimatedGas.toString() + " WEI"}</Text>}
       </View>
       <TouchableOpacity
         style={!inputValue || !quote || quoteErr ? styles.actionButtonDisabled : styles.actionButton}
