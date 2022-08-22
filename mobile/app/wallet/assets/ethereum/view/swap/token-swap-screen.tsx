@@ -1,9 +1,11 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useState } from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
 import { NavigationRoutes } from "shared/types/navigation";
 import Token0xView from "./token-0x-view";
 import TokenUniswapView from "./token-uniswap-view";
+
+import { styles } from "./token-swap-style";
 
 type Props = NativeStackScreenProps<NavigationRoutes, "TokenSwapScreen">;
 
@@ -38,39 +40,5 @@ const TokenSwapScreen = ({ route }: Props) => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: "white",
-    padding: 16,
-    borderRadius: 12,
-    shadowColor: "grey",
-    shadowOffset: { width: 0, height: 14 },
-    shadowOpacity: 0.2,
-    shadowRadius: 20,
-    margin: 12,
-    paddingBottom: 24,
-  },
-  switchArea: {
-    flexDirection: "row",
-    justifyContent: "center",
-    margin: 12,
-  },
-  switchButton: {
-    padding: 8,
-    paddingHorizontal: 14,
-    borderRadius: 8,
-    backgroundColor: "lightblue",
-  },
-  switchButtonInactive: {
-    padding: 8,
-    paddingHorizontal: 14,
-    borderRadius: 8,
-    backgroundColor: "lightgrey",
-  },
-  switchPadding: {
-    width: 12,
-  },
-});
 
 export default TokenSwapScreen;
