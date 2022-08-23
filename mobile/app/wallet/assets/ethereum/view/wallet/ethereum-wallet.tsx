@@ -114,7 +114,7 @@ const EthereumWalletView = ({ wallet, index, navigation }: EthereumWalletProps) 
         <View style={styles.actionAreaSpace} />
         <TouchableOpacity
           style={styles.actionButton}
-          onPress={() => navigation.navigate("EthereumSendScreen", { account: wallet, service })}
+          onPress={() => navigation.navigate("EthereumSendScreen", { service })}
         >
           <Text style={styles.actionButtonText}>Send</Text>
         </TouchableOpacity>

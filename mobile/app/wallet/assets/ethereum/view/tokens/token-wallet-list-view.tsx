@@ -1,10 +1,9 @@
 import { NativeStackNavigationProp, NativeStackScreenProps } from "@react-navigation/native-stack";
-import { ERC20Token, erc20Tokens, findContractAddressBySymbol } from "ethereum/config/token-constants";
+import { erc20Tokens } from "ethereum/config/token-constants";
 import { EthereumWallet } from "ethereum/types/ethereum";
-import React, { useEffect, useState } from "react";
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import React from "react";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { NavigationRoutes } from "shared/types/navigation";
-import { Address } from "wallet/types/wallet";
 type Props = NativeStackScreenProps<NavigationRoutes, "TokenWalletScreen">;
 
 type TokenWalletListViewProps = {
