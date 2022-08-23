@@ -2,7 +2,7 @@ import { swapFeeAddress, swapFeePercentage } from "ethereum/config/ethereum-cons
 import { ERC20Token } from "ethereum/config/token-constants";
 import { EthereumService } from "packages/blockchain-api-client/src";
 import { EthereumProviderEnum } from "packages/blockchain-api-client/src/blockchains/ethereum/ethereum-factory";
-import { Api0xSwapQuote } from "packages/blockchain-api-client/src/provider/0x/ethereum/0x-ethereum-types";
+import { ZeroExSwapQuote } from "packages/blockchain-api-client/src/provider/0x/ethereum/0x-ethereum-types";
 import { MPCSigner } from "../zksync/signer";
 
 export const getSwapQuote = async (
@@ -11,7 +11,7 @@ export const getSwapQuote = async (
   myAddress: string,
   amount: string,
   service: EthereumService
-): Promise<Api0xSwapQuote> => {
+): Promise<ZeroExSwapQuote> => {
   const params =
     "buyToken=" +
     tokenTo.contractAddress +
@@ -23,10 +23,10 @@ export const getSwapQuote = async (
     swapFeeAddress +
     "&buyTokenPercentageFee=" +
     swapFeePercentage;
-  return await service.getSwapQuote(params, EthereumProviderEnum.API0X);
+  return await service.getSwapQuote(params, EthereumProviderEnum.ZEROEX);
 };
 
-export const swapWithQuote = async (quote: Api0xSwapQuote, address: string, signer: MPCSigner) => {
+export const swapWithQuote = async (quote: ZeroExSwapQuote, address: string, signer: MPCSigner) => {
   const transaction = {
     data: quote.data,
     to: quote.to,

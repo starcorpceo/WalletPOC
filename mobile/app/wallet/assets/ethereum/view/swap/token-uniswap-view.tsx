@@ -34,7 +34,7 @@ type Props = {
 };
 
 const TokenUniswapView = ({ wallet, address }: Props) => {
-  const erc20TokensLocal = erc20Tokens.filter((token) => token.isToken != false);
+  const erc20TokensLocal = erc20Tokens.filter((token) => token.isToken);
   const user = useRecoilValue<AuthState>(authState);
 
   const [selectedInputTokenIndex, setSelectedInputTokenIndex] = useState<number>(0);

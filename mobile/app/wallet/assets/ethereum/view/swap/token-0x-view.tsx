@@ -13,7 +13,7 @@ import {
   EthereumTokenBalance,
   EthereumTokenBalances,
 } from "packages/blockchain-api-client/src/blockchains/ethereum/types";
-import { Api0xSwapQuote } from "packages/blockchain-api-client/src/provider/0x/ethereum/0x-ethereum-types";
+import { ZeroExSwapQuote } from "packages/blockchain-api-client/src/provider/0x/ethereum/0x-ethereum-types";
 import React, { useEffect, useRef, useState } from "react";
 import { ActivityIndicator, Alert, Modal, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useRecoilValue } from "recoil";
@@ -97,7 +97,7 @@ const Token0xView = ({ wallet, address }: Props) => {
   const [service] = useState(new EthereumService("TEST"));
   const updateBalance = async (token: ERC20Token) => {
     setLoadingBalance(true);
-    if (token.isToken == false) {
+    if (!token.isToken) {
       const balance: EthereumBalance = await service.getBalance(address.address, EthereumProviderEnum.ALCHEMY);
       setAvailableBalance(gWeiToEth(balance.value).toString());
     } else {
@@ -114,7 +114,7 @@ const Token0xView = ({ wallet, address }: Props) => {
   };
 
   const [loadingQuote, setLoadingQuote] = useState<boolean>(false);
-  const [quote, setQuote] = useState<Api0xSwapQuote>();
+  const [quote, setQuote] = useState<ZeroExSwapQuote>();
   const [quoteErr, setQuoteErr] = useState<boolean>();
   const updateQuote = async (inputToken: ERC20Token, outputToken: ERC20Token, inputAmount: string) => {
     const inputAmountWei = ethers.utils.parseUnits(inputAmount, inputToken.decimals);
@@ -166,7 +166,7 @@ const Token0xView = ({ wallet, address }: Props) => {
     const inputAmountWei = ethers.utils.parseUnits(inputValue, erc20Tokens[selectedInputTokenIndex].decimals);
 
     //check if uniswap has allowance for enough value - else approve new amount
-    if (erc20Tokens[selectedInputTokenIndex].isToken != false) {
+    if (erc20Tokens[selectedInputTokenIndex].isToken) {
       const allowedAmount = await checkAllowance(
         erc20Tokens[selectedInputTokenIndex],
         address.address,

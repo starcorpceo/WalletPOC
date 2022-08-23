@@ -1,4 +1,4 @@
-export interface Api0xSwapQuote {
+export interface ZeroExSwapQuote {
   chainId: number;
   price: string;
   guaranteedPrice: string;

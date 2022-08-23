@@ -3,7 +3,7 @@ import { Network } from '../../../base/types';
 const mainUrl = 'https://api.0x.org';
 const testUrl = 'https://goerli.api.0x.org';
 
-export const api0xEndpoints = (network: Network) => {
+export const zeroExEndpoints = (network: Network) => {
   const networkPath = getNetworkPath(network);
 
   return {

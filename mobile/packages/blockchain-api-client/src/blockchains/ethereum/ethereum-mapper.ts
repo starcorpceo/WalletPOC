@@ -7,7 +7,7 @@ import {
   ApiTransaction,
   ApiTransactionCount,
 } from '../../base/types';
-import { Api0xSwapQuote } from '../../provider/0x/ethereum/0x-ethereum-types';
+import { ZeroExSwapQuote } from '../../provider/0x/ethereum/0x-ethereum-types';
 import { EthereumBalance, EthereumTokenBalances, EthereumTransaction } from './types';
 
 export interface EthereumMapper {
@@ -17,5 +17,5 @@ export interface EthereumMapper {
   responseToTransactionCount: (input: ApiTransactionCount) => string;
   responseToFees: (input: ApiFees) => string;
   responseToTokenBalances: (input: ApiTokenBalances) => EthereumTokenBalances;
-  responseToSwapQuote: (input: ApiSwapQuote) => Api0xSwapQuote;
+  responseToSwapQuote: (input: ApiSwapQuote) => ZeroExSwapQuote;
 }
