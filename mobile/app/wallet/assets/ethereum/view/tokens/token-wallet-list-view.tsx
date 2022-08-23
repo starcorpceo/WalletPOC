@@ -18,22 +18,23 @@ const TokenWalletListView = ({ wallet, navigation }: TokenWalletListViewProps) =
         <Text style={styles.heading}>Token Wallets</Text>
         <TouchableOpacity
           style={styles.headerButton}
-          onPress={() => navigation.navigate("TokenUniswapScreen", { wallet })}
+          onPress={() => navigation.navigate("TokenSwapScreen", { wallet })}
         >
           <Text style={styles.headerButtonText}>Swap Tokens</Text>
         </TouchableOpacity>
       </View>
       {erc20Tokens.map((token) => {
         return (
-          <TouchableOpacity
-            style={styles.actionButton}
-            key={token.name}
-            onPress={() => navigation.navigate("TokenWalletScreen", { wallet: wallet, token: token })}
-          >
-            <Text style={styles.actionButtonText}>
-              {token.name} Wallet {"\u2192"}
-            </Text>
-          </TouchableOpacity>
+          token.isToken != false && (
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => navigation.navigate("TokenWalletScreen", { wallet: wallet, token: token })}
+            >
+              <Text style={styles.actionButtonText}>
+                {token.name} Wallet {"\u2192"}
+              </Text>
+            </TouchableOpacity>
+          )
         );
       })}
     </View>
@@ -51,7 +52,6 @@ const styles = StyleSheet.create({
     shadowRadius: 20,
     paddingBottom: 24,
     maxHeight: "80%",
-    marginBottom: 30,
   },
   heading: {
     fontSize: 18,

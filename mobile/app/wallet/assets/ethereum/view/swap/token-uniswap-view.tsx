@@ -1,15 +1,10 @@
 import "@ethersproject/shims";
 import { Picker } from "@react-native-picker/picker";
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { SwapRoute } from "@uniswap/smart-order-router";
 import { ERC20Token, erc20Tokens } from "ethereum/config/token-constants";
 import { getBalanceFromEthereumTokenBalance } from "ethereum/controller/ethereum-utils";
-import {
-  approveAmount,
-  checkAllowance,
-  findRouteExactInput,
-  swapWithRoute,
-} from "ethereum/controller/uniswap/uniswap-utils";
+import { approveAmount, checkAllowance } from "ethereum/controller/swap/swap-utils";
+import { findRouteExactInput, swapWithRoute } from "ethereum/controller/swap/uniswap-utils";
 import { MPCSigner } from "ethereum/controller/zksync/signer";
 import { EthereumWallet } from "ethereum/types/ethereum";
 import { ethers } from "ethers";
@@ -20,20 +15,26 @@ import {
   EthereumTokenBalances,
 } from "packages/blockchain-api-client/src/blockchains/ethereum/types";
 import React, { useEffect, useRef, useState } from "react";
-import { ActivityIndicator, Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Alert, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useRecoilValue } from "recoil";
-import { NavigationRoutes } from "shared/types/navigation";
 import "shim";
 import { authState, AuthState } from "state/atoms";
 import { Address } from "wallet/types/wallet";
 
+import { styles } from "./token-swap-style";
+
 //TODO remove necessary .filter((token) => token != erc20Tokens[selectedInputTokenIndex])
 
-type Props = NativeStackScreenProps<NavigationRoutes, "TokenUniswapScreen">;
+//Router contract address from uniswap v3
+const V3_SWAP_ROUTER_ADDRESS = "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45";
 
-const TokenUniswapScreen = ({ route }: Props) => {
-  const [wallet] = useState<EthereumWallet>(route.params.wallet);
-  const [address] = useState<Address>(route.params.wallet.external.addresses[0]);
+type Props = {
+  wallet: EthereumWallet;
+  address: Address;
+};
+
+const TokenUniswapView = ({ wallet, address }: Props) => {
+  const erc20TokensLocal = erc20Tokens.filter((token) => token.isToken);
   const user = useRecoilValue<AuthState>(authState);
 
   const [selectedInputTokenIndex, setSelectedInputTokenIndex] = useState<number>(0);
@@ -46,7 +47,7 @@ const TokenUniswapScreen = ({ route }: Props) => {
         new ethers.providers.AlchemyProvider("goerli", "ahl42ynne2Kd8FosnoYBtCW3ssoCtIu0")
       )
     );
-    updateBalance(erc20Tokens[0]);
+    updateBalance(erc20TokensLocal[0]);
   }, []);
 
   type refreshProps = {
@@ -64,8 +65,8 @@ const TokenUniswapScreen = ({ route }: Props) => {
       timerRef.current = setTimeout(
         () =>
           updateSwapRoute(
-            erc20Tokens[props.inputIndex],
-            erc20Tokens.filter((token) => token != erc20Tokens[props.inputIndex])[props.outputIndex],
+            erc20TokensLocal[props.inputIndex],
+            erc20TokensLocal.filter((token) => token != erc20TokensLocal[props.inputIndex])[props.outputIndex],
             props.inputValue
           ),
         2000
@@ -75,7 +76,7 @@ const TokenUniswapScreen = ({ route }: Props) => {
 
   const updateSelectedInputToken = (index: number) => {
     setSelectedInputTokenIndex(index);
-    updateBalance(erc20Tokens[index]);
+    updateBalance(erc20TokensLocal[index]);
     refreshSwapRouteTimer({ inputIndex: index, inputValue: inputValue!, outputIndex: selectedOutputTokenIndex });
   };
 
@@ -139,11 +140,12 @@ const TokenUniswapScreen = ({ route }: Props) => {
       "You should get " +
         swapRoute.quote.toFixed() +
         " " +
-        erc20Tokens.filter((token) => token != erc20Tokens[selectedInputTokenIndex])[selectedOutputTokenIndex].symbol +
+        erc20TokensLocal.filter((token) => token != erc20TokensLocal[selectedInputTokenIndex])[selectedOutputTokenIndex]
+          .symbol +
         " for " +
         inputValue +
         " " +
-        erc20Tokens[selectedInputTokenIndex].symbol +
+        erc20TokensLocal[selectedInputTokenIndex].symbol +
         " with fee " +
         swapRoute.estimatedGasUsed.toString() +
         " WEI",
@@ -162,16 +164,24 @@ const TokenUniswapScreen = ({ route }: Props) => {
   const swapTokens = async () => {
     if (!inputValue || !swapRoute) return;
 
-    const inputAmountWei = ethers.utils.parseUnits(inputValue, erc20Tokens[selectedInputTokenIndex].decimals);
+    const inputAmountWei = ethers.utils.parseUnits(inputValue, erc20TokensLocal[selectedInputTokenIndex].decimals);
 
     //check if uniswap has allowance for enough value - else approve new amount
     const allowedAmount = await checkAllowance(
-      erc20Tokens[selectedInputTokenIndex],
+      erc20TokensLocal[selectedInputTokenIndex],
       address.address,
-      signer!.provider!
+      signer!.provider!,
+      V3_SWAP_ROUTER_ADDRESS
     );
     if (!allowedAmount.gte(inputAmountWei)) {
-      if (!(await approveAmount(erc20Tokens[selectedInputTokenIndex], inputAmountWei.sub(allowedAmount), signer!)))
+      if (
+        !(await approveAmount(
+          erc20TokensLocal[selectedInputTokenIndex],
+          inputAmountWei.sub(allowedAmount),
+          signer!,
+          V3_SWAP_ROUTER_ADDRESS
+        ))
+      )
         console.error("Could not approve new amount for swapping");
     }
 
@@ -179,7 +189,7 @@ const TokenUniswapScreen = ({ route }: Props) => {
       const swapped = await swapWithRoute(swapRoute, address.address, signer!);
       Alert.alert(
         "Successfully swapped!",
-        "You should get " + swapRoute.quote.toFixed() + " " + erc20Tokens[selectedOutputTokenIndex].symbol
+        "You should get " + swapRoute.quote.toFixed() + " " + erc20TokensLocal[selectedOutputTokenIndex].symbol
       );
     } catch (err) {
       console.log(err);
@@ -198,13 +208,13 @@ const TokenUniswapScreen = ({ route }: Props) => {
           selectedValue={selectedInputTokenIndex}
           onValueChange={(itemValue) => updateSelectedInputToken(itemValue)}
         >
-          {erc20Tokens.map((token, index) => {
+          {erc20TokensLocal.map((token, index) => {
             return <Picker.Item key={token.name} label={token.name} value={index} />;
           })}
         </Picker>
         <TextInput
           style={styles.input}
-          placeholder={"0 " + erc20Tokens[selectedInputTokenIndex]?.symbol}
+          placeholder={"0 " + erc20TokensLocal[selectedInputTokenIndex]?.symbol}
           onChangeText={(value) => updateInputValue(value)}
           value={inputValue}
         ></TextInput>
@@ -214,10 +224,10 @@ const TokenUniswapScreen = ({ route }: Props) => {
             !loadingBalance &&
             getBalanceFromEthereumTokenBalance(
               availableBalance,
-              erc20Tokens[selectedInputTokenIndex]
+              erc20TokensLocal[selectedInputTokenIndex]
             ).value.toString() +
               " " +
-              erc20Tokens[selectedInputTokenIndex].symbol}
+              erc20TokensLocal[selectedInputTokenIndex].symbol}
           {loadingBalance && <ActivityIndicator />}
         </Text>
       </View>
@@ -230,8 +240,8 @@ const TokenUniswapScreen = ({ route }: Props) => {
           selectedValue={selectedOutputTokenIndex}
           onValueChange={(itemValue) => updateSelectedOutputToken(itemValue)}
         >
-          {erc20Tokens
-            .filter((token) => token != erc20Tokens[selectedInputTokenIndex])
+          {erc20TokensLocal
+            .filter((token) => token != erc20TokensLocal[selectedInputTokenIndex])
             .map((token, index) => {
               return <Picker.Item key={token.name} label={token.name} value={index} />;
             })}
@@ -242,8 +252,9 @@ const TokenUniswapScreen = ({ route }: Props) => {
           value={
             (swapRoute ? swapRoute.quote.toFixed() : "?") +
             " " +
-            erc20Tokens.filter((token) => token != erc20Tokens[selectedInputTokenIndex])[selectedOutputTokenIndex]
-              ?.symbol
+            erc20TokensLocal.filter((token) => token != erc20TokensLocal[selectedInputTokenIndex])[
+              selectedOutputTokenIndex
+            ]?.symbol
           }
         ></TextInput>
         {swapRouteErr && <Text style={styles.routeErrorText}>No route for this pair</Text>}
@@ -260,93 +271,4 @@ const TokenUniswapScreen = ({ route }: Props) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: "white",
-    padding: 16,
-    borderRadius: 12,
-    shadowColor: "grey",
-    shadowOffset: { width: 0, height: 14 },
-    shadowOpacity: 0.2,
-    shadowRadius: 20,
-    margin: 12,
-    paddingBottom: 24,
-  },
-  heading: {
-    fontSize: 18,
-    fontWeight: "bold",
-    textAlign: "center",
-  },
-  pickerArea: {
-    justifyContent: "flex-start",
-  },
-  pickerHeading: {
-    position: "absolute",
-    marginTop: 20,
-    marginLeft: 12,
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-  tokenPicker: {
-    borderRadius: 12,
-    borderColor: "lightgrey",
-    borderWidth: 1,
-    marginTop: 12,
-  },
-  tokenPickerItem: {
-    height: 120,
-  },
-  arrowDown: {
-    textAlign: "center",
-    marginTop: 12,
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-  input: {
-    backgroundColor: "#f7f7f7",
-    padding: 12,
-    marginTop: 14,
-    borderRadius: 10,
-    fontSize: 14,
-  },
-  actionButtonDisabled: {
-    opacity: 0.5,
-    height: 42,
-    width: "100%",
-    backgroundColor: "#3828e0",
-    borderRadius: 8,
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: 14,
-  },
-  actionButton: {
-    height: 42,
-    width: "100%",
-    backgroundColor: "#3828e0",
-    borderRadius: 8,
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: 14,
-  },
-  actionButtonText: {
-    color: "white",
-    fontSize: 16,
-  },
-  availableValueText: {
-    textAlign: "right",
-    marginTop: 4,
-  },
-  routeErrorText: {
-    color: "red",
-    textAlign: "right",
-    fontSize: 12,
-    marginTop: 4,
-  },
-  feesText: {
-    textAlign: "right",
-    fontSize: 12,
-    marginTop: 4,
-  },
-});
-
-export default TokenUniswapScreen;
+export default TokenUniswapView;

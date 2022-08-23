@@ -1,4 +1,5 @@
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { MPCSigner } from "ethereum/controller/zksync/signer";
 import { ethereumWalletsState } from "ethereum/state/ethereum-atoms";
 import { useDeleteMempoolTransaction } from "ethereum/state/ethereum-wallet-state-utils";
 import { EthereumWallet } from "ethereum/types/Ethereum";
@@ -17,10 +18,12 @@ type EthereumWalletProps = {
   wallet: EthereumWallet;
   index: number;
   navigation: NativeStackNavigationProp<NavigationRoutes, "EthereumScreen", undefined>;
+  signer?: MPCSigner;
 };
 
-const EthereumWalletView = ({ wallet, index, navigation }: EthereumWalletProps) => {
+const EthereumWalletView = ({ wallet, index, navigation, signer }: EthereumWalletProps) => {
   const [service, setService] = useState<EthereumService>();
+
   const updateWallet = useUpdateAccount<EthereumWallet>(ethereumWalletsState);
   const deleteMempoolTransaction = useDeleteMempoolTransaction(ethereumWalletsState);
 
@@ -30,6 +33,7 @@ const EthereumWalletView = ({ wallet, index, navigation }: EthereumWalletProps) 
       updateBalance();
     };
     setService(new EthereumService("TEST"));
+
     onLoad();
   }, []);
 
@@ -114,7 +118,7 @@ const EthereumWalletView = ({ wallet, index, navigation }: EthereumWalletProps) 
         <View style={styles.actionAreaSpace} />
         <TouchableOpacity
           style={styles.actionButton}
-          onPress={() => navigation.navigate("EthereumSendScreen", { service })}
+          onPress={() => navigation.navigate("EthereumSendScreen", { signer, service })}
         >
           <Text style={styles.actionButtonText}>Send</Text>
         </TouchableOpacity>

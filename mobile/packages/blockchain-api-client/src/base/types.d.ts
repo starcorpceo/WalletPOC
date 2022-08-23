@@ -19,6 +19,7 @@ import {
   TatumFees,
   TatumTransaction,
 } from '../provider/tatum/bitcoin/tatum-bitcoin-types';
+import { ZeroExSwapQuote } from '../provider/0x/ethereum/0x-ethereum-types';
 
 export type Provider = BitcoinProvider;
 
@@ -30,6 +31,7 @@ export type ApiBroadcastTransaction<
 > = T;
 export type ApiTransactionCount<T = AlchemyTransactionCount> = T;
 export type ApiTokenBalances<T = AlchemyTokenBalances> = T;
+export type ApiSwapQuote<T = ZEroExSwapQuote> = T;
 
 export interface TransactionRequest {}
 

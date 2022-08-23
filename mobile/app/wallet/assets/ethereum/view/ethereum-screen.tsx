@@ -1,9 +1,10 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { erc20Tokens } from "ethereum/config/token-constants";
 import { EthereumAccountBuilder } from "ethereum/controller/ethereum-account-creation";
+import { MPCSigner } from "ethereum/controller/zksync/signer";
 import { EthereumWalletsState, ethereumWalletsState } from "ethereum/state/ethereum-atoms";
+import { ethers } from "ethers";
 import React, { useCallback, useEffect, useState } from "react";
-import { ActivityIndicator, Button, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { NavigationRoutes } from "shared/types/navigation";
 import { getPurposeWallet } from "state/utils";
@@ -22,6 +23,7 @@ const EthereumScreen = ({ navigation, route }: Props) => {
   const purposeKeyShare = useRecoilValue(getPurposeWallet);
 
   console.log("Ethereum updated", { ethereumState });
+  const [signer, setSigner] = useState<MPCSigner>();
 
   useEffect(() => {
     const onOpen = async () => {
@@ -49,6 +51,10 @@ const EthereumScreen = ({ navigation, route }: Props) => {
         });
 
       setEthereum(() => newState as EthereumWalletsState);
+
+      setSigner(
+        new MPCSigner(newState.accounts[0].external.addresses[0], user).connect(ethers.getDefaultProvider("goerli"))
+      );
     };
 
     onOpen();
@@ -70,6 +76,7 @@ const EthereumScreen = ({ navigation, route }: Props) => {
               <EthereumWalletView
                 key={"EthereumWallet-" + index}
                 wallet={wallet}
+                signer={signer}
                 index={index}
                 navigation={navigation}
               />
@@ -114,6 +121,19 @@ const styles = StyleSheet.create({
     alignItems: "center",
     height: 45,
     marginTop: 12,
+  },
+  polygonButton: {
+    flex: 1,
+    height: 42,
+    backgroundColor: "#1a1e3c",
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+    color: "white",
+    margin: 20,
+  },
+  polygonButtonText: {
+    color: "white",
   },
   deleteButtonText: {
     fontSize: 17,

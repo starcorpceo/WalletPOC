@@ -9,6 +9,7 @@ export interface CoinTypeAccount {
   internal: AccountChange;
   external: AccountChange;
   config: WalletConfig;
+  mempool: any;
   xPub: string;
 }
 

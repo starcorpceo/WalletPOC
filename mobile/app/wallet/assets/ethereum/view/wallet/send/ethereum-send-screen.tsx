@@ -1,36 +1,26 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { buildRawTransaction } from "ethereum/controller/ethereum-transaction-utils";
 import { gWeiToEth, gWeiToWei } from "ethereum/controller/ethereum-utils";
-import { MPCSigner } from "ethereum/controller/zksync/signer";
 import { EthereumWalletsState, ethereumWalletsState } from "ethereum/state/ethereum-atoms";
 import { useAddMempoolTransaction } from "ethereum/state/ethereum-wallet-state-utils";
-import { ethers } from "ethers";
 import { EthereumProviderEnum } from "packages/blockchain-api-client/src/blockchains/ethereum/ethereum-factory";
 import { EthereumTransaction } from "packages/blockchain-api-client/src/blockchains/ethereum/types";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useRecoilValue } from "recoil";
 import { NavigationRoutes } from "shared/types/navigation";
 import "shim";
-import { authState, AuthState } from "state/atoms";
 
 type Props = NativeStackScreenProps<NavigationRoutes, "EthereumSendScreen">;
 
 const EthereumSendScreen = ({ route }: Props) => {
   const [gWeis, setGWeis] = useState<string>("");
   const [toAddress, setToAddress] = useState<string>("0x49e749dc596ebb62b724262928d0657f8950a7d7");
-  const user = useRecoilValue<AuthState>(authState);
 
   const etherem = useRecoilValue<EthereumWalletsState>(ethereumWalletsState);
   const wallet = etherem.accounts[0];
-
-  const [signer, setSigner] = useState<MPCSigner>();
-  const { service } = route.params;
+  const { service, signer } = route.params;
   const addMempoolTransaction = useAddMempoolTransaction(ethereumWalletsState);
-
-  useEffect(() => {
-    setSigner(new MPCSigner(wallet.external.addresses[0], user).connect(ethers.getDefaultProvider("goerli")));
-  }, []);
 
   const broadcast = useCallback(
     async (finalRawTransaction: string, mempoolTransaction: EthereumTransaction) => {
