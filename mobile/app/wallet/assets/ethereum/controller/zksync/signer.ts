@@ -3,7 +3,15 @@ import { serialize, UnsignedTransaction } from "@ethersproject/transactions";
 import { User } from "api-types/user";
 import { config } from "ethereum/config/ethereum-config";
 import { Bytes, ethers, getDefaultProvider, Signer } from "ethers";
-import { defineReadOnly, getAddress, joinSignature, keccak256, resolveProperties, toUtf8Bytes } from "ethers/lib/utils";
+import {
+  defineReadOnly,
+  getAddress,
+  hashMessage,
+  joinSignature,
+  keccak256,
+  resolveProperties,
+  splitSignature,
+} from "ethers/lib/utils";
 import * as LocalAuthentication from "expo-local-authentication";
 import { signEcdsa } from "lib/mpc";
 import { getBinSignature } from "react-native-blockchain-crypto-mpc";
@@ -23,9 +31,13 @@ export class MPCSigner extends Signer {
   getAddress(): Promise<string> {
     return Promise.resolve(this.address.address);
   }
-  async signMessage(message: string | Bytes): Promise<string> {
+
+  async signHashedMessage(message: string | Bytes): Promise<any> {
     if (typeof message === "string") {
-      message = toUtf8Bytes(message);
+      //message = toUtf8Bytes(message);
+      message = message.split("0x")[1];
+    } else {
+      message = message.toString();
     }
 
     const hash = ethers.utils.hashMessage(message).split("0x")[1];
@@ -42,7 +54,40 @@ export class MPCSigner extends Signer {
     const { signature, recoveryCode: recoveryParam } = await getBinSignature(context, this.address.keyShare.keyShare);
 
     const sigBuff = Buffer.from(signature, "base64");
+    const sig = getSignatureWithRecoveryCode(
+      {
+        r: "0x" + sigBuff.slice(0, 32).toString("hex"),
+        s: "0x" + sigBuff.slice(32, 64).toString("hex"),
+        recoveryParam: 0,
+      },
+      Buffer.from(message, "hex"),
+      this.address.address
+    );
 
+    const signatureRVS = splitSignature(sig);
+    return { r: signatureRVS.r, v: signatureRVS.v, s: signatureRVS.s };
+  }
+
+  async signMessage(message: string | Bytes): Promise<string> {
+    if (typeof message === "string") {
+      //message = toUtf8Bytes(message);
+      message = message.split("0x")[1];
+    }
+
+    const hash = hashMessage(message).split("0x")[1];
+
+    const context = await signEcdsa(
+      this.user.devicePublicKey,
+      this.user.id,
+      this.address.keyShare.id,
+      this.address.keyShare.keyShare,
+      hash,
+      "hex"
+    );
+
+    const { signature, recoveryCode: recoveryParam } = await getBinSignature(context, this.address.keyShare.keyShare);
+
+    const sigBuff = Buffer.from(signature, "base64");
     const sig = getSignatureWithRecoveryCode(
       {
         r: "0x" + sigBuff.slice(0, 32).toString("hex"),
