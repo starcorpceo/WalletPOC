@@ -1,7 +1,11 @@
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { weiToGwei } from "ethereum/controller/ethereum-utils";
+import {
+  gaslessPermit,
+  gaslessTransfer,
+  gaslessTransferWithAuthorization,
+} from "ethereum/controller/gasless/ethereum-gasless-utils";
 import { MPCSigner } from "ethereum/controller/zksync/signer";
-import { gaslessPermit } from "ethereum/controller/gasless/ethereum-gasless-utils";
 import { ethereumWalletsState } from "ethereum/state/ethereum-atoms";
 import { useDeleteMempoolTransaction } from "ethereum/state/ethereum-wallet-state-utils";
 import { EthereumWallet } from "ethereum/types/Ethereum";
@@ -107,7 +111,21 @@ const EthereumWalletView = ({ wallet, index, navigation, signer }: EthereumWalle
 
   return (
     <View style={styles.container}>
-      <Button title="Gasless Test" onPress={() => gaslessPermit(wallet.external.addresses[0], user)} />
+      <Button title="Gasless Permit Test" onPress={() => gaslessPermit(wallet.external.addresses[0], user)} />
+      <Button
+        title="Gasless Transfer Test"
+        onPress={() => gaslessTransfer(wallet.external.addresses[0], "0x4321Dcb5E1227C93D8E5a022B1715A8b204bB6C6")}
+      />
+      <Button
+        title="Gasless Transfer With Auth Test"
+        onPress={() =>
+          gaslessTransferWithAuthorization(
+            wallet.external.addresses[0],
+            user,
+            "0x4321Dcb5E1227C93D8E5a022B1715A8b204bB6C6"
+          )
+        }
+      />
       <View style={styles.headingArea}>
         <Image
           style={styles.icon}
