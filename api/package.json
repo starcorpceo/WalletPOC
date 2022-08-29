@@ -21,6 +21,7 @@
     "@types/ref-napi": "^3.0.4",
     "ajv": "^6.12.6",
     "eslint-plugin-neverthrow": "^1.1.4",
+    "ethers": "^5.7.0",
     "fastify": "^4.0.3",
     "ffi-napi": "^4.0.3",
     "neverthrow": "^4.3.1",
