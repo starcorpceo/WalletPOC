@@ -3,13 +3,11 @@ import { GaslessTransactionResponse, TankAddressResponse } from "api-types/gasle
 import { User } from "api-types/user";
 import { alchemyProviderKey, config } from "ethereum/config/ethereum-config";
 import { ERC20Token } from "ethereum/config/token-constants";
-import { ecrecover } from "ethereumjs-util";
-import { BigNumberish, ethers, Wallet } from "ethers";
+import { BigNumberish, ethers } from "ethers";
 import { defaultAbiCoder, keccak256, solidityPack, toUtf8Bytes } from "ethers/lib/utils";
 import { fetchFromApi, HttpMethod } from "lib/http";
 import { Address } from "wallet/types/wallet";
 import { MPCSigner } from "../zksync/signer";
-import { usdcAbi } from "./usdc-abi";
 
 /**
  * Prepares mpc Signer with Alchemy Provider
@@ -35,7 +33,7 @@ export const gasslessPermitWithApi = async (address: Address, user: User, value:
   const mpcSigner = getPreparedMpcSigner(address, user);
 
   //token contract connected with our mpcSigner
-  const usdcTokenContractMpcSigner = new ethers.Contract(token.contractAddress, ERC20ABI, mpcSigner);
+  const tokenContractMpcSigner = new ethers.Contract(token.contractAddress, ERC20ABI, mpcSigner);
 
   //fetch apis tank address
   const tankAddress = await fetchFromApi<TankAddressResponse>("/gasless/tankAddress");
@@ -51,12 +49,12 @@ export const gasslessPermitWithApi = async (address: Address, user: User, value:
   const deadline = 100000000000000;
 
   // Get the user's nonce from the tokens contract address
-  const nonce = await usdcTokenContractMpcSigner.nonces(address.address);
+  const nonce = await tokenContractMpcSigner.nonces(address.address);
 
   // Get the EIP712 digest
   const digest = getPermitDigest(
-    await usdcTokenContractMpcSigner.name(),
-    usdcTokenContractMpcSigner.address,
+    await tokenContractMpcSigner.name(),
+    tokenContractMpcSigner.address,
     config.chainId,
     approve,
     nonce,
@@ -84,6 +82,14 @@ export const gasslessPermitWithApi = async (address: Address, user: User, value:
   return transaction;
 };
 
+/**
+ * Transfers erc20 Token value from -> to (permit has to be called beforehand)
+ * @param from
+ * @param to
+ * @param value
+ * @param token
+ * @returns
+ */
 export const gaslessTransferWithApi = async (from: Address, to: string, value: string, token: ERC20Token) => {
   // Let api approve it
   const { transaction } = await fetchFromApi<GaslessTransactionResponse>("/gasless/relayTransfer", {
@@ -99,116 +105,76 @@ export const gaslessTransferWithApi = async (from: Address, to: string, value: s
   return transaction;
 };
 
-export const gaslessTransfer = async (address: Address, otherAddress: string) => {
-  //create our mpc signer
-  const provider = new ethers.providers.AlchemyProvider(
-    "goerli", // or 'ropsten', 'rinkeby', 'kovan', 'goerli'
-    "ahl42ynne2Kd8FosnoYBtCW3ssoCtIu0"
-  );
-
-  //second wallet which will pay our gas fees
-  const signerSpender = new Wallet("159484bb7cae6c10194f80f4d4038ac5450421aab6a2b281bac20f1546c57902", provider);
-
-  //token contract connected with spenders signer
-  const usdcTokenContractSpender = new ethers.Contract(
-    "0x07865c6e87b9f70255377e024ace6630c1eaa37f",
-    ERC20ABI,
-    signerSpender
-  );
-
-  const transaction = await usdcTokenContractSpender.transferFrom(address.address, otherAddress, 10000);
-
-  console.log("Transaction sent.");
-  transaction.wait();
-  console.log("Transaction confirmed: ", transaction);
-};
-
-export const gaslessPermit = async (address: Address, user: User) => {
-  //create our mpc signer
-  const provider = new ethers.providers.AlchemyProvider(
-    "goerli", // or 'ropsten', 'rinkeby', 'kovan', 'goerli'
-    "ahl42ynne2Kd8FosnoYBtCW3ssoCtIu0"
-  );
-  const mpcSigner = await new MPCSigner(address, user).connect(provider);
+/**
+ * Transfers erc20 Token value from -> to (no permit has to be called beforehand)
+ * @param from
+ * @param user
+ * @param to
+ * @param value
+ * @param token
+ * @returns
+ */
+export const gaslessTransferWithAuthorizationWithApi = async (
+  from: Address,
+  user: User,
+  to: string,
+  value: string,
+  token: ERC20Token
+) => {
+  const mpcSigner = getPreparedMpcSigner(from, user);
 
   //token contract connected with our mpcSigner
-  const usdcTokenContractMpcSigner = new ethers.Contract(
-    "0x07865c6e87b9f70255377e024ace6630c1eaa37f",
-    ERC20ABI,
-    mpcSigner
-  );
-
-  //second wallet which will pay our gas fees
-  const signerSpender = new Wallet("159484bb7cae6c10194f80f4d4038ac5450421aab6a2b281bac20f1546c57902", provider);
-
-  //token contract connected with spenders signer
-  const usdcTokenContractSpender = new ethers.Contract(
-    "0x07865c6e87b9f70255377e024ace6630c1eaa37f",
-    ERC20ABI,
-    signerSpender
-  );
+  const tokenContractMpcSigner = new ethers.Contract(token.contractAddress, ERC20ABI, mpcSigner);
 
   // Create the approval request
   const approve = {
-    owner: address.address,
-    spender: signerSpender.address,
-    value: 10000,
+    from: from.address,
+    to: to,
+    value: ethers.utils.parseUnits(value, token.decimals),
   };
 
-  // deadline as much as you want in the future
-  const deadline = 100000000000000;
+  // Create validation time
+  const seconds = Math.round(new Date().getTime() / 1000);
+  const validAfter = 0; //valid from now on
+  const validBefore = seconds + 1200; // valid for 20min
 
   // Get the user's nonce
-  const nonce = await usdcTokenContractMpcSigner.nonces(address.address);
+  const nonce = await tokenContractMpcSigner.nonces(from.address);
 
   // Get the EIP712 digest
-  const digest = getPermitDigest(
-    await usdcTokenContractMpcSigner.name(),
-    usdcTokenContractMpcSigner.address,
-    5,
+  const digest = getTransferDigest(
+    await tokenContractMpcSigner.name(),
+    tokenContractMpcSigner.address,
+    config.chainId,
     approve,
-    nonce,
-    deadline
+    toUtf8Bytes(ethers.utils.hexZeroPad(ethers.utils.hexlify(nonce), 32).slice(34)),
+    validAfter,
+    validBefore
   );
 
-  //const { v, r, s } = sign(digest, Buffer.from(signer.privateKey.slice(2), "hex"));
   const { v, r, s } = await mpcSigner.signHashedMessage(digest);
 
-  console.log("PERMIT: ", (await usdcTokenContractMpcSigner.PERMIT_TYPEHASH()) == PERMIT_TYPEHASH);
-  console.log(
-    "DOMAIN: ",
-    (await usdcTokenContractMpcSigner.DOMAIN_SEPARATOR()) ==
-      getDomainSeparator(await usdcTokenContractMpcSigner.name(), "0x07865c6e87b9f70255377e024ace6630c1eaa37f", 5)
-  );
-
-  console.log("Our address: ", address.address);
-  console.log("Payers address: ", signerSpender.address);
-  console.log(
-    "Recovered: ",
-    ecrecover(
-      Buffer.from(digest.slice(2), "hex"),
+  //call api to relay transfer
+  const { transaction } = await fetchFromApi<GaslessTransactionResponse>("/gasless/relayTransferWithAuthorization", {
+    method: HttpMethod.POST,
+    body: {
+      contractAddress: token.contractAddress,
+      from: approve.from,
+      to: approve.to,
+      value: approve.value.toString(),
+      validAfter,
+      validBefore,
+      nonce: nonce.toString(),
       v,
-      Buffer.from(r.slice(2), "hex"),
-      Buffer.from(s.slice(2), "hex")
-    ).toString("hex")
-  );
+      r,
+      s,
+    },
+  });
 
-  // Approve it
-  const transaction = await usdcTokenContractSpender.permit(
-    approve.owner,
-    approve.spender,
-    approve.value,
-    deadline,
-    v,
-    r,
-    s
-  );
-  console.log("Transaction: ", transaction);
-
-  await transaction.wait();
-  console.log("Permit confirmed");
   return transaction;
 };
+
+//Meta transaction utils after this ---
 
 const getDomainSeparator = (name: string, contractAddress: string, chainId: number) => {
   return keccak256(
@@ -259,79 +225,6 @@ const getPermitDigest = (
 const PERMIT_TYPEHASH = keccak256(
   toUtf8Bytes("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)")
 );
-
-export const gaslessTransferWithAuthorization = async (from: Address, user: User, to: string) => {
-  //create our mpc signer
-  const provider = new ethers.providers.AlchemyProvider(
-    "goerli", // or 'ropsten', 'rinkeby', 'kovan', 'goerli'
-    "ahl42ynne2Kd8FosnoYBtCW3ssoCtIu0"
-  );
-  const mpcSigner = await new MPCSigner(from, user).connect(provider);
-
-  //token contract connected with our mpcSigner
-  const usdcTokenContractMpcSigner = new ethers.Contract(
-    "0x07865c6e87b9f70255377e024ace6630c1eaa37f",
-    ERC20ABI,
-    mpcSigner
-  );
-
-  //second wallet which will pay our gas fees
-  const signerSpender = new Wallet("159484bb7cae6c10194f80f4d4038ac5450421aab6a2b281bac20f1546c57902", provider);
-
-  //token contract connected with spenders signer
-  const usdcTokenContractSpender = new ethers.Contract(
-    "0x07865c6e87b9f70255377e024ace6630c1eaa37f",
-    usdcAbi,
-    signerSpender
-  );
-
-  // Create the approval request
-  const approve = {
-    from: from.address,
-    to: to,
-    value: 10000,
-  };
-
-  const seconds = Math.round(new Date().getTime() / 1000);
-  const validAfter = 0; //valid from now on
-  const validBefore = seconds + 1200; // valid for 20min
-
-  // Get the user's nonce
-  const nonce = await usdcTokenContractMpcSigner.nonces(from.address);
-
-  // Get the EIP712 digest
-  const digest = getTransferDigest(
-    await usdcTokenContractMpcSigner.name(),
-    usdcTokenContractMpcSigner.address,
-    5,
-    approve,
-    toUtf8Bytes(ethers.utils.hexZeroPad(ethers.utils.hexlify(nonce), 32).slice(34)),
-    validAfter,
-    validBefore
-  );
-  console.log(
-    "DOMAIN: ",
-    (await usdcTokenContractMpcSigner.DOMAIN_SEPARATOR()) ==
-      getDomainSeparator(await usdcTokenContractMpcSigner.name(), "0x07865c6e87b9f70255377e024ace6630c1eaa37f", 5)
-  );
-  //const { v, r, s } = sign(digest, Buffer.from(signer.privateKey.slice(2), "hex"));
-  const { v, r, s } = await mpcSigner.signHashedMessage(digest);
-
-  const transaction = await usdcTokenContractSpender.transferWithAuthorization(
-    approve.from,
-    to,
-    approve.value,
-    0,
-    validBefore,
-    toUtf8Bytes(ethers.utils.hexZeroPad(ethers.utils.hexlify(nonce), 32).slice(34)),
-    v,
-    r,
-    s
-  );
-  console.log("Transaction sent: ", transaction);
-  await transaction.wait();
-  console.log("Transaction confirmed: ", transaction);
-};
 
 const getTransferDigest = (
   name: string,

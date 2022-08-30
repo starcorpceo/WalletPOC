@@ -29,3 +29,16 @@ export interface GaslessTransferRequest {
   to: string;
   value: string;
 }
+
+export interface GaslessTransferWithAuthorizationRequest {
+  contractAddress: string;
+  from: string;
+  to: string;
+  value: string;
+  validAfter: number;
+  validBefore: number;
+  nonce: Array;
+  v: number;
+  r: string;
+  s: string;
+}

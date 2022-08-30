@@ -1,11 +1,13 @@
 import { other, RouteError } from "@lib/error";
-import { ethers } from "ethers";
+import { BigNumber, ethers } from "ethers";
+import { toUtf8Bytes } from "ethers/lib/utils";
 import { ResultAsync } from "neverthrow";
 import { erc20Abi } from "./erc20-abi";
 import {
   GaslessPermitRequest,
   GaslessTransactionResponse,
   GaslessTransferRequest,
+  GaslessTransferWithAuthorizationRequest,
   TankAddressResponse,
   TankBalanceResponse,
 } from "./gasless";
@@ -57,6 +59,30 @@ export const relayGaslessTransfer = (
     other("Err while relaying gasless transferFrom", e as Error)
   ).map((transaction) => {
     console.log("TransferFrom transaction: ", transaction);
+    return { transaction };
+  });
+};
+
+export const relayGaslessTransferWithAuthorization = (
+  request: GaslessTransferWithAuthorizationRequest
+): ResultAsync<GaslessTransactionResponse, RouteError> => {
+  //token contract connected with paymasters signer
+  const tokenContract = new ethers.Contract(request.contractAddress, erc20Abi, paymasterWallet);
+  return ResultAsync.fromPromise(
+    tokenContract.transferWithAuthorization(
+      request.from,
+      request.to,
+      request.value,
+      request.validAfter,
+      request.validBefore,
+      toUtf8Bytes(ethers.utils.hexZeroPad(ethers.utils.hexlify(BigNumber.from(request.nonce)), 32).slice(34)),
+      request.v,
+      request.r,
+      request.s
+    ),
+    (e) => other("Err while relaying gasless transferWithAuthorization", e as Error)
+  ).map((transaction) => {
+    console.log("TransferWithAuthorization transaction: ", transaction);
     return { transaction };
   });
 };

@@ -2,9 +2,8 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { erc20Tokens } from "ethereum/config/token-constants";
 import { weiToGwei } from "ethereum/controller/ethereum-utils";
 import {
-  gaslessTransfer,
   gaslessTransferWithApi,
-  gaslessTransferWithAuthorization,
+  gaslessTransferWithAuthorizationWithApi,
   gasslessPermitWithApi,
 } from "ethereum/controller/gasless/ethereum-gasless-utils";
 import { MPCSigner } from "ethereum/controller/zksync/signer";
@@ -131,10 +130,12 @@ const EthereumWalletView = ({ wallet, index, navigation, signer }: EthereumWalle
       <Button
         title="Gasless Transfer With Auth Test"
         onPress={() =>
-          gaslessTransferWithAuthorization(
+          gaslessTransferWithAuthorizationWithApi(
             wallet.external.addresses[0],
             user,
-            "0x4321Dcb5E1227C93D8E5a022B1715A8b204bB6C6"
+            "0x4321Dcb5E1227C93D8E5a022B1715A8b204bB6C6",
+            "0.0014",
+            erc20Tokens[2]
           )
         }
       />
