@@ -1,13 +1,11 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { config } from "ethereum/config/ethereum-config";
-import { abi } from "ethereum/config/general-abi";
 import { ERC20Token } from "ethereum/config/token-constants";
-import { buildRawTokenTransaction } from "ethereum/controller/ethereum-transaction-utils";
+import { gaslessTransferWithAuthorizationWithApi } from "ethereum/controller/gasless/ethereum-gasless-utils";
 import { MPCSigner } from "ethereum/controller/zksync/signer";
 import { EthereumWallet } from "ethereum/types/ethereum";
 import { ethers } from "ethers";
 import { EthereumService } from "packages/blockchain-api-client/src";
-import { EthereumProviderEnum } from "packages/blockchain-api-client/src/blockchains/ethereum/ethereum-factory";
 import React, { useCallback, useEffect, useState } from "react";
 import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useRecoilValue } from "recoil";
@@ -25,66 +23,41 @@ const TokenSendScreen = ({ route }: Props) => {
   const user = useRecoilValue<AuthState>(authState);
 
   const [toAddress, setToAddress] = useState<string>("0x49e749dc596ebb62b724262928d0657f8950a7d7");
-  const [tokenToSend, setTokenToSend] = useState<string>("");
+  const [tokensToSend, setTokenToSend] = useState<string>("");
 
   useEffect(() => {
     setSigner(new MPCSigner(wallet.external.addresses[0], user).connect(ethers.getDefaultProvider(config.chain)));
   }, []);
 
+  const handleTokenToSend = (value: string) => {
+    let lengthDecimals = 0;
+    if (value.includes(".")) lengthDecimals = value.length - value.indexOf(".") - 1;
+    if (lengthDecimals <= token.decimals) setTokenToSend(value);
+  };
+
   const [signer, setSigner] = useState<MPCSigner>();
   const [service] = useState(new EthereumService("TEST"));
-  const sendTransaction = useCallback(async () => {
-    if (!service || !signer) return;
+  const sendTransactionValidation = useCallback(async () => {
+    Alert.alert("Confirm your transaction", "Sending " + tokensToSend + " " + token.symbol + " to " + toAddress, [
+      {
+        text: "Send now",
+        onPress: () => sendTransaction(toAddress, tokensToSend),
+      },
+      {
+        text: "Cancel",
+      },
+    ]);
+  }, [wallet, user, tokensToSend, toAddress]);
+
+  const sendTransaction = useCallback(async (to: string, value: string) => {
     try {
-      const gasPrice = await service.getFees(EthereumProviderEnum.ALCHEMY);
-
-      const address = wallet.external.addresses[0];
-      const transactionCount = await service.getTransactionCount(address.address, EthereumProviderEnum.ALCHEMY);
-
-      const transaction = await buildRawTokenTransaction(
-        abi,
-        token.contractAddress,
-        toAddress,
-        Number.parseFloat(tokenToSend),
-        transactionCount,
-        gasPrice,
-        token,
-        signer,
-        service
-      );
-
-      const rawTransaction = await signer.signTransaction(transaction);
-
-      console.log("Transaction to be published: ", rawTransaction);
-
-      Alert.alert("Confirm your transaction", "Sending " + tokenToSend + " " + token.symbol + " to " + toAddress, [
-        {
-          text: "Send now",
-          onPress: () => broadcast(rawTransaction),
-        },
-        {
-          text: "Cancel",
-        },
-      ]);
+      const result = await gaslessTransferWithAuthorizationWithApi(address, user, to, value, token);
+      Alert.alert("Successfully sent.");
     } catch (err) {
-      console.error(err);
+      console.log(err);
+      Alert.alert("Unable to broadcast transaction");
     }
-  }, [wallet, user, tokenToSend, toAddress]);
-
-  const broadcast = useCallback(
-    async (finalRawTransaction: string) => {
-      if (!service) return;
-
-      try {
-        const result = await service.sendRawTransaction(finalRawTransaction, EthereumProviderEnum.ALCHEMY);
-        Alert.alert("Successfully sent.");
-      } catch (err) {
-        console.log(err);
-        Alert.alert("Unable to broadcast transaction");
-      }
-    },
-    [service]
-  );
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -100,12 +73,12 @@ const TokenSendScreen = ({ route }: Props) => {
         <TextInput
           style={styles.input}
           placeholder={"0 " + token.symbol}
-          onChangeText={(value) => setTokenToSend(value)}
-          value={tokenToSend?.toString()}
+          onChangeText={(value) => handleTokenToSend(value)}
+          value={tokensToSend?.toString()}
         ></TextInput>
       </View>
 
-      <TouchableOpacity style={styles.actionButton} onPress={sendTransaction}>
+      <TouchableOpacity style={styles.actionButton} onPress={sendTransactionValidation}>
         <Text style={styles.actionButtonText}>Send</Text>
       </TouchableOpacity>
     </View>

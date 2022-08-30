@@ -3,11 +3,13 @@ import { GaslessTransactionResponse, TankAddressResponse } from "api-types/gasle
 import { User } from "api-types/user";
 import { alchemyProviderKey, config } from "ethereum/config/ethereum-config";
 import { ERC20Token } from "ethereum/config/token-constants";
-import { BigNumberish, ethers } from "ethers";
+import { BigNumber, BigNumberish, ethers } from "ethers";
 import { defaultAbiCoder, keccak256, solidityPack, toUtf8Bytes } from "ethers/lib/utils";
 import { fetchFromApi, HttpMethod } from "lib/http";
 import { Address } from "wallet/types/wallet";
 import { MPCSigner } from "../zksync/signer";
+import { randomBytes } from "crypto";
+import { usdcAbi } from "./usdc-abi";
 
 /**
  * Prepares mpc Signer with Alchemy Provider
@@ -124,7 +126,7 @@ export const gaslessTransferWithAuthorizationWithApi = async (
   const mpcSigner = getPreparedMpcSigner(from, user);
 
   //token contract connected with our mpcSigner
-  const tokenContractMpcSigner = new ethers.Contract(token.contractAddress, ERC20ABI, mpcSigner);
+  const tokenContractMpcSigner = new ethers.Contract(token.contractAddress, usdcAbi, mpcSigner);
 
   // Create the approval request
   const approve = {
@@ -138,8 +140,13 @@ export const gaslessTransferWithAuthorizationWithApi = async (
   const validAfter = 0; //valid from now on
   const validBefore = seconds + 1200; // valid for 20min
 
-  // Get the user's nonce
-  const nonce = await tokenContractMpcSigner.nonces(from.address);
+  //const nonce is unique random byte32 when using transferWithAuth
+  let isNonceUsed = true;
+  let nonce;
+  do {
+    nonce = BigNumber.from(randomBytes(32));
+    isNonceUsed = await tokenContractMpcSigner.authorizationState(from.address, nonce);
+  } while (isNonceUsed);
 
   // Get the EIP712 digest
   const digest = getTransferDigest(
