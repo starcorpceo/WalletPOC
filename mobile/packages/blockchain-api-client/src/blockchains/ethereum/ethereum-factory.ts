@@ -1,4 +1,4 @@
-import { Network } from '../../base/types';
+import { ApiSwapQuote, Chain, Network } from '../../base/types';
 import { zeroExEthereumFetcher } from '../../provider/0x/ethereum/0x-ethereum-fetcher';
 import { mapZeroExSwapQuote } from '../../provider/0x/ethereum/0x-ethereum-mapper';
 import { ZeroExSwapQuote } from '../../provider/0x/ethereum/0x-ethereum-types';
@@ -26,29 +26,31 @@ export enum EthereumProviderEnum {
 
 export class EthereumFactory {
   private network: Network;
+  private chain: Chain;
 
-  constructor(network: Network) {
+  constructor(network: Network, chain: Chain) {
     this.network = network;
+    this.chain = chain;
   }
 
   getProviderFunctions = (provider: EthereumProviderEnum) => {
     switch (provider) {
       case EthereumProviderEnum.ZEROEX:
-        return this.zeroEx(this.network);
+        return this.zeroEx(this.network) as EthereumProvider;
       default:
-        return this.alchemy(this.network);
+        return this.alchemy(this.network, this.chain);
     }
   };
 
-  private zeroEx = (network: Network): EthereumProvider => ({
+  private zeroEx = (network: Network) => ({
     fetcher: zeroExEthereumFetcher(network),
     mapper: {
-      responseToSwapQuote: input => mapZeroExSwapQuote(input as ZeroExSwapQuote),
+      responseToSwapQuote: (input: ApiSwapQuote) => mapZeroExSwapQuote(input as ZeroExSwapQuote),
     },
   });
 
-  private alchemy = (network: Network): EthereumProvider => ({
-    fetcher: alchemyEthereumFetcher(network),
+  private alchemy = (network: Network, chain: Chain): EthereumProvider => ({
+    fetcher: alchemyEthereumFetcher(network, chain),
     mapper: {
       responseToBalance: input => mapAlchemyBalance(input as AlchemyBalance),
       responseToTransactions: input => mapAlchemyTransactions(input as AlchemyTransaction[]),

@@ -1,6 +1,7 @@
 import { fetchFrom } from '../../base/http';
 
 export const fetchFromAlchemy = async <T>(url: string, method: Method, params?: any[]): Promise<T> => {
+  console.log(url, params);
   return fetchFrom(url + apiKey, { body: { id: 1, jsonrpc: '2.0', params, method } });
 };
 

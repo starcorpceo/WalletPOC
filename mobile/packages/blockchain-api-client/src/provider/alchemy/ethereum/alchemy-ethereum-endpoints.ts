@@ -1,16 +1,16 @@
-import { Network } from '../../../base/types';
+import { Chain, Network } from '../../../base/types';
 
-const mainUrl = 'https://eth-mainnet.alchemyapi.io/v2/';
-const testUrl = 'https://eth-goerli.alchemyapi.io/v2/';
-
-export const alchemyEndpoints = (network: Network): string => {
-  return getNetworkUrl(network);
+export const alchemyEndpoints = (network: Network, chain: Chain): string => {
+  return `https://${urls[network][chain]}.alchemyapi.io/v2/`;
 };
 
-const getNetworkUrl = (network: Network) => {
-  if (network === 'MAIN') return mainUrl;
-
-  if (network === 'TEST') return testUrl;
-
-  return mainUrl;
+const urls = {
+  TEST: {
+    Ethereum: 'eth-goerli',
+    Polygon: 'polygon-mumbai.g',
+  },
+  MAIN: {
+    Ethereum: 'eth-mainnet',
+    Polygon: 'polygon-mainnet.g',
+  },
 };

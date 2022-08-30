@@ -6,7 +6,7 @@ export const mapAlchemyBalance = (balance: ApiBalance<AlchemyBalance>): Ethereum
   if (balance.error) throw new Error(balance.error);
 
   return {
-    value: weiToGwei(Number.parseInt(balance.result, 16)),
+    value: Number.parseInt(balance.result, 16),
   };
 };
 
