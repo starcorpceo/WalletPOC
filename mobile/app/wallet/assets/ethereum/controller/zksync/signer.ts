@@ -2,7 +2,7 @@ import { Provider, TransactionRequest } from "@ethersproject/abstract-provider";
 import { serialize, UnsignedTransaction } from "@ethersproject/transactions";
 import { User } from "api-types/user";
 import { config } from "ethereum/config/ethereum-config";
-import { Bytes, ethers, getDefaultProvider, Signer } from "ethers";
+import { Bytes, getDefaultProvider, Signer } from "ethers";
 import {
   defineReadOnly,
   getAddress,
@@ -40,14 +40,12 @@ export class MPCSigner extends Signer {
       message = message.toString();
     }
 
-    const hash = ethers.utils.hashMessage(message).split("0x")[1];
-
     const context = await signEcdsa(
       this.user.devicePublicKey,
       this.user.id,
       this.address.keyShare.id,
       this.address.keyShare.keyShare,
-      hash,
+      message,
       "hex"
     );
 

@@ -54,6 +54,8 @@ const erc20GoerliTokens: ERC20Token[] = [
     contractAddress: "0x60D4dB9b534EF9260a88b0BED6c486fe13E604Fc",
     decimals: 18,
     isToken: true,
+    hasPermit: false,
+    hasTransferWithAuthorization: false,
   },
 ];
 

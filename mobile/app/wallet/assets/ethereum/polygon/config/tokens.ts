@@ -14,6 +14,8 @@ const main: PolygonERC20Token[] = [
     polygonAddress: "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619",
     ethereumAddress: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
     decimals: 18,
+    hasPermit: false,
+    hasTransferWithAuthorization: false,
   },
   {
     name: "USDC",
@@ -21,6 +23,8 @@ const main: PolygonERC20Token[] = [
     polygonAddress: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
     ethereumAddress: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
     decimals: 18,
+    hasPermit: true,
+    hasTransferWithAuthorization: true,
   },
   {
     name: "Matic Token",
@@ -28,6 +32,8 @@ const main: PolygonERC20Token[] = [
     polygonAddress: "0x0000000000000000000000000000000000001010",
     ethereumAddress: "0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0",
     decimals: 18,
+    hasPermit: false,
+    hasTransferWithAuthorization: false,
   },
 ];
 
@@ -38,6 +44,8 @@ const test: PolygonERC20Token[] = [
     polygonAddress: "0xA6FA4fB5f76172d178d61B04b0ecd319C5d1C0aa",
     ethereumAddress: "0x60D4dB9b534EF9260a88b0BED6c486fe13E604Fc",
     decimals: 18,
+    hasPermit: false,
+    hasTransferWithAuthorization: false,
   },
   {
     name: "Test ERC20",
@@ -45,6 +53,8 @@ const test: PolygonERC20Token[] = [
     polygonAddress: "0xfe4F5145f6e09952a5ba9e956ED0C25e3Fa4c7F1",
     ethereumAddress: "0x655F2166b0709cd575202630952D71E2bB0d61Af",
     decimals: 18,
+    hasPermit: false,
+    hasTransferWithAuthorization: false,
   },
   {
     name: "Matic Token",
@@ -52,6 +62,17 @@ const test: PolygonERC20Token[] = [
     polygonAddress: "0x0000000000000000000000000000000000001010",
     ethereumAddress: "0x499d11E0b6eAC7c0593d8Fb292DCBbF815Fb29Ae",
     decimals: 18,
+    hasPermit: false,
+    hasTransferWithAuthorization: false,
+  },
+  {
+    name: "USDC",
+    symbol: "USDC",
+    polygonAddress: "0x0fa8781a83e46826621b3bc094ea2a0212e71b23",
+    ethereumAddress: "0x07865c6e87b9f70255377e024ace6630c1eaa37f",
+    decimals: 6,
+    hasPermit: true,
+    hasTransferWithAuthorization: true,
   },
 ];
 
@@ -61,6 +82,8 @@ export const ethereum: PolygonERC20Token = {
   polygonAddress: "0xA6FA4fB5f76172d178d61B04b0ecd319C5d1C0aa",
   ethereumAddress: etherAddress,
   decimals: 18,
+  hasPermit: false,
+  hasTransferWithAuthorization: false,
 };
 
 export const erc20Tokens = config.IsTestNet ? test : main;
