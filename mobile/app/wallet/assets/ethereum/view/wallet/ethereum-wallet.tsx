@@ -3,8 +3,9 @@ import { erc20Tokens } from "ethereum/config/token-constants";
 import { weiToGwei } from "ethereum/controller/ethereum-utils";
 import {
   gaslessTransfer,
+  gaslessTransferWithApi,
   gaslessTransferWithAuthorization,
-  gassLessPermitWithApi,
+  gasslessPermitWithApi,
 } from "ethereum/controller/gasless/ethereum-gasless-utils";
 import { MPCSigner } from "ethereum/controller/zksync/signer";
 import { ethereumWalletsState } from "ethereum/state/ethereum-atoms";
@@ -114,11 +115,18 @@ const EthereumWalletView = ({ wallet, index, navigation, signer }: EthereumWalle
     <View style={styles.container}>
       <Button
         title="Gasless Permit Test"
-        onPress={() => gassLessPermitWithApi(wallet.external.addresses[0], user, "0.2", erc20Tokens[2])}
+        onPress={() => gasslessPermitWithApi(wallet.external.addresses[0], user, "0.2", erc20Tokens[2])}
       />
       <Button
         title="Gasless Transfer Test"
-        onPress={() => gaslessTransfer(wallet.external.addresses[0], "0x4321Dcb5E1227C93D8E5a022B1715A8b204bB6C6")}
+        onPress={() =>
+          gaslessTransferWithApi(
+            wallet.external.addresses[0],
+            "0x4321Dcb5E1227C93D8E5a022B1715A8b204bB6C6",
+            "0.011",
+            erc20Tokens[2]
+          )
+        }
       />
       <Button
         title="Gasless Transfer With Auth Test"

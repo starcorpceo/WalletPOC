@@ -1,5 +1,5 @@
 import { abi as ERC20ABI } from "@uniswap/v2-core/build/ERC20.json";
-import { GaslessPermitResponse, TankAddressResponse } from "api-types/gasless";
+import { GaslessTransactionResponse, TankAddressResponse } from "api-types/gasless";
 import { User } from "api-types/user";
 import { alchemyProviderKey, config } from "ethereum/config/ethereum-config";
 import { ERC20Token } from "ethereum/config/token-constants";
@@ -31,7 +31,7 @@ const getPreparedMpcSigner = (address: Address, user: User): MPCSigner => {
  * @returns
  */
 //TODO dynamic check if token has permit function
-export const gassLessPermitWithApi = async (address: Address, user: User, value: string, token: ERC20Token) => {
+export const gasslessPermitWithApi = async (address: Address, user: User, value: string, token: ERC20Token) => {
   const mpcSigner = getPreparedMpcSigner(address, user);
 
   //token contract connected with our mpcSigner
@@ -67,7 +67,7 @@ export const gassLessPermitWithApi = async (address: Address, user: User, value:
   const { v, r, s } = await mpcSigner.signHashedMessage(digest);
 
   // Let api approve it
-  const { transaction } = await fetchFromApi<GaslessPermitResponse>("/gasless/relayPermit", {
+  const { transaction } = await fetchFromApi<GaslessTransactionResponse>("/gasless/relayPermit", {
     method: HttpMethod.POST,
     body: {
       contractAddress: token.contractAddress,
@@ -78,6 +78,21 @@ export const gassLessPermitWithApi = async (address: Address, user: User, value:
       v,
       r,
       s,
+    },
+  });
+
+  return transaction;
+};
+
+export const gaslessTransferWithApi = async (from: Address, to: string, value: string, token: ERC20Token) => {
+  // Let api approve it
+  const { transaction } = await fetchFromApi<GaslessTransactionResponse>("/gasless/relayTransfer", {
+    method: HttpMethod.POST,
+    body: {
+      contractAddress: token.contractAddress,
+      from: from.address,
+      to,
+      value: ethers.utils.parseUnits(value, token.decimals).toString(),
     },
   });
 

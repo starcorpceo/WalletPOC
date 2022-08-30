@@ -8,7 +8,7 @@ export interface TankAddressResponse {
   address: string;
 }
 
-export interface GaslessPermitResponse {
+export interface GaslessTransactionResponse {
   transaction: any;
 }
 

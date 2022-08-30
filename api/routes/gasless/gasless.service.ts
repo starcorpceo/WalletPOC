@@ -2,7 +2,13 @@ import { other, RouteError } from "@lib/error";
 import { ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
 import { erc20Abi } from "./erc20-abi";
-import { GaslessPermitRequest, GaslessPermitResponse, TankAddressResponse, TankBalanceResponse } from "./gasless";
+import {
+  GaslessPermitRequest,
+  GaslessTransactionResponse,
+  GaslessTransferRequest,
+  TankAddressResponse,
+  TankBalanceResponse,
+} from "./gasless";
 
 const paymasterProvider = new ethers.providers.AlchemyProvider("goerli", "ahl42ynne2Kd8FosnoYBtCW3ssoCtIu0");
 
@@ -20,11 +26,13 @@ export const fetchTankAddress = (): TankAddressResponse => {
   return { address: paymasterWallet.address };
 };
 
-export const relayGaslessPermit = (request: GaslessPermitRequest): ResultAsync<GaslessPermitResponse, RouteError> => {
-  //token contract connected with spenders signer
-  const usdcTokenContractSpender = new ethers.Contract(request.contractAddress, erc20Abi, paymasterWallet);
+export const relayGaslessPermit = (
+  request: GaslessPermitRequest
+): ResultAsync<GaslessTransactionResponse, RouteError> => {
+  //token contract connected with paymasters signer
+  const tokenContract = new ethers.Contract(request.contractAddress, erc20Abi, paymasterWallet);
   return ResultAsync.fromPromise(
-    usdcTokenContractSpender.permit(
+    tokenContract.permit(
       request.owner,
       request.spender,
       request.value,
@@ -36,6 +44,19 @@ export const relayGaslessPermit = (request: GaslessPermitRequest): ResultAsync<G
     (e) => other("Err while relaying gasless permit", e as Error)
   ).map((transaction) => {
     console.log("Permit transaction: ", transaction);
+    return { transaction };
+  });
+};
+
+export const relayGaslessTransfer = (
+  request: GaslessTransferRequest
+): ResultAsync<GaslessTransactionResponse, RouteError> => {
+  //token contract connected with paymasters signer
+  const tokenContract = new ethers.Contract(request.contractAddress, erc20Abi, paymasterWallet);
+  return ResultAsync.fromPromise(tokenContract.transferFrom(request.from, request.to, request.value), (e) =>
+    other("Err while relaying gasless transferFrom", e as Error)
+  ).map((transaction) => {
+    console.log("TransferFrom transaction: ", transaction);
     return { transaction };
   });
 };
