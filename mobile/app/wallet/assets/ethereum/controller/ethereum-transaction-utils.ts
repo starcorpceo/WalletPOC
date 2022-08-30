@@ -5,21 +5,6 @@ import { EthereumService } from "packages/blockchain-api-client/src";
 import { EthereumProviderEnum } from "packages/blockchain-api-client/src/blockchains/ethereum/ethereum-factory";
 import { MPCSigner } from "./zksync/signer";
 
-// const tryZkSync = async (address: Address, user: User) => {
-//   const syncProvider = await zksync.getDefaultProvider("goerli");
-
-//   const ethersProvider = ethers.getDefaultProvider("goerli");
-//   const ethWallet2 = ethers.Wallet.fromMnemonic("MNEMONIC").connect(ethersProvider);
-
-//   ethWallet2.signTransaction();
-
-//   const ethWallet = new MPCSigner(address, user).connect(ethersProvider);
-
-//   ethWallet.signMessage("asdf");
-
-//   const syncWallet = zksync.Wallet.fromEthSigner(ethWallet, syncProvider);
-// };
-
 export const buildRawTransaction = (
   to: string,
   value: number,

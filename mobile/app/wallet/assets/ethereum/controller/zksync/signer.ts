@@ -1,7 +1,8 @@
 import { Provider, TransactionRequest } from "@ethersproject/abstract-provider";
 import { serialize, UnsignedTransaction } from "@ethersproject/transactions";
 import { User } from "api-types/user";
-import { Bytes, Signer } from "ethers";
+import { config } from "ethereum/config/ethereum-config";
+import { Bytes, ethers, getDefaultProvider, Signer } from "ethers";
 import { defineReadOnly, getAddress, joinSignature, keccak256, resolveProperties, toUtf8Bytes } from "ethers/lib/utils";
 import * as LocalAuthentication from "expo-local-authentication";
 import { signEcdsa } from "lib/mpc";
@@ -27,24 +28,30 @@ export class MPCSigner extends Signer {
       message = toUtf8Bytes(message);
     }
 
+    const hash = ethers.utils.hashMessage(message).split("0x")[1];
+
     const context = await signEcdsa(
       this.user.devicePublicKey,
       this.user.id,
       this.address.keyShare.id,
       this.address.keyShare.keyShare,
-      Buffer.from(message as Uint8Array).toString("utf8"),
-      "utf8"
+      hash,
+      "hex"
     );
 
     const { signature, recoveryCode: recoveryParam } = await getBinSignature(context, this.address.keyShare.keyShare);
 
     const sigBuff = Buffer.from(signature, "base64");
 
-    const sig = {
-      r: "0x" + sigBuff.slice(0, 32).toString("hex"),
-      s: "0x" + sigBuff.slice(32, 64).toString("hex"),
-      recoveryParam,
-    };
+    const sig = getSignatureWithRecoveryCode(
+      {
+        r: "0x" + sigBuff.slice(0, 32).toString("hex"),
+        s: "0x" + sigBuff.slice(32, 64).toString("hex"),
+        recoveryParam: 0,
+      },
+      Buffer.from(hash, "hex"),
+      this.address.address
+    );
 
     return joinSignature(sig);
   }
@@ -106,5 +113,17 @@ export class MPCSigner extends Signer {
   connect(provider: Provider): MPCSigner {
     defineReadOnly(this, "provider", provider || null);
     return this;
+  }
+
+  getProvider(): Provider {
+    return this.provider || getDefaultProvider(config.chain);
+  }
+
+  getAddressObj(): Address {
+    return this.address;
+  }
+
+  getUser(): User {
+    return this.user;
   }
 }

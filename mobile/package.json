@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "android": "react-native run-android",
-    "ios": "react-native run-ios",
+    "ios": "react-native run-ios --simulator='iPhone 11'",
     "start": "react-native start",
     "test": "jest",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
@@ -14,7 +14,10 @@
   },
   "dependencies": {
     "@ethersproject/shims": "^5.6.0",
+    "@maticnetwork/maticjs": "^3.4.0",
+    "@maticnetwork/maticjs-ethers": "^1.0.2",
     "@react-native-async-storage/async-storage": "^1.17.7",
+    "@react-native-picker/picker": "2.4.0",
     "@react-navigation/native": "^6.0.10",
     "@react-navigation/native-stack": "^6.6.2",
     "@uniswap/sdk-core": "^3.0.1",
@@ -46,8 +49,7 @@
     "rn-nodeify": "^10.3.0",
     "stream-browserify": "^1.0.0",
     "vm-browserify": "^0.0.4",
-    "zksync": "^0.13.1",
-    "@react-native-picker/picker": "2.4.0"
+    "zksync": "^0.13.1"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",

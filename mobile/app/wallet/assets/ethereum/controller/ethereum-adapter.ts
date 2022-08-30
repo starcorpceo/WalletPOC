@@ -1,4 +1,5 @@
 import { importPublic, pubToAddress } from "ethereumjs-util";
+import { ethers } from "ethers";
 import ec from "lib/elliptic";
 import { AddressAndPublicKey } from "wallet/controller/adapter/blockchain-adapter";
 
@@ -9,7 +10,7 @@ export const publicKeyToEthereumAddress = (publicKey: string): AddressAndPublicK
 
   const ethPub = importPublic(pubKeyBuf);
 
-  const address = pubToAddress(ethPub);
+  const address = ethers.utils.getAddress(pubToAddress(ethPub).toString("hex"));
 
-  return { address: `0x${address.toString("hex")}`, publicKey: ethPub.toString("base64") };
+  return { address: `${address}`, publicKey: ethPub.toString("base64") };
 };

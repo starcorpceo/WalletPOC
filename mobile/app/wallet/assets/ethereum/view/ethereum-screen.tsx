@@ -1,4 +1,5 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { config } from "ethereum/config/ethereum-config";
 import { EthereumAccountBuilder } from "ethereum/controller/ethereum-account-creation";
 import { MPCSigner } from "ethereum/controller/zksync/signer";
 import { EthereumWalletsState, ethereumWalletsState } from "ethereum/state/ethereum-atoms";
@@ -27,7 +28,14 @@ const EthereumScreen = ({ navigation, route }: Props) => {
 
   useEffect(() => {
     const onOpen = async () => {
-      if (ethereumState.accounts.length > 0 || !isStateEmpty) return;
+      if (ethereumState.accounts.length > 0 || !isStateEmpty) {
+        setSigner(
+          new MPCSigner(ethereumState.accounts[0].external.addresses[0], user).connect(
+            new ethers.providers.AlchemyProvider(config.chain, "ahl42ynne2Kd8FosnoYBtCW3ssoCtIu0")
+          )
+        );
+        return;
+      }
 
       const accountBuilder = new EthereumAccountBuilder(user);
 
@@ -53,7 +61,7 @@ const EthereumScreen = ({ navigation, route }: Props) => {
       setEthereum(() => newState as EthereumWalletsState);
 
       setSigner(
-        new MPCSigner(newState.accounts[0].external.addresses[0], user).connect(ethers.getDefaultProvider("goerli"))
+        new MPCSigner(newState.accounts[0].external.addresses[0], user).connect(ethers.getDefaultProvider(config.chain))
       );
     };
 
@@ -72,6 +80,18 @@ const EthereumScreen = ({ navigation, route }: Props) => {
           {ethereumState.accounts.map((wallet, index: number) => (
             <View key={"EthereumWalletHolder-" + index}>
               <TokenWalletListView wallet={wallet} navigation={navigation} />
+
+              <TouchableOpacity
+                style={styles.polygonButton}
+                onPress={() =>
+                  navigation.navigate("EthereumPolygonScreen", {
+                    address: wallet.external.addresses[0].address,
+                    signer,
+                  })
+                }
+              >
+                <Text style={styles.polygonButtonText}>Manage Ethereum with Polygon</Text>
+              </TouchableOpacity>
 
               <EthereumWalletView
                 key={"EthereumWallet-" + index}

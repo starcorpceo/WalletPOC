@@ -1,6 +1,7 @@
 import "@ethersproject/shims";
 import { Picker } from "@react-native-picker/picker";
 import { SwapRoute } from "@uniswap/smart-order-router";
+import { config } from "ethereum/config/ethereum-config";
 import { ERC20Token, erc20Tokens } from "ethereum/config/token-constants";
 import { getBalanceFromEthereumTokenBalance } from "ethereum/controller/ethereum-utils";
 import { approveAmount, checkAllowance } from "ethereum/controller/swap/swap-utils";
@@ -44,7 +45,7 @@ const TokenUniswapView = ({ wallet, address }: Props) => {
   useEffect(() => {
     setSigner(
       new MPCSigner(wallet.external.addresses[0], user).connect(
-        new ethers.providers.AlchemyProvider("goerli", "ahl42ynne2Kd8FosnoYBtCW3ssoCtIu0")
+        new ethers.providers.AlchemyProvider(config.chain, "ahl42ynne2Kd8FosnoYBtCW3ssoCtIu0")
       )
     );
     updateBalance(erc20TokensLocal[0]);
@@ -114,9 +115,11 @@ const TokenUniswapView = ({ wallet, address }: Props) => {
 
   const [swapRoute, setSwapRoute] = useState<SwapRoute>();
   const [loadingSwapRoute, setLoadingSwapRoute] = useState<boolean>();
+
   const [swapRouteErr, setSwapRouteErr] = useState<boolean>(false);
   const updateSwapRoute = async (inputToken: ERC20Token, outputToken: ERC20Token, inputAmount: string) => {
     const inputAmountWei = ethers.utils.parseUnits(inputAmount, inputToken.decimals);
+
     try {
       const route = await findRouteExactInput(
         inputToken,

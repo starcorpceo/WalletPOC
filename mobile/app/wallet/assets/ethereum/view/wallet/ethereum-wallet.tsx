@@ -1,4 +1,5 @@
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { weiToGwei } from "ethereum/controller/ethereum-utils";
 import { MPCSigner } from "ethereum/controller/zksync/signer";
 import { ethereumWalletsState } from "ethereum/state/ethereum-atoms";
 import { useDeleteMempoolTransaction } from "ethereum/state/ethereum-wallet-state-utils";
@@ -45,7 +46,10 @@ const EthereumWalletView = ({ wallet, index, navigation, signer }: EthereumWalle
     updateWallet(
       {
         ...wallet,
-        external: { ...wallet.external, addresses: [{ ...wallet.external.addresses[0], balance: balance.value }] },
+        external: {
+          ...wallet.external,
+          addresses: [{ ...wallet.external.addresses[0], balance: weiToGwei(balance.value) }],
+        },
       },
       index
     );
