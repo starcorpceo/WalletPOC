@@ -11,7 +11,7 @@ type TokenBalanceProps = {
 
 export const TokenBalanceView = ({ address, token, childErc20 }: TokenBalanceProps) => {
   const [loading, setLoading] = useState<boolean>(false);
-  const [tokenBalance, setTokenBalance] = useState<string>("");
+  const [tokenBalance, setTokenBalance] = useState<string>();
 
   useEffect(() => {
     updateBalance();

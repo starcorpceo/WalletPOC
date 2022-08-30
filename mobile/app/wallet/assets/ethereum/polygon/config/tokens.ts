@@ -55,7 +55,7 @@ const test: PolygonERC20Token[] = [
   },
 ];
 
-export const ethereum = {
+export const ethereum: PolygonERC20Token = {
   name: "Ether",
   symbol: "ETH",
   polygonAddress: "0xA6FA4fB5f76172d178d61B04b0ecd319C5d1C0aa",

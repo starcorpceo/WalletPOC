@@ -4,12 +4,12 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { erc20Tokens, ethereum, PolygonERC20Token } from "ethereum/polygon/config/tokens";
 import { depositToken, getTokenBalance } from "ethereum/polygon/controller/polygon-token-utils";
 import React, { useCallback, useEffect, useState } from "react";
-import { ActivityIndicator, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { NavigationRoutes } from "shared/types/navigation";
 
 type Props = NativeStackScreenProps<NavigationRoutes, "PolygonDepositScreen">;
 
-const allTokens = [ethereum, ...erc20Tokens];
+const allTokens: PolygonERC20Token[] = [ethereum, ...erc20Tokens];
 
 const PolygonDepositScreen = ({ route }: Props) => {
   const { address, polygonClient } = route.params;
@@ -45,12 +45,14 @@ const PolygonDepositScreen = ({ route }: Props) => {
   };
 
   const deposit = useCallback(async () => {
-    const deposit = await depositToken(
+    const receipt = await depositToken(
       polygonClient,
       allTokens[selectedInputTokenIndex].ethereumAddress,
       address,
       parseInt(inputValue, 10)
     );
+
+    receipt && Alert.alert("Successfully deposited");
   }, [polygonClient, inputValue, address, selectedInputTokenIndex]);
 
   return (

@@ -50,13 +50,13 @@ const TokenTransactionsView = ({ address, token }: TokenTransactionProps) => {
       {loading && <ActivityIndicator />}
 
       {transactions &&
-        transactions.map((transaction) => {
+        transactions.map((transaction, index) => {
           const isPlus = transaction.to === address;
           const colorBackground = !isPlus ? "#fcf2f2" : "#f3fcf2";
 
           const pre = isPlus ? "+" : "-";
           return (
-            <View key={transaction.hash} style={[styles.transaction, { backgroundColor: colorBackground }]}>
+            <View key={transaction.hash + index} style={[styles.transaction, { backgroundColor: colorBackground }]}>
               {isPlus ? (
                 <Text>{transaction.from.slice(0, 16) + "..."}</Text>
               ) : (

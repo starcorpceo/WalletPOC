@@ -12,7 +12,9 @@ export const depositToken = async (
   amount: number
 ) => {
   if (tokenAddress === etherAddress) {
-    return polygonClient.depositEther(amount, userAddress, {});
+    const deposit = await polygonClient.depositEther(amount, userAddress, {});
+
+    return deposit.getReceipt();
   }
 
   const parentErc20 = polygonClient.erc20(tokenAddress, true);
@@ -31,7 +33,6 @@ export const depositToken = async (
 };
 
 const doErc20Deposit = async (parentErc20: ERC20, amount: number, userAddress: string) => {
-  console.log("user", userAddress);
   const deposit = await parentErc20.deposit(amount, userAddress);
 
   const receipt = await deposit.getReceipt();
