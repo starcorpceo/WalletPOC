@@ -1,7 +1,4 @@
-import { ApiSwapQuote, Chain, Network } from '../../base/types';
-import { zeroExEthereumFetcher } from '../../provider/0x/ethereum/0x-ethereum-fetcher';
-import { mapZeroExSwapQuote } from '../../provider/0x/ethereum/0x-ethereum-mapper';
-import { ZeroExSwapQuote } from '../../provider/0x/ethereum/0x-ethereum-types';
+import { Chain, Network } from '../../base/types';
 import { alchemyEthereumFetcher } from '../../provider/alchemy/ethereum/alchemy-ethereum-fetcher';
 import {
   mapAlchemyBalance,
@@ -21,7 +18,6 @@ import { EthereumProvider } from './types';
 
 export enum EthereumProviderEnum {
   ALCHEMY,
-  ZEROEX,
 }
 
 export class EthereumFactory {
@@ -35,19 +31,10 @@ export class EthereumFactory {
 
   getProviderFunctions = (provider: EthereumProviderEnum) => {
     switch (provider) {
-      case EthereumProviderEnum.ZEROEX:
-        return this.zeroEx(this.network) as EthereumProvider;
       default:
         return this.alchemy(this.network, this.chain);
     }
   };
-
-  private zeroEx = (network: Network) => ({
-    fetcher: zeroExEthereumFetcher(network),
-    mapper: {
-      responseToSwapQuote: (input: ApiSwapQuote) => mapZeroExSwapQuote(input as ZeroExSwapQuote),
-    },
-  });
 
   private alchemy = (network: Network, chain: Chain): EthereumProvider => ({
     fetcher: alchemyEthereumFetcher(network, chain),

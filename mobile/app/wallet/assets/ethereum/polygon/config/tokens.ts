@@ -1,7 +1,7 @@
 import { config } from "ethereum/config/ethereum-config";
 import { ERC20Token } from "ethereum/config/token-constants";
 
-export interface PolygonERC20Token extends Omit<ERC20Token, "contractAddress"> {
+export interface PolygonERC20Token extends Omit<ERC20Token, "contractAddress" | "isToken"> {
   ethereumAddress: string;
   polygonAddress: string;
 }

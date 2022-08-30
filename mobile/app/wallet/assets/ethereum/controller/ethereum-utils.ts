@@ -14,6 +14,8 @@ export const gWeiToWei = (gWei: number): number => gWei * 1000000000;
 
 export const gWeiToEth = (gWei: number): number => gWei / 1000000000;
 
+export const weiToEthBigNum = (gWei: string | number): BigNumber => BigNumber.from(gWei).div("1000000000000000000");
+
 export const gWeiToEthBigNum = (gWei: string): BigNumber => BigNumber.from(gWei).div("1000000000");
 
 export const gWeiToWeiBigNum = (gWei: string): BigNumber => BigNumber.from(gWei).mul("1000000000");
