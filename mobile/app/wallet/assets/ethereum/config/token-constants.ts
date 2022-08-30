@@ -9,6 +9,8 @@ const erc20GoerliTokens: ERC20Token[] = [
     contractAddress: "ETH",
     decimals: 18,
     isToken: false,
+    hasPermit: false,
+    hasTransferWithAuthorization: false,
   },
   {
     name: "Wrapped Ether",
@@ -16,6 +18,8 @@ const erc20GoerliTokens: ERC20Token[] = [
     contractAddress: "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6",
     decimals: 18,
     isToken: true,
+    hasPermit: false,
+    hasTransferWithAuthorization: false,
   },
   {
     name: "USDC",
@@ -23,6 +27,8 @@ const erc20GoerliTokens: ERC20Token[] = [
     contractAddress: "0x07865c6e87b9f70255377e024ace6630c1eaa37f",
     decimals: 6,
     isToken: true,
+    hasPermit: true,
+    hasTransferWithAuthorization: true,
   },
   {
     name: "Vest Tether",
@@ -30,6 +36,8 @@ const erc20GoerliTokens: ERC20Token[] = [
     contractAddress: "0x407a2069455a8D16FFad985F1c7500B1EE8e5536",
     decimals: 18,
     isToken: true,
+    hasPermit: false,
+    hasTransferWithAuthorization: false,
   },
   {
     name: "Uniswap USDC",
@@ -37,6 +45,8 @@ const erc20GoerliTokens: ERC20Token[] = [
     contractAddress: "0xD87Ba7A50B2E7E660f678A895E4B72E7CB4CCd9C",
     decimals: 6,
     isToken: true,
+    hasPermit: false,
+    hasTransferWithAuthorization: false,
   },
   {
     name: "Wrapped Ether (Polygon)",
@@ -44,6 +54,8 @@ const erc20GoerliTokens: ERC20Token[] = [
     contractAddress: "0x60D4dB9b534EF9260a88b0BED6c486fe13E604Fc",
     decimals: 18,
     isToken: true,
+    hasPermit: false,
+    hasTransferWithAuthorization: false,
   },
 ];
 
@@ -63,4 +75,6 @@ export interface ERC20Token {
   contractAddress: string;
   decimals: number;
   isToken: boolean;
+  hasPermit: boolean;
+  hasTransferWithAuthorization: boolean;
 }
