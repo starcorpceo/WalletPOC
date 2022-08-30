@@ -1,5 +1,8 @@
+import { other, RouteError } from "@lib/error";
 import { ethers } from "ethers";
-import { TankAddressResponse, TankBalanceResponse } from "./gasless";
+import { ResultAsync } from "neverthrow";
+import { erc20Abi } from "./erc20-abi";
+import { GaslessPermitRequest, GaslessPermitResponse, TankAddressResponse, TankBalanceResponse } from "./gasless";
 
 const paymasterProvider = new ethers.providers.AlchemyProvider("goerli", "ahl42ynne2Kd8FosnoYBtCW3ssoCtIu0");
 
@@ -15,4 +18,24 @@ export const fetchTankBalance = async (): Promise<TankBalanceResponse> => {
 
 export const fetchTankAddress = (): TankAddressResponse => {
   return { address: paymasterWallet.address };
+};
+
+export const relayGaslessPermit = (request: GaslessPermitRequest): ResultAsync<GaslessPermitResponse, RouteError> => {
+  //token contract connected with spenders signer
+  const usdcTokenContractSpender = new ethers.Contract(request.contractAddress, erc20Abi, paymasterWallet);
+  return ResultAsync.fromPromise(
+    usdcTokenContractSpender.permit(
+      request.owner,
+      request.spender,
+      request.value,
+      request.deadline,
+      request.v,
+      request.r,
+      request.s
+    ),
+    (e) => other("Err while relaying gasless permit", e as Error)
+  ).map((transaction) => {
+    console.log("Permit transaction: ", transaction);
+    return { transaction };
+  });
 };

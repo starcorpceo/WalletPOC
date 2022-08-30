@@ -1,20 +1,88 @@
+import { abi as ERC20ABI } from "@uniswap/v2-core/build/ERC20.json";
+import { GaslessPermitResponse, TankAddressResponse } from "api-types/gasless";
 import { User } from "api-types/user";
+import { alchemyProviderKey, config } from "ethereum/config/ethereum-config";
+import { ERC20Token } from "ethereum/config/token-constants";
+import { ecrecover } from "ethereumjs-util";
 import { BigNumberish, ethers, Wallet } from "ethers";
-import {
-  defaultAbiCoder,
-  toUtf8Bytes,
-  keccak256,
-  solidityPack,
-  recoverAddress,
-  recoverPublicKey,
-} from "ethers/lib/utils";
+import { defaultAbiCoder, keccak256, solidityPack, toUtf8Bytes } from "ethers/lib/utils";
+import { fetchFromApi, HttpMethod } from "lib/http";
 import { Address } from "wallet/types/wallet";
 import { MPCSigner } from "../zksync/signer";
-import { abi as ERC20ABI } from "@uniswap/v2-core/build/ERC20.json";
 import { usdcAbi } from "./usdc-abi";
-import { ecrecover, importPublic } from "ethereumjs-util";
-import { getPublicKey } from "react-native-blockchain-crypto-mpc";
-import ec from "lib/elliptic";
+
+/**
+ * Prepares mpc Signer with Alchemy Provider
+ * @param address
+ * @param user
+ * @returns
+ */
+const getPreparedMpcSigner = (address: Address, user: User): MPCSigner => {
+  const provider = new ethers.providers.AlchemyProvider(config.chain, alchemyProviderKey);
+  return new MPCSigner(address, user).connect(provider);
+};
+
+/**
+ * Runs an gasless permit call on the token's contract
+ * @param address
+ * @param user
+ * @param value
+ * @param token erc20 token
+ * @returns
+ */
+//TODO dynamic check if token has permit function
+export const gassLessPermitWithApi = async (address: Address, user: User, value: string, token: ERC20Token) => {
+  const mpcSigner = getPreparedMpcSigner(address, user);
+
+  //token contract connected with our mpcSigner
+  const usdcTokenContractMpcSigner = new ethers.Contract(token.contractAddress, ERC20ABI, mpcSigner);
+
+  //fetch apis tank address
+  const tankAddress = await fetchFromApi<TankAddressResponse>("/gasless/tankAddress");
+
+  // Create the approval request - api address will be permitted on token contract
+  const approve = {
+    owner: address.address,
+    spender: tankAddress.address,
+    value: ethers.utils.parseUnits(value, token.decimals),
+  };
+
+  // deadline as much as you want in the future
+  const deadline = 100000000000000;
+
+  // Get the user's nonce from the tokens contract address
+  const nonce = await usdcTokenContractMpcSigner.nonces(address.address);
+
+  // Get the EIP712 digest
+  const digest = getPermitDigest(
+    await usdcTokenContractMpcSigner.name(),
+    usdcTokenContractMpcSigner.address,
+    config.chainId,
+    approve,
+    nonce,
+    deadline
+  );
+
+  //Use signHashedMessage as the digest is already hashed
+  const { v, r, s } = await mpcSigner.signHashedMessage(digest);
+
+  // Let api approve it
+  const { transaction } = await fetchFromApi<GaslessPermitResponse>("/gasless/relayPermit", {
+    method: HttpMethod.POST,
+    body: {
+      contractAddress: token.contractAddress,
+      owner: approve.owner,
+      spender: approve.spender,
+      value: approve.value.toString(),
+      deadline,
+      v,
+      r,
+      s,
+    },
+  });
+
+  return transaction;
+};
 
 export const gaslessTransfer = async (address: Address, otherAddress: string) => {
   //create our mpc signer
