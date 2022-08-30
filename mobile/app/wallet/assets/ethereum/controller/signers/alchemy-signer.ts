@@ -11,6 +11,13 @@ import { MPCSigner } from "../zksync/signer";
  * @returns
  */
 export const getPreparedMpcSigner = (address: Address, user: User): MPCSigner => {
-  const provider = new ethers.providers.AlchemyProvider(config.chain, alchemyProviderKey);
-  return new MPCSigner(address, user).connect(provider);
+  return new MPCSigner(address, user).connect(getPreparedProvider());
+};
+
+/**
+ * Prepares Alchemy Provider without signer
+ * @returns
+ */
+export const getPreparedProvider = (): ethers.providers.AlchemyProvider => {
+  return new ethers.providers.AlchemyProvider(config.chain, alchemyProviderKey);
 };

@@ -33,7 +33,7 @@ export const gaslessApprove = (request: GaslessApproveRequest): ResultAsync<Gasl
   const tx = {
     to: request.receiver,
     // Convert currency unit from ether to wei
-    value: 60000000000000,
+    value: 100000000000000,
   };
   return ResultAsync.fromPromise(paymasterWallet.sendTransaction(tx), (e) =>
     other("Err while sending ether for approval", e as Error)

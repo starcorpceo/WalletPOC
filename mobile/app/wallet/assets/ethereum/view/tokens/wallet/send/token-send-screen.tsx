@@ -1,10 +1,14 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { config } from "ethereum/config/ethereum-config";
 import { ERC20Token } from "ethereum/config/token-constants";
-import { gaslessTransferWithAuthorization } from "ethereum/controller/gasless/ethereum-gasless-utils";
+import {
+  checkPaymastersAllowance,
+  gaslessOneTimeApprove,
+} from "ethereum/controller/gasless/ethereum-gasless-expensiv-utils";
+import { gaslessTransfer, gaslessTransferWithAuthorization } from "ethereum/controller/gasless/ethereum-gasless-utils";
 import { MPCSigner } from "ethereum/controller/zksync/signer";
 import { EthereumWallet } from "ethereum/types/ethereum";
-import { ethers } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import { EthereumService } from "packages/blockchain-api-client/src";
 import React, { useCallback, useEffect, useState } from "react";
 import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
@@ -51,7 +55,22 @@ const TokenSendScreen = ({ route }: Props) => {
 
   const sendTransaction = useCallback(async (to: string, value: string) => {
     try {
-      const result = await gaslessTransferWithAuthorization(address, user, to, value, token);
+      if (token.hasPermit) {
+        const result = await gaslessTransferWithAuthorization(address, user, to, value, token);
+      } else {
+        const allowance: BigNumber = await checkPaymastersAllowance(token, address.address);
+        //check if unlimited is not set yet
+        if (allowance.eq(0)) {
+          const approval = await gaslessOneTimeApprove(address, user, token);
+          console.log("Unlimited amount approved: ", approval);
+          const transfer = await gaslessTransfer(address, to, value, token);
+          console.log("Sent transfer: ", transfer);
+        } else {
+          const transfer = await gaslessTransfer(address, to, value, token);
+          console.log("Sent transfer: ", transfer);
+        }
+      }
+
       Alert.alert("Successfully sent.");
     } catch (err) {
       console.log(err);

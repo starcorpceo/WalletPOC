@@ -1,7 +1,5 @@
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { erc20Tokens } from "ethereum/config/token-constants";
 import { weiToGwei } from "ethereum/controller/ethereum-utils";
-import { gaslessOneTimeApprove } from "ethereum/controller/gasless/ethereum-gasless-expensiv-utils";
 import { MPCSigner } from "ethereum/controller/zksync/signer";
 import { ethereumWalletsState } from "ethereum/state/ethereum-atoms";
 import { useDeleteMempoolTransaction } from "ethereum/state/ethereum-wallet-state-utils";
@@ -10,10 +8,8 @@ import { EthereumService } from "packages/blockchain-api-client/src";
 import { EthereumProviderEnum } from "packages/blockchain-api-client/src/blockchains/ethereum/ethereum-factory";
 import { EthereumTransaction } from "packages/blockchain-api-client/src/blockchains/ethereum/types";
 import React, { useCallback, useEffect, useState } from "react";
-import { Button, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { useRecoilValue } from "recoil";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { NavigationRoutes } from "shared/types/navigation";
-import { authState, AuthState } from "state/atoms";
 import { useUpdateAccount } from "wallet/state/wallet-state-utils";
 import { Transaction } from "wallet/types/wallet";
 import { EthereumBalanceView } from "./balance/ethereum-balance-view";
@@ -104,14 +100,8 @@ const EthereumWalletView = ({ wallet, index, navigation, signer }: EthereumWalle
     walletUpdate().then(() => mempoolUpdate());
   }, [index, updateWallet, service, deleteMempoolTransaction]);
 
-  const user = useRecoilValue<AuthState>(authState);
-
   return (
     <View style={styles.container}>
-      <Button
-        title="Gasless Approve Test"
-        onPress={() => gaslessOneTimeApprove(wallet.external.addresses[0], user, "0.2", erc20Tokens[2])}
-      />
       <View style={styles.headingArea}>
         <Image
           style={styles.icon}
