@@ -1,7 +1,7 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { config } from "ethereum/config/ethereum-config";
 import { ERC20Token } from "ethereum/config/token-constants";
-import { gaslessTransferWithAuthorizationWithApi } from "ethereum/controller/gasless/ethereum-gasless-utils";
+import { gaslessTransferWithAuthorization } from "ethereum/controller/gasless/ethereum-gasless-utils";
 import { MPCSigner } from "ethereum/controller/zksync/signer";
 import { EthereumWallet } from "ethereum/types/ethereum";
 import { ethers } from "ethers";
@@ -51,7 +51,7 @@ const TokenSendScreen = ({ route }: Props) => {
 
   const sendTransaction = useCallback(async (to: string, value: string) => {
     try {
-      const result = await gaslessTransferWithAuthorizationWithApi(address, user, to, value, token);
+      const result = await gaslessTransferWithAuthorization(address, user, to, value, token);
       Alert.alert("Successfully sent.");
     } catch (err) {
       console.log(err);

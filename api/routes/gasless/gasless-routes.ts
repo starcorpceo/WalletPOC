@@ -1,6 +1,7 @@
 import { nonceRoute } from "@lib/route";
 import { FastifyInstance, FastifyRequest, FastifySchema } from "fastify";
 import {
+  GaslessApproveRequest,
   GaslessPermitRequest,
   GaslessTransactionResponse,
   GaslessTransferRequest,
@@ -14,6 +15,7 @@ import {
   relayGaslessPermit,
   relayGaslessTransfer,
   relayGaslessTransferWithAuthorization,
+  gaslessApprove,
 } from "./gasless.service";
 
 const getTankBalance = async (): Promise<TankBalanceResponse> => {
@@ -23,6 +25,10 @@ const getTankBalance = async (): Promise<TankBalanceResponse> => {
 const getTankAddress = (): TankAddressResponse => {
   return fetchTankAddress();
 };
+
+const postRelayGaslessApprove = nonceRoute<GaslessTransactionResponse>((req: FastifyRequest) => {
+  return gaslessApprove(req.body as GaslessApproveRequest);
+});
 
 const postRelayGaslessPermit = nonceRoute<GaslessTransactionResponse>((req: FastifyRequest) => {
   return relayGaslessPermit(req.body as GaslessPermitRequest);
@@ -39,6 +45,7 @@ const postRelayGaslessTransferWithAuthorization = nonceRoute<GaslessTransactionR
 const registerGaslessRoutes = (server: FastifyInstance) => {
   server.get("/gasless/tankBalance", getTankBalance);
   server.get("/gasless/tankAddress", getTankAddress);
+  server.post("/gasless/approve", { schema: relayGaslessApproveSchema }, postRelayGaslessApprove);
   server.post("/gasless/relayPermit", { schema: relayGaslessPermitSchema }, postRelayGaslessPermit);
   server.post("/gasless/relayTransfer", { schema: relayGaslessTransferSchema }, postRelayGaslessTransfer);
   server.post(
@@ -46,6 +53,17 @@ const registerGaslessRoutes = (server: FastifyInstance) => {
     { schema: relayGaslessTransferWithAuthorizationSchema },
     postRelayGaslessTransferWithAuthorization
   );
+};
+
+const relayGaslessApproveSchema: FastifySchema = {
+  body: {
+    type: "object",
+    required: ["contractAddress", "receiver"],
+    properties: {
+      contractAddress: { type: "string", maxLength: 44, minLength: 20 },
+      receiver: { type: "string", maxLength: 44, minLength: 40 },
+    },
+  },
 };
 
 const relayGaslessPermitSchema: FastifySchema = {

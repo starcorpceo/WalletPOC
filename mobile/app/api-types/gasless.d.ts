@@ -12,6 +12,11 @@ export interface GaslessTransactionResponse {
   transaction: any;
 }
 
+export interface GaslessApproveRequest {
+  contractAddress: string;
+  receiver: string;
+}
+
 export interface GaslessPermitRequest {
   contractAddress: string;
   owner: string;

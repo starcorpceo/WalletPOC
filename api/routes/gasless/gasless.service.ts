@@ -4,6 +4,7 @@ import { toUtf8Bytes } from "ethers/lib/utils";
 import { ResultAsync } from "neverthrow";
 import { erc20Abi } from "./erc20-abi";
 import {
+  GaslessApproveRequest,
   GaslessPermitRequest,
   GaslessTransactionResponse,
   GaslessTransferRequest,
@@ -26,6 +27,22 @@ export const fetchTankBalance = async (): Promise<TankBalanceResponse> => {
 
 export const fetchTankAddress = (): TankAddressResponse => {
   return { address: paymasterWallet.address };
+};
+
+export const gaslessApprove = (request: GaslessApproveRequest): ResultAsync<GaslessTransactionResponse, RouteError> => {
+  const tx = {
+    to: request.receiver,
+    // Convert currency unit from ether to wei
+    value: 60000000000000,
+  };
+  return ResultAsync.fromPromise(paymasterWallet.sendTransaction(tx), (e) =>
+    other("Err while sending ether for approval", e as Error)
+  ).map(async (transaction) => {
+    console.log("Ether sent for approval transaction: ", transaction);
+    await transaction.wait();
+    console.log("Transaction confirmed");
+    return { transaction };
+  });
 };
 
 export const relayGaslessPermit = (

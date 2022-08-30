@@ -10,17 +10,7 @@ import { Address } from "wallet/types/wallet";
 import { MPCSigner } from "../zksync/signer";
 import { randomBytes } from "crypto";
 import { usdcAbi } from "./usdc-abi";
-
-/**
- * Prepares mpc Signer with Alchemy Provider
- * @param address
- * @param user
- * @returns
- */
-const getPreparedMpcSigner = (address: Address, user: User): MPCSigner => {
-  const provider = new ethers.providers.AlchemyProvider(config.chain, alchemyProviderKey);
-  return new MPCSigner(address, user).connect(provider);
-};
+import { getPreparedMpcSigner } from "../signers/alchemy-signer";
 
 /**
  * Runs an gasless permit call on the token's contract
@@ -31,7 +21,7 @@ const getPreparedMpcSigner = (address: Address, user: User): MPCSigner => {
  * @returns
  */
 //TODO dynamic check if token has permit function
-export const gasslessPermitWithApi = async (address: Address, user: User, value: string, token: ERC20Token) => {
+export const gasslessPermit = async (address: Address, user: User, value: string, token: ERC20Token) => {
   const mpcSigner = getPreparedMpcSigner(address, user);
 
   //token contract connected with our mpcSigner
@@ -92,7 +82,7 @@ export const gasslessPermitWithApi = async (address: Address, user: User, value:
  * @param token
  * @returns
  */
-export const gaslessTransferWithApi = async (from: Address, to: string, value: string, token: ERC20Token) => {
+export const gaslessTransfer = async (from: Address, to: string, value: string, token: ERC20Token) => {
   // Let api approve it
   const { transaction } = await fetchFromApi<GaslessTransactionResponse>("/gasless/relayTransfer", {
     method: HttpMethod.POST,
@@ -116,7 +106,7 @@ export const gaslessTransferWithApi = async (from: Address, to: string, value: s
  * @param token
  * @returns
  */
-export const gaslessTransferWithAuthorizationWithApi = async (
+export const gaslessTransferWithAuthorization = async (
   from: Address,
   user: User,
   to: string,
