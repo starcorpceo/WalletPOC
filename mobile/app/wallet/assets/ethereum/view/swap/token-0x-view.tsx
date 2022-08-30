@@ -1,6 +1,6 @@
 import { Picker } from "@react-native-picker/picker";
 import { ERC20Token, erc20Tokens } from "ethereum/config/token-constants";
-import { getBalanceFromEthereumTokenBalance, gWeiToEth } from "ethereum/controller/ethereum-utils";
+import { getBalanceFromEthereumTokenBalance, weiToEth } from "ethereum/controller/ethereum-utils";
 import { getSwapQuote, swapWithQuote } from "ethereum/controller/swap/0x-utils";
 import { approveAmount, checkAllowance } from "ethereum/controller/swap/swap-utils";
 import { MPCSigner } from "ethereum/controller/zksync/signer";
@@ -8,11 +8,7 @@ import { EthereumWallet } from "ethereum/types/ethereum";
 import { ethers } from "ethers";
 import { EthereumService } from "packages/blockchain-api-client/src";
 import { EthereumProviderEnum } from "packages/blockchain-api-client/src/blockchains/ethereum/ethereum-factory";
-import {
-  EthereumBalance,
-  EthereumTokenBalance,
-  EthereumTokenBalances,
-} from "packages/blockchain-api-client/src/blockchains/ethereum/types";
+import { EthereumBalance, EthereumTokenBalances } from "packages/blockchain-api-client/src/blockchains/ethereum/types";
 import { ZeroExSwapQuote } from "packages/blockchain-api-client/src/provider/0x/ethereum/0x-ethereum-types";
 import React, { useEffect, useRef, useState } from "react";
 import { ActivityIndicator, Alert, Modal, Text, TextInput, TouchableOpacity, View } from "react-native";
@@ -26,9 +22,6 @@ type Props = {
   wallet: EthereumWallet;
   address: Address;
 };
-
-//Router contract address from 0x
-const ZEROX_SWAP_ROUTER_ADDRESS = "0xdef1c0ded9bec7f1a1670819833240f027b25eff";
 
 const Token0xView = ({ wallet, address }: Props) => {
   const user = useRecoilValue<AuthState>(authState);
@@ -99,7 +92,8 @@ const Token0xView = ({ wallet, address }: Props) => {
     setLoadingBalance(true);
     if (!token.isToken) {
       const balance: EthereumBalance = await service.getBalance(address.address, EthereumProviderEnum.ALCHEMY);
-      setAvailableBalance(gWeiToEth(balance.value).toString());
+      console.log(balance.value, weiToEth(balance.value));
+      setAvailableBalance(weiToEth(balance.value).toString());
     } else {
       let tokenAddr: string[] = [];
       tokenAddr.push(token.contractAddress);
@@ -119,7 +113,7 @@ const Token0xView = ({ wallet, address }: Props) => {
   const updateQuote = async (inputToken: ERC20Token, outputToken: ERC20Token, inputAmount: string) => {
     const inputAmountWei = ethers.utils.parseUnits(inputAmount, inputToken.decimals);
     try {
-      const quote = await getSwapQuote(inputToken, outputToken, address.address, inputAmountWei.toString(), service);
+      const quote = await getSwapQuote(inputToken, outputToken, address.address, inputAmountWei.toString());
       console.log(quote);
       setQuote(quote);
     } catch (err) {

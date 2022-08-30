@@ -3,8 +3,8 @@ import {
   AlchemyBalance,
   AlchemyBroadCastTransactionResult,
   AlchemyFees,
-  AlchemyTransaction,
   AlchemyTokenBalances,
+  AlchemyTransaction,
   AlchemyTransactionCount,
 } from '../provider/alchemy/ethereum/alchemy-ethereum-types';
 import {
@@ -19,7 +19,6 @@ import {
   TatumFees,
   TatumTransaction,
 } from '../provider/tatum/bitcoin/tatum-bitcoin-types';
-import { ZeroExSwapQuote } from '../provider/0x/ethereum/0x-ethereum-types';
 
 export type Provider = BitcoinProvider;
 
@@ -36,6 +35,7 @@ export type ApiSwapQuote<T = ZEroExSwapQuote> = T;
 export interface TransactionRequest {}
 
 export type Network = 'TEST' | 'MAIN';
+export type Chain = 'Ethereum' | 'Polygon';
 
 export interface Input {
   prevout: Prevout;

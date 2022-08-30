@@ -1,4 +1,4 @@
-import { Network } from '../../../base/types';
+import { Chain, Network } from '../../../base/types';
 import { fetchFromAlchemy, Method } from '../http';
 import { alchemyEndpoints } from './alchemy-ethereum-endpoints';
 import {
@@ -10,35 +10,46 @@ import {
   AlchemyTransactionCount,
 } from './alchemy-ethereum-types';
 
-export const alchemyEthereumFetcher = (network: Network) => ({
+export const alchemyEthereumFetcher = (network: Network, chain: Chain) => ({
   fetchBalance: (address: string) =>
-    fetchFromAlchemy<AlchemyBalance>(alchemyEndpoints(network), Method.Balance, [address, 'latest']),
+    fetchFromAlchemy<AlchemyBalance>(alchemyEndpoints(network, chain), Method.Balance, [address, 'latest']),
   fetchTransactions: async (address: string) =>
     await Promise.all([
-      fetchAlchemyTransactions('from', network, address, ['external']),
-      fetchAlchemyTransactions('to', network, address, ['external']),
+      fetchAlchemyTransactions('from', network, chain, address, ['external']),
+      fetchAlchemyTransactions('to', network, chain, address, ['external']),
     ]),
   fetchERC20Transactions: async (address: string) =>
     await Promise.all([
-      fetchAlchemyTransactions('from', network, address, ['erc20']),
-      fetchAlchemyTransactions('to', network, address, ['erc20']),
+      fetchAlchemyTransactions('from', network, chain, address, ['erc20']),
+      fetchAlchemyTransactions('to', network, chain, address, ['erc20']),
     ]),
   sendRawTransaction: (transaction: string) =>
-    fetchFromAlchemy<AlchemyBroadCastTransaction>(alchemyEndpoints(network), Method.SendTransaction, [transaction]),
-  fetchFees: () => fetchFromAlchemy<AlchemyFees>(alchemyEndpoints(network), Method.GasPrice),
+    fetchFromAlchemy<AlchemyBroadCastTransaction>(alchemyEndpoints(network, chain), Method.SendTransaction, [
+      transaction,
+    ]),
+  fetchFees: () => fetchFromAlchemy<AlchemyFees>(alchemyEndpoints(network, chain), Method.GasPrice),
   fetchTransactionCount: (address: string) =>
-    fetchFromAlchemy<AlchemyTransactionCount>(alchemyEndpoints(network), Method.TransactionCount, [address, 'latest']),
+    fetchFromAlchemy<AlchemyTransactionCount>(alchemyEndpoints(network, chain), Method.TransactionCount, [
+      address,
+      'latest',
+    ]),
   fetchTokenBalances: (address: string, contractAddresses: string[]) =>
-    fetchFromAlchemy<AlchemyTokenBalances>(alchemyEndpoints(network), Method.TokenBalances, [
+    fetchFromAlchemy<AlchemyTokenBalances>(alchemyEndpoints(network, chain), Method.TokenBalances, [
       address,
       contractAddresses,
     ]),
   fetchEstimatedGas: (from: string, to: string, data: string) =>
-    fetchFromAlchemy<AlchemyFees>(alchemyEndpoints(network), Method.EstimateGas, [{ from, to, data }]),
+    fetchFromAlchemy<AlchemyFees>(alchemyEndpoints(network, chain), Method.EstimateGas, [{ from, to, data }]),
 });
 
-const fetchAlchemyTransactions = (mode: 'from' | 'to', network: Network, address: string, category: string[]) =>
-  fetchFromAlchemy<AlchemyTransaction>(alchemyEndpoints(network), Method.Transactions, [
+const fetchAlchemyTransactions = (
+  mode: 'from' | 'to',
+  network: Network,
+  chain: Chain,
+  address: string,
+  category: string[]
+) =>
+  fetchFromAlchemy<AlchemyTransaction>(alchemyEndpoints(network, chain), Method.Transactions, [
     getTransactionQuery(address, mode, category),
   ]);
 

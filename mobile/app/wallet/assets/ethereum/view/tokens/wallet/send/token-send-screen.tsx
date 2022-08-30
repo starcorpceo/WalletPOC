@@ -1,7 +1,8 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { config } from "ethereum/config/ethereum-config";
 import { abi } from "ethereum/config/general-abi";
 import { ERC20Token } from "ethereum/config/token-constants";
-import { buildRawTokenTransaction, buildRawTransaction } from "ethereum/controller/ethereum-transaction-utils";
+import { buildRawTokenTransaction } from "ethereum/controller/ethereum-transaction-utils";
 import { MPCSigner } from "ethereum/controller/zksync/signer";
 import { EthereumWallet } from "ethereum/types/ethereum";
 import { ethers } from "ethers";
@@ -27,7 +28,7 @@ const TokenSendScreen = ({ route }: Props) => {
   const [tokenToSend, setTokenToSend] = useState<string>("");
 
   useEffect(() => {
-    setSigner(new MPCSigner(wallet.external.addresses[0], user).connect(ethers.getDefaultProvider("goerli")));
+    setSigner(new MPCSigner(wallet.external.addresses[0], user).connect(ethers.getDefaultProvider(config.chain)));
   }, []);
 
   const [signer, setSigner] = useState<MPCSigner>();

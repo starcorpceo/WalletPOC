@@ -1,40 +1,40 @@
+import { POSClient } from "@maticnetwork/maticjs";
 import { NativeStackNavigationProp, NativeStackScreenProps } from "@react-navigation/native-stack";
-import { erc20Tokens } from "ethereum/config/token-constants";
-import { EthereumWallet } from "ethereum/types/ethereum";
+import { erc20Tokens } from "ethereum/polygon/config/tokens";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { NavigationRoutes } from "shared/types/navigation";
 type Props = NativeStackScreenProps<NavigationRoutes, "TokenWalletScreen">;
 
-type TokenWalletListViewProps = {
-  wallet: EthereumWallet;
-  navigation: NativeStackNavigationProp<NavigationRoutes, "EthereumScreen", undefined>;
+type PolygonTokenWalletListViewProps = {
+  polygonClient: POSClient;
+  address: string;
+  navigation: NativeStackNavigationProp<NavigationRoutes, "EthereumPolygonScreen", undefined>;
 };
 
-const TokenWalletListView = ({ wallet, navigation }: TokenWalletListViewProps) => {
+const PolygonTokenWalletListView = ({ polygonClient, address, navigation }: PolygonTokenWalletListViewProps) => {
   return (
     <View style={styles.container}>
       <View style={styles.headerArea}>
         <Text style={styles.heading}>Token Wallets</Text>
         <TouchableOpacity
           style={styles.headerButton}
-          onPress={() => navigation.navigate("TokenSwapScreen", { wallet })}
+          onPress={() => navigation.navigate("PolygonDepositScreen", { address, polygonClient })}
         >
-          <Text style={styles.headerButtonText}>Swap Tokens</Text>
+          <Text style={styles.headerButtonText}>Deposit Tokens</Text>
         </TouchableOpacity>
       </View>
       {erc20Tokens.map((token) => {
         return (
-          token.isToken != false && (
-            <TouchableOpacity
-              style={styles.actionButton}
-              onPress={() => navigation.navigate("TokenWalletScreen", { wallet: wallet, token: token })}
-            >
-              <Text style={styles.actionButtonText}>
-                {token.name} Wallet {"\u2192"}
-              </Text>
-            </TouchableOpacity>
-          )
+          <TouchableOpacity
+            style={styles.actionButton}
+            key={token.name}
+            onPress={() => navigation.navigate("PolygonTokenWalletScreen", { token, polygonClient, address })}
+          >
+            <Text style={styles.actionButtonText}>
+              {token.name} Wallet {"\u2192"}
+            </Text>
+          </TouchableOpacity>
         );
       })}
     </View>
@@ -83,4 +83,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default TokenWalletListView;
+export default PolygonTokenWalletListView;

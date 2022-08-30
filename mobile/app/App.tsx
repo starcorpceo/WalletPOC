@@ -19,15 +19,19 @@ import { SafeAreaView, StatusBar, StyleSheet, useColorScheme, View } from "react
 import { RecoilRoot } from "recoil";
 import { NavigationRoutes } from "shared/types/navigation";
 
+import EthereumPolygonScreen from "ethereum/polygon/view/ethereum-polygon-screen";
+import PolygonDepositScreen from "ethereum/polygon/view/tokens/wallet/deposit/polygon-deposit-screen";
+import PolygonTokenWalletScreen from "ethereum/polygon/view/tokens/wallet/polygon-token-wallet-screen";
+import PolygonTokenSendScreen from "ethereum/polygon/view/tokens/wallet/send/polygon-token-send-screen";
 import EthereumScreen from "ethereum/view/ethereum-screen";
+import TokenSwapScreen from "ethereum/view/swap/token-swap-screen";
+import TokenSendScreen from "ethereum/view/tokens/wallet/send/token-send-screen";
 import TokenWalletScreen from "ethereum/view/tokens/wallet/token-wallet-screen";
 import EthereumReceiveScreen from "ethereum/view/wallet/receive/ethereum-receive-screen";
 import EthereumSendScreen from "ethereum/view/wallet/send/ethereum-send-screen";
 import { EthereumSingleTransactionScreen } from "ethereum/view/wallet/transaction/ethereum-single-transaction-screen";
 import Header from "./shared/header";
 import Home from "./views/home";
-import TokenSendScreen from "ethereum/view/tokens/wallet/send/token-send-screen";
-import TokenSwapScreen from "ethereum/view/swap/token-swap-screen";
 
 const App = () => {
   const isDarkMode = useColorScheme() === "dark";
@@ -53,6 +57,28 @@ const App = () => {
                 name="EthereumSendScreen"
                 component={EthereumSendScreen}
                 options={{ title: "Send Ethereum" }}
+              />
+
+              <Stack.Screen
+                name="EthereumPolygonScreen"
+                component={EthereumPolygonScreen}
+                options={{ title: "Ethereum - Polygon" }}
+              />
+
+              <Stack.Screen
+                name="PolygonTokenWalletScreen"
+                component={PolygonTokenWalletScreen}
+                options={{ title: "ERC-20 Token Polygon Wallet" }}
+              />
+              <Stack.Screen
+                name="PolygonTokenSendScreen"
+                component={PolygonTokenSendScreen}
+                options={{ title: "Send Token on Polygon" }}
+              />
+              <Stack.Screen
+                name="PolygonDepositScreen"
+                component={PolygonDepositScreen}
+                options={{ title: "Deposit Tokens to Polygon" }}
               />
               <Stack.Screen
                 name="EthereumReceiveScreen"

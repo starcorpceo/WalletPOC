@@ -1,19 +1,12 @@
-import {
-  ApiBroadcastTransaction,
-  ApiSwapQuote,
-  ApiTokenBalances,
-  ApiTransactionCount,
-  Network,
-} from '../../base/types';
-import { ZeroExSwapQuote } from '../../provider/0x/ethereum/0x-ethereum-types';
+import { ApiBroadcastTransaction, ApiTokenBalances, ApiTransactionCount, Chain, Network } from '../../base/types';
 import { EthereumFactory, EthereumProviderEnum } from './ethereum-factory';
 import { EthereumBalance, EthereumTokenBalances, EthereumTransaction } from './types';
 
 export class EthereumService {
   private factory: EthereumFactory;
 
-  constructor(network: Network) {
-    this.factory = new EthereumFactory(network);
+  constructor(network: Network, chain: Chain = 'Ethereum') {
+    this.factory = new EthereumFactory(network, chain);
   }
 
   /**
@@ -102,13 +95,5 @@ export class EthereumService {
     const apiResult = fetcher.fetchTokenBalances && (await fetcher.fetchTokenBalances(address, contractAddresses));
 
     return mapper.responseToTokenBalances(apiResult as ApiTokenBalances);
-  };
-
-  getSwapQuote = async (params: string, provider: EthereumProviderEnum): Promise<ZeroExSwapQuote> => {
-    const { fetcher, mapper } = this.factory.getProviderFunctions(provider);
-
-    const apiResult = fetcher.fetchSwapQuote && (await fetcher.fetchSwapQuote(params));
-
-    return mapper.responseToSwapQuote(apiResult as ApiSwapQuote);
   };
 }
