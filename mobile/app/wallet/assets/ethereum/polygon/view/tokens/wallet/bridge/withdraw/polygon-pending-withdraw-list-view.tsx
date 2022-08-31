@@ -32,13 +32,16 @@ const PolygonPendingWithdrawList = ({ polygonClient, address }: Props) => {
 
   return (
     <View style={styles.container}>
+      <Button onPress={() => setWithdrawTransactions((_) => initialPolygonState)} title="Reset Polygon state" />
+
       <View style={styles.headerArea}>
-        <Text style={styles.heading}>Pending Withdraws from Polygonnn</Text>
-        <Button onPress={() => setWithdrawTransactions((_) => initialPolygonState)} title="Reset Polygon state" />
+        <Text style={styles.heading}>Pending Withdraws from Polygon</Text>
       </View>
-      {withdrawTransactions.map((transaction, index) => (
-        <PolygonPendingWithdrawItem key={index} pendingTransaction={transaction} polygonClient={polygonClient} />
-      ))}
+      <View style={{ marginTop: 10 }}>
+        {withdrawTransactions.map((transaction, index) => (
+          <PolygonPendingWithdrawItem key={index} pendingTransaction={transaction} polygonClient={polygonClient} />
+        ))}
+      </View>
     </View>
   );
 };

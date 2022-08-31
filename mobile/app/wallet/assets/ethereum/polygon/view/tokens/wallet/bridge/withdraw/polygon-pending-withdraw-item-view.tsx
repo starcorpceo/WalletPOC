@@ -27,9 +27,13 @@ const PolygonPendingWithdrawItem = ({ polygonClient, pendingTransaction }: Props
   }, [pendingTransaction, polygonClient]);
 
   return (
-    <View>
-      <Text>{pendingTransaction.hash}</Text>
-      <Text>{pendingTransaction.token.symbol}</Text>
+    <View style={styles.container}>
+      <Text>{pendingTransaction.hash.slice(0, 23) + "..."}</Text>
+      <Text>
+        {Number.parseInt(pendingTransaction.amount, 10) / 10 ** pendingTransaction.token.decimals +
+          " " +
+          pendingTransaction.token.symbol}
+      </Text>
       <TouchableOpacity
         disabled={!pendingTransaction.checkpointed}
         style={pendingTransaction.checkpointed ? styles.actionButton : styles.actionButtonDisabled}
