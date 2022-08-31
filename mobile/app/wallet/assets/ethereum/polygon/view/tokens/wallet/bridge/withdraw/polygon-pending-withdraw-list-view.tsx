@@ -16,17 +16,20 @@ const PolygonPendingWithdrawList = ({ polygonClient, address }: Props) => {
   const [{ withdrawTransactions }, setWithdrawTransactions] = useRecoilState(polygonState);
 
   useEffect(() => {
-    const observeWithdraws = checkDepositStatus(address, withdrawTransactions);
+    let observeWithdraws = checkDepositStatus(address, withdrawTransactions);
 
     observeWithdraws.subscribe({
       next: (withdraw: PendingTransaction) => {
-        withdrawTransactions.map((trans) => (trans.hash === withdraw.hash ? withdraw : trans));
+        setWithdrawTransactions((current) => ({
+          ...current,
+          withdrawTransactions: withdrawTransactions.map((trans) => (trans.hash === withdraw.hash ? withdraw : trans)),
+        }));
       },
-      error: (error) => {
+      error: (error: any) => {
         console.warn(error, "Error while observing pending withdraws");
       },
     });
-  }, []);
+  }, [withdrawTransactions]);
 
   if (!withdrawTransactions || withdrawTransactions.length === 0) return <></>;
 

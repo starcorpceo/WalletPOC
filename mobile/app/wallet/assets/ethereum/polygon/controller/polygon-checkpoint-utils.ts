@@ -3,11 +3,10 @@ import { PendingTransaction } from "../state/polygon-atoms";
 
 import abiCoder from "web3-eth-abi";
 
-// For Mumbai
-const ws = new WebSocket("wss://ws-mumbai.matic.today/");
-// For Polygon mainnet: wss://ws-mainnet.matic.network/
-
 export function checkDepositStatus(userAccount: string, pendingTransactions: PendingTransaction[]) {
+  // For Mumbai
+  const ws = new WebSocket("wss://ws-mumbai.matic.today/");
+  // For Polygon mainnet: wss://ws-mainnet.matic.network/
   console.log(pendingTransactions);
   const childChainManagerProxy = proxyAddress;
 
@@ -55,8 +54,9 @@ export function checkDepositStatus(userAccount: string, pendingTransactions: Pen
       observer.error(err);
     };
 
-    ws.onclose = () => {
-      observer.error(new Error("Connection closed"));
+    ws.onclose = (event) => {
+      console.log("Closed");
+      observer.error(new Error("Conn closed: " + event.code + " " + event.reason));
     };
   });
 }

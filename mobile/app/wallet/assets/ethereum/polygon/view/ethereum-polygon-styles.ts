@@ -12,6 +12,13 @@ export const styles = StyleSheet.create({
     paddingBottom: 24,
     margin: 12,
   },
+  input: {
+    backgroundColor: "#f7f7f7",
+    padding: 12,
+    marginTop: 14,
+    borderRadius: 10,
+    fontSize: 14,
+  },
   heading: {
     fontSize: 18,
     fontWeight: "bold",

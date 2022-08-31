@@ -4,8 +4,9 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { MPCSigner } from "ethereum/controller/zksync/signer";
 import { ethers } from "ethers";
 import React, { useCallback, useEffect, useState } from "react";
-import { Text, View } from "react-native";
+import { ScrollView, Text } from "react-native";
 import { NavigationRoutes } from "shared/types/navigation";
+import PolygonCheckTransaction from "./polygon-check-transaction";
 import PolygonTokenWalletListView from "./tokens/polygon-token-wallet-list-view";
 import PolygonPendingWithdrawList from "./tokens/wallet/bridge/withdraw/polygon-pending-withdraw-list-view";
 
@@ -61,10 +62,16 @@ const EthereumPolygonScreen = ({ route, navigation }: Props) => {
   }
 
   return (
-    <View>
+    <ScrollView
+      scrollEnabled={true}
+      style={{
+        maxHeight: "80%",
+      }}
+    >
       <PolygonTokenWalletListView address={address} navigation={navigation} polygonClient={polygonClient} />
       <PolygonPendingWithdrawList polygonClient={polygonClient} address={address} />
-    </View>
+      <PolygonCheckTransaction polygonClient={polygonClient} />
+    </ScrollView>
   );
 };
 

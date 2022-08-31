@@ -1,7 +1,8 @@
 import { POSClient, setProofApi } from "@maticnetwork/maticjs";
-import { PendingTransaction } from "ethereum/polygon/state/polygon-atoms";
-import React, { useCallback } from "react";
+import { PendingTransaction, polygonState } from "ethereum/polygon/state/polygon-atoms";
+import React, { useCallback, useEffect } from "react";
 import { Alert, Text, TouchableOpacity, View } from "react-native";
+import { useSetRecoilState } from "recoil";
 import { styles } from "../polygon-bridge-style";
 type Props = {
   polygonClient: POSClient;
@@ -9,6 +10,25 @@ type Props = {
 };
 
 const PolygonPendingWithdrawItem = ({ polygonClient, pendingTransaction }: Props) => {
+  const setPolygonState = useSetRecoilState(polygonState);
+
+  const check = useCallback(async () => {
+    const checkpointed = await polygonClient.isCheckPointed(pendingTransaction.hash);
+
+    const updatedTransaction = { ...pendingTransaction, checkpointed };
+
+    setPolygonState((current) => ({
+      ...current,
+      withdrawTransactions: current.withdrawTransactions.map((trans) =>
+        trans.hash === pendingTransaction.hash ? updatedTransaction : trans
+      ),
+    }));
+  }, [polygonClient]);
+
+  useEffect(() => {
+    check();
+  }, []);
+
   const finishWithdraw = useCallback(async () => {
     setProofApi("https://apis.matic.network/");
 
@@ -21,6 +41,11 @@ const PolygonPendingWithdrawItem = ({ polygonClient, pendingTransaction }: Props
       console.log("Withdraw ended", withdrawExitTransaction);
 
       Alert.alert("Withdraw finished successfully!");
+
+      setPolygonState((current) => ({
+        ...current,
+        withdrawTransactions: current.withdrawTransactions.filter((trans) => trans.hash !== pendingTransaction.hash),
+      }));
     } catch (err) {
       console.error(err);
     }
