@@ -16,7 +16,6 @@ import {
 import { useRecoilValue } from "recoil";
 import { KeyShareType } from "shared/types/mpc";
 import { NavigationRoutes } from "shared/types/navigation";
-import "shim";
 import { getAllWallets, isStateEmpty, useResetWalletState } from "wallet/state/wallet-state-utils";
 import GenerateMasterAndPurpose from "wallet/view/create/generate-master-and-purpose";
 import ImportMasterAndPurpose from "wallet/view/create/import-master-and-purpose";

@@ -5,7 +5,6 @@ import { BitcoinService } from "packages/blockchain-api-client/src";
 import { BroadcastTransaction } from "packages/blockchain-api-client/src/base/types";
 import { BitcoinProviderEnum } from "packages/blockchain-api-client/src/blockchains/bitcoin/bitcoin-factory";
 import { BitcoinTransaction } from "packages/blockchain-api-client/src/blockchains/bitcoin/types";
-import "shim";
 import { Address, CoinTypeAccount, Fees } from "wallet/types/wallet";
 import { getNextUnusedAddress } from "./bitcoin-address";
 import { prepareSingleSigner } from "./bitcoin-signer";

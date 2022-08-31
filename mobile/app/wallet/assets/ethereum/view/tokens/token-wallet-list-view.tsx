@@ -27,6 +27,7 @@ const TokenWalletListView = ({ wallet, navigation }: TokenWalletListViewProps) =
         return (
           token.isToken != false && (
             <TouchableOpacity
+              key={token.contractAddress}
               style={styles.actionButton}
               onPress={() => navigation.navigate("TokenWalletScreen", { wallet: wallet, token: token })}
             >

@@ -1,12 +1,13 @@
-import { POSClient, use } from "@maticnetwork/maticjs";
+import { POSClient, setProofApi, use } from "@maticnetwork/maticjs";
 import Web3ClientPlugin from "@maticnetwork/maticjs-ethers";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { MPCSigner } from "ethereum/controller/zksync/signer";
 import { ethers } from "ethers";
 import React, { useCallback, useEffect, useState } from "react";
-import { Text } from "react-native";
+import { Text, View } from "react-native";
 import { NavigationRoutes } from "shared/types/navigation";
 import PolygonTokenWalletListView from "./tokens/polygon-token-wallet-list-view";
+import PolygonPendingWithdrawList from "./tokens/wallet/bridge/withdraw/polygon-pending-withdraw-list-view";
 
 type Props = NativeStackScreenProps<NavigationRoutes, "EthereumPolygonScreen">;
 
@@ -39,6 +40,8 @@ const EthereumPolygonScreen = ({ route, navigation }: Props) => {
         },
       },
     });
+    // TODO: For Production host this ourselves because of performance
+    setProofApi("https://apis.matic.network/");
 
     setPolygonClient(client);
   }, [setPolygonClient, signer]);
@@ -57,7 +60,12 @@ const EthereumPolygonScreen = ({ route, navigation }: Props) => {
     return <Text>Client loading...</Text>;
   }
 
-  return <PolygonTokenWalletListView address={address} navigation={navigation} polygonClient={polygonClient} />;
+  return (
+    <View>
+      <PolygonTokenWalletListView address={address} navigation={navigation} polygonClient={polygonClient} />
+      <PolygonPendingWithdrawList polygonClient={polygonClient} address={address} />
+    </View>
+  );
 };
 
 export default EthereumPolygonScreen;

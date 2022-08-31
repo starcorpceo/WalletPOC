@@ -1,5 +1,4 @@
 import { BitcoinTransaction, Input, Output } from "packages/blockchain-api-client/src/blockchains/bitcoin/types";
-import "shim";
 import { Address, CoinTypeAccount } from "wallet/types/wallet";
 import { getAllTransactionsCache } from "./bitcoin-transaction";
 

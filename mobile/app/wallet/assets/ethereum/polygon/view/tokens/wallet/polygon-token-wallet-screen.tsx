@@ -2,6 +2,7 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React from "react";
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { NavigationRoutes } from "shared/types/navigation";
+import { styles as polygonStyles } from "../../ethereum-polygon-styles";
 import { TokenBalanceView } from "./balance/polygon-token-balance-view";
 import TokenTransactionsView from "./transaction/polygon-token-transactions-view";
 
@@ -35,27 +36,7 @@ const PolygonTokenWalletScreen = ({ route, navigation }: Props) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "white",
-    padding: 16,
-    borderRadius: 12,
-    shadowColor: "grey",
-    shadowOffset: { width: 0, height: 14 },
-    shadowOpacity: 0.2,
-    shadowRadius: 20,
-    margin: 12,
-    maxHeight: "80%",
-  },
-  headingArea: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 14,
-  },
-  heading: {
-    fontSize: 18,
-    fontWeight: "bold",
-  },
+  ...polygonStyles,
   actionArea: {
     flex: 1,
     flexDirection: "row",
@@ -63,21 +44,10 @@ const styles = StyleSheet.create({
     marginTop: 22,
     marginBottom: 22,
   },
-  actionButton: {
-    flex: 1,
-    height: 42,
-    backgroundColor: "#3828e0",
-    borderRadius: 8,
+  headingArea: {
+    flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
-  },
-  actionButtonText: {
-    color: "white",
-    fontSize: 16,
-  },
-  actionAreaSpace: {
-    width: 18,
+    marginBottom: 14,
   },
 });
-
 export default PolygonTokenWalletScreen;

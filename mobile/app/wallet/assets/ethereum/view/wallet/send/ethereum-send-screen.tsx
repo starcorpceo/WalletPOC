@@ -9,7 +9,6 @@ import React, { useCallback, useState } from "react";
 import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useRecoilValue } from "recoil";
 import { NavigationRoutes } from "shared/types/navigation";
-import "shim";
 
 type Props = NativeStackScreenProps<NavigationRoutes, "EthereumSendScreen">;
 
