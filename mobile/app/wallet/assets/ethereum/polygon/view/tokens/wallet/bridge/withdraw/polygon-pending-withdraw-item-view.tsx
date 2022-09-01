@@ -1,18 +1,28 @@
 import { POSClient, setProofApi } from "@maticnetwork/maticjs";
+import { PlasmaClient } from "@maticnetwork/maticjs-plasma";
+import { ERC20 as ERC20P } from "@maticnetwork/maticjs-plasma/dist/ts/erc20";
+import { ERC20 } from "@maticnetwork/maticjs/dist/ts/pos/erc20";
 import { PendingTransaction, polygonState } from "ethereum/polygon/state/polygon-atoms";
 import React, { useCallback, useEffect } from "react";
-import { Alert, Text, TouchableOpacity, View } from "react-native";
+import { Text, View } from "react-native";
 import { useSetRecoilState } from "recoil";
 import { styles } from "../polygon-bridge-style";
+import PolygonPendingPlasmaItemView from "./polygon-pending-plasma-item-view";
+import PolygonPendingPosItemView from "./polygon-pending-pos-item-view";
+
 type Props = {
-  polygonClient: POSClient;
+  posClient: POSClient;
+  plasmaClient: PlasmaClient;
   pendingTransaction: PendingTransaction;
 };
 
-const PolygonPendingWithdrawItem = ({ polygonClient, pendingTransaction }: Props) => {
+const PolygonPendingWithdrawItem = ({ posClient, plasmaClient, pendingTransaction }: Props) => {
   const setPolygonState = useSetRecoilState(polygonState);
+  const polygonClient = pendingTransaction.token.isToken ? posClient : plasmaClient;
 
   const check = useCallback(async () => {
+    setProofApi("https://apis.matic.network/");
+
     const checkpointed = await polygonClient.isCheckPointed(pendingTransaction.hash);
 
     const updatedTransaction = { ...pendingTransaction, checkpointed };
@@ -23,33 +33,25 @@ const PolygonPendingWithdrawItem = ({ polygonClient, pendingTransaction }: Props
         trans.hash === pendingTransaction.hash ? updatedTransaction : trans
       ),
     }));
-  }, [polygonClient]);
+  }, [posClient, plasmaClient, setPolygonState]);
 
   useEffect(() => {
     check();
   }, []);
 
-  const finishWithdraw = useCallback(async () => {
-    setProofApi("https://apis.matic.network/");
-
-    const parentErc20 = polygonClient.erc20(pendingTransaction.token.ethereumAddress, true);
-
-    try {
-      const withdrawEnd = await parentErc20.withdrawExitFaster(pendingTransaction.hash);
-      const withdrawExitTransaction = await withdrawEnd.getTransactionHash();
-
-      console.log("Withdraw ended", withdrawExitTransaction);
-
-      Alert.alert("Withdraw finished successfully!");
-
+  const deletePendingTransaction = useCallback(
+    (pendingTransaction: PendingTransaction) => {
       setPolygonState((current) => ({
         ...current,
         withdrawTransactions: current.withdrawTransactions.filter((trans) => trans.hash !== pendingTransaction.hash),
       }));
-    } catch (err) {
-      console.error(err);
-    }
-  }, [pendingTransaction, polygonClient]);
+    },
+    [setPolygonState]
+  );
+
+  const contract = pendingTransaction.token.isToken
+    ? posClient.erc20(pendingTransaction.token.ethereumAddress, true)
+    : plasmaClient.erc20(pendingTransaction.token.ethereumAddress, true);
 
   return (
     <View style={styles.container}>
@@ -59,13 +61,19 @@ const PolygonPendingWithdrawItem = ({ polygonClient, pendingTransaction }: Props
           " " +
           pendingTransaction.token.symbol}
       </Text>
-      <TouchableOpacity
-        disabled={!pendingTransaction.checkpointed}
-        style={pendingTransaction.checkpointed ? styles.actionButton : styles.actionButtonDisabled}
-        onPress={finishWithdraw}
-      >
-        <Text style={styles.actionButtonText}>Withdraw</Text>
-      </TouchableOpacity>
+      {pendingTransaction.token.isToken ? (
+        <PolygonPendingPosItemView
+          contract={contract as ERC20}
+          pendingTransaction={pendingTransaction}
+          deletePendingTransaction={deletePendingTransaction}
+        />
+      ) : (
+        <PolygonPendingPlasmaItemView
+          contract={contract as ERC20P}
+          pendingTransaction={pendingTransaction}
+          deletePendingTransaction={deletePendingTransaction}
+        />
+      )}
     </View>
   );
 };

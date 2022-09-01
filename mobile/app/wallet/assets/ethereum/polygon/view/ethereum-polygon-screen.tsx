@@ -14,8 +14,8 @@ import PolygonPendingWithdrawList from "./tokens/wallet/bridge/withdraw/polygon-
 type Props = NativeStackScreenProps<NavigationRoutes, "EthereumPolygonScreen">;
 
 const EthereumPolygonScreen = ({ route, navigation }: Props) => {
-  const [posClient, setPosClient] = useState<POSClient>(new POSClient());
-  const [plasmaClient, setPlasmaClient] = useState<PlasmaClient>(new PlasmaClient());
+  const [posClient, setPosClient] = useState<POSClient>();
+  const [plasmaClient, setPlasmaClient] = useState<PlasmaClient>();
   const { signer, address } = route.params;
 
   const createPolygonAccount = useCallback(async () => {
@@ -24,6 +24,9 @@ const EthereumPolygonScreen = ({ route, navigation }: Props) => {
     const alchemy = new ethers.providers.AlchemyProvider("maticmum", "ahl42ynne2Kd8FosnoYBtCW3ssoCtIu0");
 
     const childSigner = new MPCSigner(signer.getAddressObj(), signer.getUser()).connect(alchemy);
+
+    const poClient = new POSClient();
+    const plClient = new PlasmaClient();
 
     const clientConfig = {
       log: true,
@@ -43,13 +46,14 @@ const EthereumPolygonScreen = ({ route, navigation }: Props) => {
       },
     };
 
-    await posClient.init(clientConfig);
-    await plasmaClient.init(clientConfig);
+    await poClient.init(clientConfig);
+    await plClient.init(clientConfig);
     // TODO: For Production host this ourselves because of performance
     setProofApi("https://apis.matic.network/");
 
-    // setposClient(client);
-  }, [signer]);
+    setPosClient(poClient);
+    setPlasmaClient(plClient);
+  }, [signer, setPlasmaClient, setPosClient, address]);
 
   const setupPolygon = useCallback(async () => {
     use(Web3ClientPlugin);
@@ -61,7 +65,7 @@ const EthereumPolygonScreen = ({ route, navigation }: Props) => {
     setupPolygon();
   }, []);
 
-  if (!posClient) {
+  if (!posClient || !plasmaClient) {
     return <Text>Client loading...</Text>;
   }
 
@@ -78,7 +82,7 @@ const EthereumPolygonScreen = ({ route, navigation }: Props) => {
         plasmaClient={plasmaClient}
         posClient={posClient}
       />
-      <PolygonPendingWithdrawList polygonClient={posClient} address={address} />
+      <PolygonPendingWithdrawList posClient={posClient} plasmaClient={plasmaClient} address={address} />
       <PolygonCheckTransaction polygonClient={posClient} />
     </ScrollView>
   );
