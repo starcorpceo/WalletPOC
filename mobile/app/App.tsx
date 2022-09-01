@@ -33,6 +33,7 @@ import EthereumSendScreen from "ethereum/view/wallet/send/ethereum-send-screen";
 import { EthereumSingleTransactionScreen } from "ethereum/view/wallet/transaction/ethereum-single-transaction-screen";
 import Header from "./shared/header";
 import Home from "./views/home";
+import RampOn from "./views/ramp-on";
 
 const App = () => {
   const isDarkMode = useColorScheme() === "dark";
@@ -115,6 +116,7 @@ const App = () => {
                 component={BitcoinSingleTransactionScreen}
                 options={{ title: "Transaction Details" }}
               />
+              <Stack.Screen name="RampOn" component={RampOn} options={{ title: "Ramp it or swamp it" }} />
             </Stack.Navigator>
           </View>
         </RecoilRoot>
