@@ -1,5 +1,6 @@
 import { POSClient, setProofApi, use } from "@maticnetwork/maticjs";
 import Web3ClientPlugin from "@maticnetwork/maticjs-ethers";
+import { PlasmaClient } from "@maticnetwork/maticjs-plasma";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { MPCSigner } from "ethereum/controller/zksync/signer";
 import { ethers } from "ethers";
@@ -13,18 +14,18 @@ import PolygonPendingWithdrawList from "./tokens/wallet/bridge/withdraw/polygon-
 type Props = NativeStackScreenProps<NavigationRoutes, "EthereumPolygonScreen">;
 
 const EthereumPolygonScreen = ({ route, navigation }: Props) => {
-  const [polygonClient, setPolygonClient] = useState<POSClient>();
+  const [posClient, setPosClient] = useState<POSClient>(new POSClient());
+  const [plasmaClient, setPlasmaClient] = useState<PlasmaClient>(new PlasmaClient());
   const { signer, address } = route.params;
 
   const createPolygonAccount = useCallback(async () => {
     if (!signer) throw new Error("Signer is undefined, cannot access Polygon Client View without Signer");
-    const client = new POSClient();
 
     const alchemy = new ethers.providers.AlchemyProvider("maticmum", "ahl42ynne2Kd8FosnoYBtCW3ssoCtIu0");
 
     const childSigner = new MPCSigner(signer.getAddressObj(), signer.getUser()).connect(alchemy);
 
-    await client.init({
+    const clientConfig = {
       log: true,
       network: "testnet",
       version: "mumbai",
@@ -40,12 +41,15 @@ const EthereumPolygonScreen = ({ route, navigation }: Props) => {
           from: address,
         },
       },
-    });
+    };
+
+    await posClient.init(clientConfig);
+    await plasmaClient.init(clientConfig);
     // TODO: For Production host this ourselves because of performance
     setProofApi("https://apis.matic.network/");
 
-    setPolygonClient(client);
-  }, [setPolygonClient, signer]);
+    // setposClient(client);
+  }, [signer]);
 
   const setupPolygon = useCallback(async () => {
     use(Web3ClientPlugin);
@@ -57,7 +61,7 @@ const EthereumPolygonScreen = ({ route, navigation }: Props) => {
     setupPolygon();
   }, []);
 
-  if (!polygonClient) {
+  if (!posClient) {
     return <Text>Client loading...</Text>;
   }
 
@@ -68,9 +72,14 @@ const EthereumPolygonScreen = ({ route, navigation }: Props) => {
         maxHeight: "80%",
       }}
     >
-      <PolygonTokenWalletListView address={address} navigation={navigation} polygonClient={polygonClient} />
-      <PolygonPendingWithdrawList polygonClient={polygonClient} address={address} />
-      <PolygonCheckTransaction polygonClient={polygonClient} />
+      <PolygonTokenWalletListView
+        address={address}
+        navigation={navigation}
+        plasmaClient={plasmaClient}
+        posClient={posClient}
+      />
+      <PolygonPendingWithdrawList polygonClient={posClient} address={address} />
+      <PolygonCheckTransaction polygonClient={posClient} />
     </ScrollView>
   );
 };

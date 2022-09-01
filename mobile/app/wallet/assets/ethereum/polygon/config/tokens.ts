@@ -1,7 +1,7 @@
 import { config } from "ethereum/config/ethereum-config";
 import { ERC20Token } from "ethereum/config/token-constants";
 
-export interface PolygonERC20Token extends Omit<ERC20Token, "contractAddress" | "isToken"> {
+export interface PolygonERC20Token extends Omit<ERC20Token, "contractAddress"> {
   ethereumAddress: string;
   polygonAddress: string;
 }
@@ -16,6 +16,7 @@ const main: PolygonERC20Token[] = [
     decimals: 18,
     hasPermit: false,
     hasTransferWithAuthorization: false,
+    isToken: true,
   },
   {
     name: "USDC",
@@ -25,6 +26,7 @@ const main: PolygonERC20Token[] = [
     decimals: 18,
     hasPermit: true,
     hasTransferWithAuthorization: true,
+    isToken: true,
   },
   {
     name: "Matic Token",
@@ -34,6 +36,7 @@ const main: PolygonERC20Token[] = [
     decimals: 18,
     hasPermit: false,
     hasTransferWithAuthorization: false,
+    isToken: false,
   },
 ];
 
@@ -46,6 +49,7 @@ const test: PolygonERC20Token[] = [
     decimals: 18,
     hasPermit: false,
     hasTransferWithAuthorization: false,
+    isToken: true,
   },
   {
     name: "Test ERC20",
@@ -55,6 +59,7 @@ const test: PolygonERC20Token[] = [
     decimals: 18,
     hasPermit: false,
     hasTransferWithAuthorization: false,
+    isToken: true,
   },
   {
     name: "Matic Token",
@@ -64,6 +69,7 @@ const test: PolygonERC20Token[] = [
     decimals: 18,
     hasPermit: false,
     hasTransferWithAuthorization: false,
+    isToken: false,
   },
   {
     name: "USDC",
@@ -73,6 +79,7 @@ const test: PolygonERC20Token[] = [
     decimals: 6,
     hasPermit: true,
     hasTransferWithAuthorization: true,
+    isToken: true,
   },
 ];
 
@@ -84,6 +91,7 @@ export const ethereum: PolygonERC20Token = {
   decimals: 18,
   hasPermit: false,
   hasTransferWithAuthorization: false,
+  isToken: false,
 };
 
 export const erc20Tokens = config.IsTestNet ? test : main;
