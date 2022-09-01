@@ -6,7 +6,6 @@ import { ERC20Token } from "ethereum/config/token-constants";
 import { MPCSigner } from "ethereum/controller/zksync/signer";
 import { BigNumber, ethers } from "ethers";
 import JSBI from "jsbi";
-import "shim";
 
 //Router contract address from uniswap v3
 const V3_SWAP_ROUTER_ADDRESS = "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45";

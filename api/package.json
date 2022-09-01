@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc -p tsconfig.json && tsc-alias",
     "start": "node ./build/server.js",
-    "dev": "concurrently \"tsc -w\" \"tsc-alias -w\" \"nodemon build/server.js | pino-pretty\"",
+    "dev": "concurrently \"tsc -w\" \"tsc-alias -w\" \"nodemon --max-old-space-size=3072 build/server.js | pino-pretty\"",
     "db:reset": "prisma db push --force-reset"
   },
   "keywords": [],

@@ -18,7 +18,6 @@ import {
 import React, { useEffect, useRef, useState } from "react";
 import { ActivityIndicator, Alert, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useRecoilValue } from "recoil";
-import "shim";
 import { authState, AuthState } from "state/atoms";
 import { Address } from "wallet/types/wallet";
 

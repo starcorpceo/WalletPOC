@@ -35,5 +35,5 @@ type NavigationRoutes = {
 
   PolygonTokenWalletScreen: { address: string; token: PolygonERC20Token; polygonClient: POSClient };
   PolygonTokenSendScreen: { childErc20: ERC20; token: PolygonERC20Token };
-  PolygonDepositScreen: { address: string; polygonClient: POSClient };
+  PolygonBridgeScreen: { address: string; polygonClient: POSClient };
 };

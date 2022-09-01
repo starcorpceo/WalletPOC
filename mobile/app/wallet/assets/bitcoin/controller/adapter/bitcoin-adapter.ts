@@ -1,5 +1,4 @@
 import { config } from "bitcoin/config/bitcoin-config";
-import "shim";
 
 import * as bitcoin from "der-bitcoinjs-lib";
 

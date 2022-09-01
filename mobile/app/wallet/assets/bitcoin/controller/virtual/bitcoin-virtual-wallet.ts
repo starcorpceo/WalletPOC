@@ -3,7 +3,6 @@ import { publicKeyToBitcoinAddressP2PKH } from "bitcoin/controller/adapter/bitco
 import { fetchFromApi, fetchFromTatum, HttpMethod } from "lib/http";
 import { getPublicKey } from "react-native-blockchain-crypto-mpc";
 import { MPCEcdsaKeyShare } from "shared/types/mpc";
-import "shim";
 import {
   CreateAccount,
   VirtualAccount,

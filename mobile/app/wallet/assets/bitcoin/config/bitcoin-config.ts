@@ -1,5 +1,4 @@
 import * as bitcoin from "der-bitcoinjs-lib";
-import "shim";
 
 const Network: "TEST" | "MAIN" = "TEST";
 

@@ -7,6 +7,7 @@
  *
  * @format
  */
+import "shim";
 
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -20,7 +21,7 @@ import { RecoilRoot } from "recoil";
 import { NavigationRoutes } from "shared/types/navigation";
 
 import EthereumPolygonScreen from "ethereum/polygon/view/ethereum-polygon-screen";
-import PolygonDepositScreen from "ethereum/polygon/view/tokens/wallet/deposit/polygon-deposit-screen";
+import PolygonBridgeScreen from "ethereum/polygon/view/tokens/wallet/bridge/polygon-bridge-screen";
 import PolygonTokenWalletScreen from "ethereum/polygon/view/tokens/wallet/polygon-token-wallet-screen";
 import PolygonTokenSendScreen from "ethereum/polygon/view/tokens/wallet/send/polygon-token-send-screen";
 import EthereumScreen from "ethereum/view/ethereum-screen";
@@ -76,8 +77,8 @@ const App = () => {
                 options={{ title: "Send Token on Polygon" }}
               />
               <Stack.Screen
-                name="PolygonDepositScreen"
-                component={PolygonDepositScreen}
+                name="PolygonBridgeScreen"
+                component={PolygonBridgeScreen}
                 options={{ title: "Deposit Tokens to Polygon" }}
               />
               <Stack.Screen

@@ -14,7 +14,6 @@ import React, { useCallback, useEffect, useState } from "react";
 import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useRecoilValue } from "recoil";
 import { NavigationRoutes } from "shared/types/navigation";
-import "shim";
 import { authState, AuthState } from "state/atoms";
 import { Address } from "wallet/types/wallet";
 

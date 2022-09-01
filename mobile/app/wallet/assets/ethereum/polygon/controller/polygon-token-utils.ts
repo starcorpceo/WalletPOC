@@ -19,7 +19,9 @@ export const depositToken = async (
 
   const parentErc20 = polygonClient.erc20(tokenAddress, true);
 
-  await parentErc20.approve(amount);
+  const approve = await parentErc20.approve(amount);
+
+  const approveTransaction = await approve.getTransactionHash();
 
   Alert.alert("Confirm your Deposit", "You are depositing " + amount + " of the minimal unit of the chosen currency", [
     {

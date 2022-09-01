@@ -3,7 +3,6 @@ import * as bitcoin from "der-bitcoinjs-lib";
 import * as LocalAuthentication from "expo-local-authentication";
 import { signEcdsa } from "lib/mpc";
 import { getDerSignature } from "react-native-blockchain-crypto-mpc";
-import "shim";
 import { Address } from "wallet/types/wallet";
 
 export const prepareSingleSigner = (user: User, address: Address): bitcoin.SignerAsync => {
