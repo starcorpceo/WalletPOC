@@ -8,16 +8,9 @@ export const authenticate = async (req: FastifyRequest, res: FastifyReply) => {
   const { devicesignature, devicepublickey, userid } = req.headers;
 
   const signedNonce = req.cookies["authnonce"];
-  const nonce = req.unsignCookie(signedNonce).value;
+  const nonce = req.unsignCookie(signedNonce || "").value;
 
-  if (
-    !isMpcRequestValid(
-      devicesignature as string,
-      devicepublickey as string,
-      userid as string,
-      nonce
-    )
-  ) {
+  if (!isMpcRequestValid(devicesignature as string, devicepublickey as string, userid as string, nonce)) {
     throw new Error("Invalid Request to Mpc Endpoint");
   }
 
@@ -26,9 +19,7 @@ export const authenticate = async (req: FastifyRequest, res: FastifyReply) => {
     devicePublicKey: devicepublickey as string,
   });
 
-  const verifier = crypto
-    .createVerify("SHA256")
-    .update(nonce as string, "utf-8");
+  const verifier = crypto.createVerify("SHA256").update(nonce as string, "utf-8");
 
   const result = verifier.verify(
     {
@@ -45,12 +36,7 @@ export const authenticate = async (req: FastifyRequest, res: FastifyReply) => {
   req["user"] = user;
 };
 
-const isMpcRequestValid = (
-  deviceSignature: string,
-  devicePublicKey: string,
-  userid: string,
-  nonce: string | null
-) => {
+const isMpcRequestValid = (deviceSignature: string, devicePublicKey: string, userid: string, nonce: string | null) => {
   return (
     isNonceValid(nonce) &&
     isDeviceSignatureValid(deviceSignature) &&
@@ -59,10 +45,8 @@ const isMpcRequestValid = (
   );
 };
 
-const isDeviceSignatureValid = (deviceSignature: string | null) =>
-  deviceSignature && deviceSignature.length === 96;
+const isDeviceSignatureValid = (deviceSignature: string | null) => deviceSignature && deviceSignature.length === 96;
 
-const isDevicePublicKeyValid = (devicePublicKey: string | null) =>
-  devicePublicKey && devicePublicKey.length === 124;
+const isDevicePublicKeyValid = (devicePublicKey: string | null) => devicePublicKey && devicePublicKey.length === 124;
 
 const isUserIdValid = (userId: string | null) => userId && userId.length === 36;
