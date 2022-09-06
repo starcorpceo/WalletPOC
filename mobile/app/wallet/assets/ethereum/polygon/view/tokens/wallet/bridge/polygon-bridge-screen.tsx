@@ -10,7 +10,7 @@ import PolygonWithdrawView from "./withdraw/polygon-withdraw-view";
 type Props = NativeStackScreenProps<NavigationRoutes, "PolygonBridgeScreen">;
 
 const PolygonBridgeScreen = ({ route }: Props) => {
-  const { address, polygonClient } = route.params;
+  const { address, posClient, plasmaClient } = route.params;
 
   const [switchValue, setSwitchValue] = useState<string>("deposit");
   return (
@@ -32,8 +32,10 @@ const PolygonBridgeScreen = ({ route }: Props) => {
       </View>
 
       <View>
-        {switchValue == "deposit" && <PolygonDepositView address={address} polygonClient={polygonClient} />}
-        {switchValue == "withdraw" && <PolygonWithdrawView address={address} polygonClient={polygonClient} />}
+        {switchValue == "deposit" && <PolygonDepositView address={address} polygonClient={posClient} />}
+        {switchValue == "withdraw" && (
+          <PolygonWithdrawView address={address} posClient={posClient} plasmaClient={plasmaClient} />
+        )}
       </View>
     </View>
   );

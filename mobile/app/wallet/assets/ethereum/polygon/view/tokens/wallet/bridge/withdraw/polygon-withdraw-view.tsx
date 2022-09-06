@@ -1,4 +1,5 @@
 import { POSClient } from "@maticnetwork/maticjs";
+import { PlasmaClient } from "@maticnetwork/maticjs-plasma";
 import { Picker } from "@react-native-picker/picker";
 import { erc20Tokens, PolygonERC20Token } from "ethereum/polygon/config/tokens";
 import { polygonState } from "ethereum/polygon/state/polygon-atoms";
@@ -9,10 +10,11 @@ import { styles } from "../polygon-bridge-style";
 
 type Props = {
   address: string;
-  polygonClient: POSClient;
+  posClient: POSClient;
+  plasmaClient: PlasmaClient;
 };
 
-const PolygonWithdrawView = ({ address, polygonClient }: Props) => {
+const PolygonWithdrawView = ({ address, posClient, plasmaClient }: Props) => {
   const [polygonWithdrawState, setPolygonWithdrawState] = useRecoilState(polygonState);
   const [selectedInputTokenIndex, setSelectedInputTokenIndex] = useState<number>(0);
   const [inputValue, setInputValue] = useState<string>("0");
@@ -36,7 +38,7 @@ const PolygonWithdrawView = ({ address, polygonClient }: Props) => {
   const updateBalance = async (token: PolygonERC20Token) => {
     setLoadingBalance(true);
 
-    const childErc20 = polygonClient.erc20(token.polygonAddress, false);
+    const childErc20 = posClient.erc20(token.polygonAddress, false);
 
     const balance = await childErc20.getBalance(address);
 
@@ -46,7 +48,10 @@ const PolygonWithdrawView = ({ address, polygonClient }: Props) => {
 
   const withdraw = useCallback(async () => {
     const token = erc20Tokens[selectedInputTokenIndex];
-    const childErc20 = polygonClient.erc20(token.polygonAddress, false);
+
+    const client = token.isToken ? posClient : plasmaClient;
+
+    const childErc20 = client.erc20(token.polygonAddress, false);
 
     const withdraw = await childErc20.withdrawStart(inputValue);
     const withdrawStartTransaction = await withdraw.getTransactionHash();
@@ -60,7 +65,7 @@ const PolygonWithdrawView = ({ address, polygonClient }: Props) => {
     }));
 
     Alert.alert("Withdraw is now pending");
-  }, [polygonClient, inputValue, address, selectedInputTokenIndex]);
+  }, [posClient, plasmaClient, inputValue, address, selectedInputTokenIndex]);
 
   return (
     <View style={styles.container}>

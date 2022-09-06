@@ -1,6 +1,6 @@
 import { POSClient } from "@maticnetwork/maticjs";
-import { checkDepositStatus } from "ethereum/polygon/controller/polygon-checkpoint-utils";
-import { initialPolygonState, PendingTransaction, polygonState } from "ethereum/polygon/state/polygon-atoms";
+import { PlasmaClient } from "@maticnetwork/maticjs-plasma";
+import { initialPolygonState, polygonState } from "ethereum/polygon/state/polygon-atoms";
 import { styles } from "ethereum/polygon/view/ethereum-polygon-styles";
 import React, { useEffect } from "react";
 import { Button, Text, View } from "react-native";
@@ -8,27 +8,27 @@ import { useRecoilState } from "recoil";
 import PolygonPendingWithdrawItem from "./polygon-pending-withdraw-item-view";
 
 type Props = {
-  polygonClient: POSClient;
+  posClient: POSClient;
+  plasmaClient: PlasmaClient;
   address: string;
 };
 
-const PolygonPendingWithdrawList = ({ polygonClient, address }: Props) => {
+const PolygonPendingWithdrawList = ({ plasmaClient, posClient, address }: Props) => {
   const [{ withdrawTransactions }, setWithdrawTransactions] = useRecoilState(polygonState);
 
   useEffect(() => {
-    let observeWithdraws = checkDepositStatus(address, withdrawTransactions);
-
-    observeWithdraws.subscribe({
-      next: (withdraw: PendingTransaction) => {
-        setWithdrawTransactions((current) => ({
-          ...current,
-          withdrawTransactions: withdrawTransactions.map((trans) => (trans.hash === withdraw.hash ? withdraw : trans)),
-        }));
-      },
-      error: (error: any) => {
-        console.warn(error, "Error while observing pending withdraws");
-      },
-    });
+    // let observeWithdraws = checkDepositStatus(address, withdrawTransactions);
+    // observeWithdraws.subscribe({
+    //   next: (withdraw: PendingTransaction) => {
+    //     setWithdrawTransactions((current) => ({
+    //       ...current,
+    //       withdrawTransactions: withdrawTransactions.map((trans) => (trans.hash === withdraw.hash ? withdraw : trans)),
+    //     }));
+    //   },
+    //   error: (error: any) => {
+    //     console.warn(error, "Error while observing pending withdraws");
+    //   },
+    // });
   }, [withdrawTransactions]);
 
   if (!withdrawTransactions || withdrawTransactions.length === 0) return <></>;
@@ -42,7 +42,12 @@ const PolygonPendingWithdrawList = ({ polygonClient, address }: Props) => {
       </View>
       <View style={{ marginTop: 10 }}>
         {withdrawTransactions.map((transaction, index) => (
-          <PolygonPendingWithdrawItem key={index} pendingTransaction={transaction} polygonClient={polygonClient} />
+          <PolygonPendingWithdrawItem
+            key={index}
+            pendingTransaction={transaction}
+            plasmaClient={plasmaClient}
+            posClient={posClient}
+          />
         ))}
       </View>
     </View>
