@@ -1,8 +1,5 @@
 import fastifyCookie from "@fastify/cookie";
-import underPressure, {
-  TYPE_HEAP_USED_BYTES,
-  TYPE_RSS_BYTES,
-} from "@fastify/under-pressure";
+import underPressure, { TYPE_HEAP_USED_BYTES, TYPE_RSS_BYTES } from "@fastify/under-pressure";
 import websocketPlugin from "@fastify/websocket";
 import config from "@lib/config";
 import { PrismaClient } from "@prisma/client";
@@ -48,7 +45,7 @@ server.all("*", (request, reply) => {
 
 server.listen({ port: 8080 }, (err, address) => {
   if (err) {
-    logger.error({ err }, "Error while trying to listen on port 8080");
+    logger.error({ err, address }, "Error while trying to listen on port 8080");
     process.exit(1);
   }
 });

@@ -11,10 +11,7 @@ import { ResultAsync } from 'neverthrow';
 const testMcp = route<string>((_req: FastifyRequest) => {
   testCrypto();
 
-  return ResultAsync.fromPromise(
-    new Promise((resolve) => resolve('success')),
-    (err) => other('waa', err as Error)
-  );
+  return ResultAsync.fromPromise(new Promise((resolve) => resolve('success')), (err) => other('waa', err as Error));
 });
 
 function derive(s1: any, s2: any, harden: any, index: any) {
@@ -56,7 +53,6 @@ const testCrypto = () => {
   logger.info('public key hey', publicKey.toString('hex'));
 
   const key = ec.keyFromPublic(publicKey.slice(23));
-  logger.info(key);
 
   logger.info('Sign');
   const data = Buffer.from('Hello world');
