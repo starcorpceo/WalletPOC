@@ -51,7 +51,8 @@
     "stream-browserify": "^1.0.0",
     "vm-browserify": "^0.0.4",
     "web3-eth-abi": "^1.7.5",
-    "zksync": "^0.13.1"
+    "zksync": "^0.13.1",
+    "react-native-webview": "11.18.1"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",

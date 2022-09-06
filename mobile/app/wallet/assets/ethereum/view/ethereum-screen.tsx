@@ -93,6 +93,18 @@ const EthereumScreen = ({ navigation, route }: Props) => {
                 <Text style={styles.polygonButtonText}>Manage Ethereum with Polygon</Text>
               </TouchableOpacity>
 
+              <TouchableOpacity
+                style={styles.rampOnButton}
+                onPress={() =>
+                  navigation.navigate("RampOn", {
+                    userAddress: wallet.external.addresses[0].address,
+                    token: "ETH_ETH",
+                  })
+                }
+              >
+                <Text style={styles.polygonButtonText}>Ramp it on son</Text>
+              </TouchableOpacity>
+
               <EthereumWalletView
                 key={"EthereumWallet-" + index}
                 wallet={wallet}
@@ -146,6 +158,16 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 42,
     backgroundColor: "#1a1e3c",
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+    color: "white",
+    margin: 20,
+  },
+  rampOnButton: {
+    flex: 1,
+    height: 42,
+    backgroundColor: "#21bf73",
     borderRadius: 8,
     alignItems: "center",
     justifyContent: "center",

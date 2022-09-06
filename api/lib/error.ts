@@ -1,5 +1,4 @@
 import { ResultAsync } from "neverthrow";
-import logger from "./logger";
 
 interface HttpError {
   statusCode: number;
@@ -53,8 +52,6 @@ export const mapRouteError = (err: RouteError): HttpError => {
     }
 
     case "Other": {
-      logger.error({ err }, "Other Error occured");
-
       return {
         statusCode: 500,
         errorMsg: "An Internal Error Occurred :(",
@@ -105,7 +102,6 @@ export const badRequest = (context: string): RouteError => ({
   context,
 });
 
-export const invalidAuthRequest = ResultAsync.fromPromise(
-  Promise.reject(),
-  (_) => badRequest("Invalid Request on Private Endpoint")
+export const invalidAuthRequest = ResultAsync.fromPromise(Promise.reject(), (_) =>
+  badRequest("Invalid Request on Private Endpoint")
 );
