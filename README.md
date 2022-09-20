@@ -8,15 +8,18 @@
  </a> -->
  
  
- <h2 align="center">Multi Party Wallet - Proof of Concept</h3>
+ <h1 align="center">Multi Party Wallet - Proof of Concept</h3>
  
  <p align="center">
    A mobile banking app, without the bank.
+    <br />
+
 Open Source Crypto-Wallet with focus on Stable Coins, Ethereum Layer 2, efficient Ramp on/off and self custody. Fully banking compatible.
-   <br />
-   <a href="https://github.com/lauhon/WalletPOC/issues">Report Bug</a>
-   ·
-   <a href="https://github.com/lauhon/WalletPOC/issues">Request Feature</a>
+<br />
+<a href="https://github.com/lauhon/WalletPOC/issues">Report Bug</a>
+·
+<a href="https://github.com/lauhon/WalletPOC/discussions">Request Feature</a>
+
  </p>
 </div>
  
@@ -25,27 +28,27 @@ Open Source Crypto-Wallet with focus on Stable Coins, Ethereum Layer 2, efficien
  <summary>Table of Contents</summary>
  <ol>
   <li>
-     <a href="#description">Description</a>
+     <a href="#-description">Description</a>
    </li>
    <li>
-     <a href="#unique-features">Unique Features</a>
+     <a href="#-unique-features">Unique Features</a>
    </li>
    <li>
-     <a href="#goals-of-this-prototype">Goals of this Prototype</a>
+     <a href="#-goals-of-this-prototype">Goals of this Prototype</a>
    </li>
    <li>
-     <a href="#goals for the future">Goals for the Future</a>
+     <a href="#%EF%B8%8F-goals-for-the-future">Goals for the Future</a>
    </li>
-   <li><a href="#building-blocks">Building Blocks</a>
+   <li><a href="#-building-blocks">Building Blocks</a>
        <ul>
-           <li><a href="#mobile-app">Mobile App</a></li>
-           <li><a href="#api">Api</a></li>
-           <li><a href="#database">Database</a></li>
-           <li><a href="#packages-1">Packages</a></li>
+           <li><a href="#-mobile-app">Mobile App</a></li>
+           <li><a href="#-api">Api</a></li>
+           <li><a href="#-database">Database</a></li>
+           <li><a href="#-packages-1">Packages</a></li>
        </ul>
    </li>
-   <li><a href="#license">License</a></li>
-   <li><a href="#contact">Contact</a></li>
+   <li><a href="#-license">License</a></li>
+   <li><a href="#-contact">Contact</a></li>
  
  </ol>
 </details>
@@ -56,7 +59,7 @@ This repository acts as a Proof of Concept for the application that is the final
 The Goals of the whole project, which are explained down below, are ambitious. To make sure our goals are within reach of the team and to make sure
 the existing ecosystem and technologies are matured enough, this Proof of Concept was built to implement each use-case in a minimal way.
  
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<p align="right">(<a href="#readme-top">🔝<span class="sr-only">back to top</span></a>)</p>
  
 ## 🚀 Unique Features
  
@@ -70,7 +73,7 @@ Debitcards are in the planning.
 ### No Know-How required
 You don’t know anything about blockchains? That's not necessary. We abstract all the complicated stuff away.
  
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<p align="right">(<a href="#readme-top">🔝<span class="sr-only">back to top</span></a>)</p>
  
 ## ✅ Goals of this Prototype
  
@@ -82,7 +85,7 @@ You don’t know anything about blockchains? That's not necessary. We abstract a
 6. Full interoperability between the blockchain and traditional banking part - but without having to own FIAT (utilizing [Circle](https://www.circle.com/en/))
 7. Absolute transparency through building in public (open source github repository)
  
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<p align="right">(<a href="#readme-top">🔝<span class="sr-only">back to top</span></a>)</p>
  
 ## ⚒️ Goals for the Future
  
@@ -91,7 +94,7 @@ You don’t know anything about blockchains? That's not necessary. We abstract a
 3. Fully Leverage Paymaster to enable free transactions
 4. Fully interop between FIAT and Crypto by providing a Debit Card
  
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<p align="right">(<a href="#readme-top">🔝<span class="sr-only">back to top</span></a>)</p>
  
 ## 🧱 Building Blocks
  
@@ -104,7 +107,7 @@ This Project is built as a Monorepo. The main parts of this Application each hav
 - [Services](https://github.com/lauhon/WalletPOC/tree/master/services)
  
  
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<p align="right">(<a href="#readme-top">🔝<span class="sr-only">back to top</span></a>)</p>
  
  
 ## 📄 License
@@ -112,7 +115,7 @@ This Project is built as a Monorepo. The main parts of this Application each hav
 This project is open source and it is granted to use it as reference to learn or build related products.
 At this point there is no defined License in play, this still needs to be defined.
  
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<p align="right">(<a href="#readme-top">🔝<span class="sr-only">back to top</span></a>)</p>
  
 ## 👋🏽 Contact
  
@@ -120,4 +123,4 @@ Please feel free to [open Issues](https://github.com/lauhon/WalletPOC/issues) if
  
 Any input or additions to our community are highly appreciated!
  
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<p align="right">(<a href="#readme-top">🔝<span class="sr-only">back to top</span></a>)</p>
