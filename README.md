@@ -1,73 +1,123 @@
-# Multi Party Wallet Proof of Concept
+<a name="readme-top"></a>
 
-## Description
-
-This project contains a POC for a mobile Wallet application.
-It has 3 main goals:
-
-1. High Security by relying on Multi Party Computation (Based on [Unbounds C++ MPC Library](https://github.com/unboundsecurity/blockchain-crypto-mpc))
-2. Making Cryptocurrencies practical by focussing on Real World Applications of Currencies (payments). During the making of this Project, we will try to find means to keep transaction costs as low as possible and ideally lower than VISA/MasterCard Fees
-3. Bringing some useful features from the traditional Banking world into Crypto - Transaction Size/Rate Limits, UX Features like AddressBook, Increased Security by MPC and Key Rotation
-4. NOT to Bullshit users By designing a Wallet that keeps Fees as low as possible by any means while still keeping this Business alive. By being transparent in what exactly we do. By educating users about what this Project is about.
-
-## Building Blocks
-
+<!-- PROJECT LOGO -->
+<br />
+<div align="center">
+ <!-- <a href="Link to homegage or repo">
+   <img src="images/logo.png" alt="Logo" width="80" height="80">
+ </a> -->
+ 
+ 
+ <h2 align="center">Multi Party Wallet - Proof of Concept</h3>
+ 
+ <p align="center">
+   A mobile banking app, without the bank.
+Open Source Crypto-Wallet with focus on Stable Coins, Ethereum Layer 2, efficient Ramp on/off and self custody. Fully banking compatible.
+   <br />
+   <a href="https://github.com/lauhon/WalletPOC/issues">Report Bug</a>
+   ·
+   <a href="https://github.com/lauhon/WalletPOC/issues">Request Feature</a>
+ </p>
+</div>
+ 
+<!-- TABLE OF CONTENTS -->
+<details>
+ <summary>Table of Contents</summary>
+ <ol>
+  <li>
+     <a href="#description">Description</a>
+   </li>
+   <li>
+     <a href="#unique-features">Unique Features</a>
+   </li>
+   <li>
+     <a href="#goals-of-this-prototype">Goals of this Prototype</a>
+   </li>
+   <li>
+     <a href="#goals for the future">Goals for the Future</a>
+   </li>
+   <li><a href="#building-blocks">Building Blocks</a>
+       <ul>
+           <li><a href="#mobile-app">Mobile App</a></li>
+           <li><a href="#api">Api</a></li>
+           <li><a href="#database">Database</a></li>
+           <li><a href="#packages-1">Packages</a></li>
+       </ul>
+   </li>
+   <li><a href="#license">License</a></li>
+   <li><a href="#contact">Contact</a></li>
+ 
+ </ol>
+</details>
+ 
+## 🐐 Description 
+ 
+This repository acts as a Proof of Concept for the application that is the final product of this project.
+The Goals of the whole project, which are explained down below, are ambitious. To make sure our goals are within reach of the team and to make sure
+the existing ecosystem and technologies are matured enough, this Proof of Concept was built to implement each use-case in a minimal way.
+ 
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+ 
+## 🚀 Unique Features
+ 
+### Free transactions
+Send, receive or do whatever you want with your stablecoins, for free. (Additional tokens included)
+ 
+### Fully banking compatible
+Don’t be cut off. Use SEPA and Wiretransfer, without owning Fiat.
+Debitcards are in the planning.
+ 
+### No Know-How required
+You don’t know anything about blockchains? That's not necessary. We abstract all the complicated stuff away.
+ 
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+ 
+## ✅ Goals of this Prototype
+ 
+1. Fully non-custodial wallet
+2. High Security by relying on Multi Party Computation (Based on [Unbounds C++ MPC Library](https://github.com/unboundsecurity/blockchain-crypto-mpc))
+3. Use of known and established handling such as in mobile banking apps
+4. No requirements of new know-how by users
+5. Complete gasless (free) transfers of stablecoins (including various other tokens)
+6. Full interoperability between the blockchain and traditional banking part - but without having to own FIAT (utilizing [Circle](https://www.circle.com/en/))
+7. Absolute transparency through building in public (open source github repository)
+ 
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+ 
+## ⚒️ Goals for the Future
+ 
+1. Audit Security
+2. Streamline USDC/Polygon features via new UI
+3. Fully Leverage Paymaster to enable free transactions
+4. Fully interop between FIAT and Crypto by providing a Debit Card
+ 
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+ 
+## 🧱 Building Blocks
+ 
 This Project is built as a Monorepo. The main parts of this Application each have a separate sub-directory. They could be moved to their own repository at any moment.
-
-### Mobile
-
-This is the Frontend of our Application.
-It enables the user create Keys and Addresses for different Blockchains, send Transactions and so on.
-
-Contains a react-native mobile application with basic ui
-
-Since we rely on Multi Party Signatures, we dont just create Public-/Private-Keypairs, but we perform Signatures always together with a second party.
-Each party holds a Key-_Share_, alone each _Share_ is useless, but both Shares together can perform the same actions as any ecdsa Key. (Signing, Derivation...)
-
-Our Api will act as that second party.
-
-#### Packages
-
-This acts as a Container for Packages that are still in Progress and will be used in the mobile project.
-The reason is to save the trouble of bumping package versions with every change and forcing 'npm i'.
-
-As soon as packages have reached a certain level of maturity they will be published to npm and moved into their own repository or into the global packages folder
-
-### Api
-
-Acts as second party for Cryptographic Multi Parti Actions like key generation, derivation and signature creation.
-
-Is Powered by [Fastify](https://www.fastify.io/) and [Prisma as ORM](https://www.prisma.io/)
-
-To be able to save Keyshares for our Users we need a Database
-
-### Database
-
-Acts as Server Side Storage for our second party.
-
-Contains a simple docker-compose to start up a database during development
-
-### Packages
-
-Contains npm packages which represent major building blocks of the application.
-Since each of those Building Blocks are independent from the rest of the application, we could provide them as generalized npm packages
-
-#### React Native Blockchain Crypto MPC
-
-https://www.npmjs.com/package/react-native-blockchain-crypto-mpc
-
-Acts as a typescript facade for [Unbounds C++ MPC Library](https://github.com/unboundsecurity/blockchain-crypto-mpc) to be used in react-native applications
-
-#### React Native Secure Encryption Module
-
-https://www.npmjs.com/package/react-native-secure-encryption-module
-
-Can be used to create and store ECDSA Keys on ios and android in the most secure manner.
-On each platform all Devices (which are modern and relevant enough) have dedicated hardware to securely store private keys.
-Those Private Keys are designed on a hardware level to not be extractable.
-
-#### React Native Backup Storage Module
-
-TO BE DONE
-
-Will act as backup for the client side Key Shares
+ 
+- [Mobile App](https://github.com/lauhon/WalletPOC/tree/master/mobile)
+- [Api](https://github.com/lauhon/WalletPOC/tree/master/api)
+- [Database](https://github.com/lauhon/WalletPOC/tree/master/database)
+- [Packages](https://github.com/lauhon/WalletPOC/tree/master/packages)
+- [Services](https://github.com/lauhon/WalletPOC/tree/master/services)
+ 
+ 
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+ 
+ 
+## 📄 License
+ 
+This project is open source and it is granted to use it as reference to learn or build related products.
+At this point there is no defined License in play, this still needs to be defined.
+ 
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+ 
+## 👋🏽 Contact
+ 
+Please feel free to [open Issues](https://github.com/lauhon/WalletPOC/issues) if you want to point out bugs or problems or [start a discussion](https://github.com/lauhon/WalletPOC/discussions) to request features or just get in touch with us.
+ 
+Any input or additions to our community are highly appreciated!
+ 
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
