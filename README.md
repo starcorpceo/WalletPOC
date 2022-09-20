@@ -8,7 +8,7 @@
  </a> -->
  
  
- <h1 align="center">Multi Party Wallet - Proof of Concept</h3>
+ <h1 align="center">Multi Party Wallet - Proof of Concept</h1>
  
  <p align="center">
    A mobile banking app, without the bank.
@@ -59,7 +59,7 @@ This repository acts as a Proof of Concept for the application that is the final
 The Goals of the whole project, which are explained down below, are ambitious. To make sure our goals are within reach of the team and to make sure
 the existing ecosystem and technologies are matured enough, this Proof of Concept was built to implement each use-case in a minimal way.
  
-<p align="right"><a href="#readme-top"><h3>🔝</h3></a></p> 
+<p align="right"><a href="#readme-top">🔝</a></p> 
 ## 🚀 Unique Features
  
 ### Free transactions
@@ -72,7 +72,7 @@ Debitcards are in the planning.
 ### No Know-How required
 You don’t know anything about blockchains? That's not necessary. We abstract all the complicated stuff away.
  
-<p align="right"><a href="#readme-top"><h3>🔝</h3></a></p> 
+<p align="right"><a href="#readme-top">🔝</a></p> 
 ## ✅ Goals of this Prototype
  
 1. Fully non-custodial wallet
@@ -83,7 +83,7 @@ You don’t know anything about blockchains? That's not necessary. We abstract a
 6. Full interoperability between the blockchain and traditional banking part - but without having to own FIAT (utilizing [Circle](https://www.circle.com/en/))
 7. Absolute transparency through building in public (open source github repository)
  
-<p align="right"><a href="#readme-top"><h3>🔝</h3></a></p> 
+<p align="right"><a href="#readme-top">🔝</a></p> 
 ## ⚒️ Goals for the Future
  
 1. Audit Security
@@ -91,7 +91,7 @@ You don’t know anything about blockchains? That's not necessary. We abstract a
 3. Fully Leverage Paymaster to enable free transactions
 4. Fully interop between FIAT and Crypto by providing a Debit Card
  
-<p align="right"><a href="#readme-top"><h3>🔝</h3></a></p> 
+<p align="right"><a href="#readme-top">🔝</a></p> 
 ## 🧱 Building Blocks
  
 This Project is built as a Monorepo. The main parts of this Application each have a separate sub-directory. They could be moved to their own repository at any moment.
@@ -103,18 +103,18 @@ This Project is built as a Monorepo. The main parts of this Application each hav
 - [Services](https://github.com/lauhon/WalletPOC/tree/master/services)
  
  
-<p align="right"><a href="#readme-top"><h3>🔝</h3></a></p> 
+<p align="right"><a href="#readme-top">🔝</a></p> 
  
 ## 📄 License
  
 This project is open source and it is granted to use it as reference to learn or build related products.
 At this point there is no defined License in play, this still needs to be defined.
  
-<p align="right"><a href="#readme-top"><h3>🔝</h3></a></p> 
+<p align="right"><a href="#readme-top">🔝</a></p> 
 ## 👋🏽 Contact
  
 Please feel free to [open Issues](https://github.com/lauhon/WalletPOC/issues) if you want to point out bugs or problems or [start a discussion](https://github.com/lauhon/WalletPOC/discussions) to request features or just get in touch with us.
  
 Any input or additions to our community are highly appreciated!
  
-<p align="right"><a href="#readme-top"><h3>🔝</h3></a></p>
+<p align="right"><a href="#readme-top">🔝</a></p>
